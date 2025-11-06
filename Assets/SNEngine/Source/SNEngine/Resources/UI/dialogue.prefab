@@ -226,7 +226,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 09305fa5cdd72094e9ce3340a02dab0a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _speedWriting: 0.03
+  _speedWriting: 0.06
   _textMessage: {fileID: 366910289959813703}
   _textNameCharacter: {fileID: 7525962058931678262}
 --- !u!1 &6341953066513402151
