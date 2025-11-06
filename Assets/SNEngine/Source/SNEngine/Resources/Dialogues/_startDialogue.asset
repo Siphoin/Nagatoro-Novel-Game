@@ -83,7 +83,7 @@ MonoBehaviour:
       _connectionType: 0
       _typeConstraint: 0
       _dynamic: 0
-  _nodeGuid: b6c32ad4af754af
+  _nodeGuid: 941474376a37487
   _enabled: 1
   _enter:
     _fieldName: 
@@ -138,7 +138,7 @@ MonoBehaviour:
       _connectionType: 0
       _typeConstraint: 0
       _dynamic: 0
-  _nodeGuid: 3227f533b6724ba
+  _nodeGuid: a016c6ebb6e4457
   _name: NamePlayer
   _color:
     serializedVersion: 2
@@ -280,7 +280,7 @@ MonoBehaviour:
       _connectionType: 1
       _typeConstraint: 0
       _dynamic: 1
-  _nodeGuid: 33ae953bf1d140e
+  _nodeGuid: d8f3bed9959649e
   _enabled: 1
   _enter:
     _fieldName: 
@@ -353,7 +353,7 @@ MonoBehaviour:
       _connectionType: 0
       _typeConstraint: 0
       _dynamic: 0
-  _nodeGuid: a62cf79dc01141c
+  _nodeGuid: 495c7fbe81b74f8
   _enabled: 1
   _enter:
     _fieldName: 
@@ -415,7 +415,7 @@ MonoBehaviour:
       _connectionType: 0
       _typeConstraint: 0
       _dynamic: 0
-  _nodeGuid: cd7d9adc2668468
+  _nodeGuid: 911bdc109e014c9
   _enabled: 1
   _enter:
     _fieldName: 
@@ -501,7 +501,7 @@ MonoBehaviour:
       _connectionType: 0
       _typeConstraint: 0
       _dynamic: 0
-  _nodeGuid: f45092d3d3f9457
+  _nodeGuid: 620e4a76657d41a
   _enabled: 1
   _enter:
     _fieldName: 
@@ -596,7 +596,7 @@ MonoBehaviour:
       _connectionType: 0
       _typeConstraint: 0
       _dynamic: 0
-  _nodeGuid: 282f3e8df9ec449
+  _nodeGuid: 28fea5702f6c420
   _enabled: 1
   _enter:
     _fieldName: 
@@ -685,7 +685,7 @@ MonoBehaviour:
       _connectionType: 0
       _typeConstraint: 0
       _dynamic: 0
-  _nodeGuid: 0e3a2241b7cb4ba
+  _nodeGuid: 2b562ae91dc74a0
   _enabled: 1
   _enter:
     _fieldName: 
@@ -750,7 +750,7 @@ MonoBehaviour:
       _connectionType: 0
       _typeConstraint: 0
       _dynamic: 0
-  _nodeGuid: 9ced5c8acc8a4d3
+  _nodeGuid: 8b77ffea990f4f1
   _enabled: 1
   _enter:
     _fieldName: 
@@ -814,7 +814,7 @@ MonoBehaviour:
       _connectionType: 0
       _typeConstraint: 0
       _dynamic: 0
-  _nodeGuid: ff15d028712346e
+  _nodeGuid: 83ed86fb6f5a4c0
   _enabled: 1
   _enter:
     _fieldName: 
@@ -879,7 +879,7 @@ MonoBehaviour:
       _connectionType: 0
       _typeConstraint: 0
       _dynamic: 0
-  _nodeGuid: 08283c7de15640e
+  _nodeGuid: 46f08ca743ea410
   _enabled: 1
   _enter:
     _fieldName: 
@@ -984,7 +984,7 @@ MonoBehaviour:
       _connectionType: 0
       _typeConstraint: 0
       _dynamic: 0
-  _nodeGuid: 9f9403fea711496
+  _nodeGuid: a3abadffcfcc433
   _enabled: 1
   _enter:
     _fieldName: 
@@ -1062,7 +1062,7 @@ MonoBehaviour:
       _connectionType: 0
       _typeConstraint: 0
       _dynamic: 0
-  _nodeGuid: 0ffe822a8d01417
+  _nodeGuid: 422dd27c83d2473
   _enabled: 1
   _enter:
     _fieldName: 
@@ -1152,7 +1152,7 @@ MonoBehaviour:
       _connectionType: 0
       _typeConstraint: 0
       _dynamic: 0
-  _nodeGuid: 7303e1df0b98407
+  _nodeGuid: 8a1ebe5c9e214bd
   _enabled: 1
   _enter:
     _fieldName: 
@@ -1204,7 +1204,7 @@ MonoBehaviour:
       _connectionType: 0
       _typeConstraint: 0
       _dynamic: 0
-  _nodeGuid: 0e7e9d80d38a42f
+  _nodeGuid: 4458f4e58f024f1
   _name: TestVal
   _color:
     serializedVersion: 2
@@ -1293,7 +1293,7 @@ MonoBehaviour:
       _connectionType: 0
       _typeConstraint: 0
       _dynamic: 0
-  _nodeGuid: 8e79f723cd044d1
+  _nodeGuid: 2a4bd4c5a593482
   _enabled: 1
   _enter:
     _fieldName: 
@@ -1401,7 +1401,7 @@ MonoBehaviour:
       _connectionType: 0
       _typeConstraint: 0
       _dynamic: 0
-  _nodeGuid: b8100eed66c4495
+  _nodeGuid: a46d6e0c0eb2465
   _enabled: 1
   _enter:
     _fieldName: 
@@ -1469,7 +1469,7 @@ MonoBehaviour:
       _connectionType: 0
       _typeConstraint: 0
       _dynamic: 0
-  _nodeGuid: d2f144f7daba45b
+  _nodeGuid: 54fe681d58b249c
   _enabled: 1
   _enter:
     _fieldName: 
@@ -1544,7 +1544,7 @@ MonoBehaviour:
       _connectionType: 0
       _typeConstraint: 0
       _dynamic: 0
-  _nodeGuid: 4c02345dfd5e47a
+  _nodeGuid: 27c8294a27034c9
   _enabled: 1
   _enter:
     _fieldName: 
