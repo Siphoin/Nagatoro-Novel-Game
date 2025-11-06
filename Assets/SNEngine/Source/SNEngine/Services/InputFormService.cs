@@ -79,7 +79,7 @@ namespace SNEngine.Services
             _activeForm = null;
         }
 
-        public void ResetState()
+        public override void ResetState()
         {
             for (int i = 0; i < _forms.Length; i++)
             {
