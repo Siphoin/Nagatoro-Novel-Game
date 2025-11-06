@@ -1,4 +1,6 @@
 ﻿using SiphoinUnityHelpers.XNodeExtensions;
+using SNEngine.CharacterSystem;
+using SNEngine.Repositories;
 using SNEngine.Services;
 using System;
 using System.Collections;
@@ -13,7 +15,7 @@ namespace SNEngine
         {
             var varitables = graph.Varitables;
 
-           // var characters = NovelGame.Instance.GetRepository<CharacterRepository>().Characters;
+           var characters = NovelGame.Instance.GetRepository<CharacterRepository>().Characters;
 
             var globalVaritables = NovelGame.Instance.GetService<VaritablesContainerService>().GlobalVaritables;
 
@@ -21,7 +23,7 @@ namespace SNEngine
              {
             { "[Property=", varitables },
             { "[GlobalProperty=", globalVaritables },
-          //  {"[Character=", characters }
+            {"[Character=", characters }
 
              };
 
@@ -45,7 +47,7 @@ namespace SNEngine
                         
                     }
 
-                    /*
+                    
 
                     else if (item.Value is Character)
                     {
@@ -61,7 +63,7 @@ namespace SNEngine
 
                     }
 
-                    */
+                    
                 }
                 }
             
