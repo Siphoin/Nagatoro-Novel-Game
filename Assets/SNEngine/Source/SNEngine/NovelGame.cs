@@ -25,6 +25,7 @@ namespace SNEngine
             {
                 Destroy(gameObject);
             }
+            _repositoryContainer.Initialize();
             _serviceContainer.Initialize();
         }
 

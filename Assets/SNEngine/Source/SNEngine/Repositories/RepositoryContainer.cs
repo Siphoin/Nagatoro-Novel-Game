@@ -5,7 +5,8 @@ using UnityEngine;
 
 namespace SNEngine.Repositories
 {
-    public class RepositoryContainer
+    [CreateAssetMenu(menuName = "SNEngine/Repository Container")]
+    public class RepositoryContainer : ScriptableObject
     {
         [SerializeField] private RepositoryBase[] _repositories;
 
