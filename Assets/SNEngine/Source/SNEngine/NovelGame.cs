@@ -1,0 +1,41 @@
+using SNEngine.Debugging;
+using SNEngine.Services;
+using UnityEngine;
+
+namespace SNEngine
+{
+    public class NovelGame : MonoBehaviour, INovelGame
+    {
+        [SerializeField] private ServiceContainer _serviceContainer;
+
+
+
+        public static INovelGame Instance { get; private set; }
+        private void Awake()
+        {
+            if (Instance is null)
+            {
+                Instance = this;
+                DontDestroyOnLoad(gameObject);
+            }
+
+            else
+            {
+                Destroy(gameObject);
+            }
+            _serviceContainer.Initialize();
+        }
+
+        public T GetService<T>() where T : ServiceBase
+        {
+            return _serviceContainer.Get<T>();
+        }
+
+        public void ResetStateServices ()
+        {
+            NovelGameDebug.Log("Clear Screen");
+
+            _serviceContainer.ResetState();
+        }
+    }
+}
