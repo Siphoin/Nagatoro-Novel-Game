@@ -571,7 +571,7 @@ MonoBehaviour:
     _dynamic: 0
   _label: Your name
   _trimming: 1
-  _output: Siphome
+  _output: "\u042B90-"
 --- !u!114 &11400000
 MonoBehaviour:
   m_ObjectHideFlags: 0
