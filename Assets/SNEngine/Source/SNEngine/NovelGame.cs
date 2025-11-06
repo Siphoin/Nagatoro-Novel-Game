@@ -1,4 +1,5 @@
 using SNEngine.Debugging;
+using SNEngine.Repositories;
 using SNEngine.Services;
 using UnityEngine;
 
@@ -7,6 +8,7 @@ namespace SNEngine
     public class NovelGame : MonoBehaviour, INovelGame
     {
         [SerializeField] private ServiceContainer _serviceContainer;
+        [SerializeField] private RepositoryContainer _repositoryContainer;
 
 
 
@@ -29,6 +31,11 @@ namespace SNEngine
         public T GetService<T>() where T : ServiceBase
         {
             return _serviceContainer.Get<T>();
+        }
+
+        public T GetRepository<T>() where T : RepositoryBase
+        {
+            return _repositoryContainer.Get<T>();
         }
 
         public void ResetStateServices ()
