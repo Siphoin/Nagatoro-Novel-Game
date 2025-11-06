@@ -24,7 +24,7 @@ namespace SNEngine.Services
 
         internal void ResetState()
         {
-            throw new NotImplementedException();
+            
         }
     }
 }

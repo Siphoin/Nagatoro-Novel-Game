@@ -7,5 +7,6 @@ namespace SNEngine
     {
         T GetRepository<T>() where T : RepositoryBase;
         T GetService<T>() where T : ServiceBase;
+        void ResetStateServices();
     }
 }
