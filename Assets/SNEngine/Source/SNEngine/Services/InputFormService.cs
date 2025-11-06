@@ -3,6 +3,7 @@ using UnityEngine;
 using SNEngine.Debugging;
 using System.Linq;
 using UnityEngine.Events;
+using SharpYaml.Serialization;
 namespace SNEngine.Services
 {
     [CreateAssetMenu(menuName = "SNEngine/Services/Input Form Service")]
@@ -12,6 +13,7 @@ namespace SNEngine.Services
 
         private IInputForm[] _forms;
         private IInputForm _activeForm;
+
 
         public override void Initialize()
         {
