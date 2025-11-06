@@ -1,5 +1,113 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
+--- !u!114 &-8392609344097577970
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 19a96ffaa0fa57e4f893d9142387b8dd, type: 3}
+  m_Name: Move Character
+  m_EditorClassIdentifier: 
+  graph: {fileID: 11400000}
+  position: {x: 5240, y: -296}
+  ports:
+    keys:
+    - _x
+    - _target
+    - _wait
+    - _duration
+    - _enter
+    - _exit
+    values:
+    - _fieldName: _x
+      _node: {fileID: -8392609344097577970}
+      _typeQualifiedName: System.Single, mscorlib, Version=4.0.0.0, Culture=neutral,
+        PublicKeyToken=b77a5c561934e089
+      connections: []
+      _direction: 0
+      _connectionType: 1
+      _typeConstraint: 0
+      _dynamic: 0
+    - _fieldName: _target
+      _node: {fileID: -8392609344097577970}
+      _typeQualifiedName: SNEngine.CharacterSystem.Character, Assembly-CSharp, Version=0.0.0.0,
+        Culture=neutral, PublicKeyToken=null
+      connections: []
+      _direction: 0
+      _connectionType: 1
+      _typeConstraint: 0
+      _dynamic: 0
+    - _fieldName: _wait
+      _node: {fileID: -8392609344097577970}
+      _typeQualifiedName: System.Boolean, mscorlib, Version=4.0.0.0, Culture=neutral,
+        PublicKeyToken=b77a5c561934e089
+      connections: []
+      _direction: 0
+      _connectionType: 1
+      _typeConstraint: 0
+      _dynamic: 0
+    - _fieldName: _duration
+      _node: {fileID: -8392609344097577970}
+      _typeQualifiedName: System.Single, mscorlib, Version=4.0.0.0, Culture=neutral,
+        PublicKeyToken=b77a5c561934e089
+      connections: []
+      _direction: 0
+      _connectionType: 1
+      _typeConstraint: 0
+      _dynamic: 0
+    - _fieldName: _enter
+      _node: {fileID: -8392609344097577970}
+      _typeQualifiedName: XNode.NodePort, XNode, Version=0.0.0.0, Culture=neutral,
+        PublicKeyToken=null
+      connections:
+      - fieldName: _exit
+        node: {fileID: 2427141943312191192}
+        reroutePoints: []
+      _direction: 0
+      _connectionType: 0
+      _typeConstraint: 0
+      _dynamic: 0
+    - _fieldName: _exit
+      _node: {fileID: -8392609344097577970}
+      _typeQualifiedName: XNode.NodePort, XNode, Version=0.0.0.0, Culture=neutral,
+        PublicKeyToken=null
+      connections:
+      - fieldName: _enter
+        node: {fileID: 7894791059499883833}
+        reroutePoints: []
+      _direction: 1
+      _connectionType: 0
+      _typeConstraint: 0
+      _dynamic: 0
+  _nodeGuid: bf513ead588547e
+  _enabled: 1
+  _enter:
+    _fieldName: 
+    _node: {fileID: 0}
+    _typeQualifiedName: 
+    connections: []
+    _direction: 0
+    _connectionType: 0
+    _typeConstraint: 0
+    _dynamic: 0
+  _exit:
+    _fieldName: 
+    _node: {fileID: 0}
+    _typeQualifiedName: 
+    connections: []
+    _direction: 0
+    _connectionType: 0
+    _typeConstraint: 0
+    _dynamic: 0
+  _wait: 1
+  _duration: 3
+  _ease: 1
+  _target: {fileID: 11400000, guid: 7f230ed60ee36b74cb6adb00a85d76f3, type: 2}
+  _x: 0.15
 --- !u!114 &-8297929479406314118
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -83,7 +191,7 @@ MonoBehaviour:
       _connectionType: 0
       _typeConstraint: 0
       _dynamic: 0
-  _nodeGuid: 941474376a37487
+  _nodeGuid: 6d32e815843041a
   _enabled: 1
   _enter:
     _fieldName: 
@@ -138,7 +246,7 @@ MonoBehaviour:
       _connectionType: 0
       _typeConstraint: 0
       _dynamic: 0
-  _nodeGuid: a016c6ebb6e4457
+  _nodeGuid: d562c8fcd736406
   _name: NamePlayer
   _color:
     serializedVersion: 2
@@ -280,7 +388,7 @@ MonoBehaviour:
       _connectionType: 1
       _typeConstraint: 0
       _dynamic: 1
-  _nodeGuid: d8f3bed9959649e
+  _nodeGuid: f0c8b500cd7244a
   _enabled: 1
   _enter:
     _fieldName: 
@@ -353,7 +461,7 @@ MonoBehaviour:
       _connectionType: 0
       _typeConstraint: 0
       _dynamic: 0
-  _nodeGuid: 495c7fbe81b74f8
+  _nodeGuid: a127db6a1733482
   _enabled: 1
   _enter:
     _fieldName: 
@@ -375,66 +483,6 @@ MonoBehaviour:
     _dynamic: 0
   _text: '[Property=TestVal]'
   _character: {fileID: 11400000, guid: 7f230ed60ee36b74cb6adb00a85d76f3, type: 2}
---- !u!114 &-1912924998858009341
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c03f753257844924caa2d2df1f6ae7fd, type: 3}
-  m_Name: Exit
-  m_EditorClassIdentifier: 
-  graph: {fileID: 11400000}
-  position: {x: 5272, y: -184}
-  ports:
-    keys:
-    - _enter
-    - _exit
-    values:
-    - _fieldName: _enter
-      _node: {fileID: -1912924998858009341}
-      _typeQualifiedName: XNode.NodePort, XNode, Version=0.0.0.0, Culture=neutral,
-        PublicKeyToken=null
-      connections:
-      - fieldName: _exit
-        node: {fileID: 2427141943312191192}
-        reroutePoints: []
-      _direction: 0
-      _connectionType: 0
-      _typeConstraint: 0
-      _dynamic: 0
-    - _fieldName: _exit
-      _node: {fileID: -1912924998858009341}
-      _typeQualifiedName: XNode.NodePort, XNode, Version=0.0.0.0, Culture=neutral,
-        PublicKeyToken=null
-      connections: []
-      _direction: 1
-      _connectionType: 0
-      _typeConstraint: 0
-      _dynamic: 0
-  _nodeGuid: 911bdc109e014c9
-  _enabled: 1
-  _enter:
-    _fieldName: 
-    _node: {fileID: 0}
-    _typeQualifiedName: 
-    connections: []
-    _direction: 0
-    _connectionType: 0
-    _typeConstraint: 0
-    _dynamic: 0
-  _exit:
-    _fieldName: 
-    _node: {fileID: 0}
-    _typeQualifiedName: 
-    connections: []
-    _direction: 0
-    _connectionType: 0
-    _typeConstraint: 0
-    _dynamic: 0
 --- !u!114 &-1419941218366795781
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -501,7 +549,7 @@ MonoBehaviour:
       _connectionType: 0
       _typeConstraint: 0
       _dynamic: 0
-  _nodeGuid: 620e4a76657d41a
+  _nodeGuid: 6d0fb2795af74d8
   _enabled: 1
   _enter:
     _fieldName: 
@@ -551,11 +599,12 @@ MonoBehaviour:
   - {fileID: -2370835101404033005}
   - {fileID: 650240193604512605}
   - {fileID: -1921296323074959633}
-  - {fileID: -1912924998858009341}
   - {fileID: -1419941218366795781}
   - {fileID: -6236609241395683886}
   - {fileID: 5131408690455589566}
   - {fileID: 2427141943312191192}
+  - {fileID: -8392609344097577970}
+  - {fileID: 7894791059499883833}
 --- !u!114 &103410744464918363
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -596,7 +645,7 @@ MonoBehaviour:
       _connectionType: 0
       _typeConstraint: 0
       _dynamic: 0
-  _nodeGuid: 28fea5702f6c420
+  _nodeGuid: ff08f4272c1a4f6
   _enabled: 1
   _enter:
     _fieldName: 
@@ -685,7 +734,7 @@ MonoBehaviour:
       _connectionType: 0
       _typeConstraint: 0
       _dynamic: 0
-  _nodeGuid: 2b562ae91dc74a0
+  _nodeGuid: dbceb68f7b964cd
   _enabled: 1
   _enter:
     _fieldName: 
@@ -750,7 +799,7 @@ MonoBehaviour:
       _connectionType: 0
       _typeConstraint: 0
       _dynamic: 0
-  _nodeGuid: 8b77ffea990f4f1
+  _nodeGuid: dadc86f0338741d
   _enabled: 1
   _enter:
     _fieldName: 
@@ -814,7 +863,7 @@ MonoBehaviour:
       _connectionType: 0
       _typeConstraint: 0
       _dynamic: 0
-  _nodeGuid: 83ed86fb6f5a4c0
+  _nodeGuid: d4b5bfedd1e14f7
   _enabled: 1
   _enter:
     _fieldName: 
@@ -873,13 +922,13 @@ MonoBehaviour:
         PublicKeyToken=null
       connections:
       - fieldName: _enter
-        node: {fileID: -1912924998858009341}
+        node: {fileID: -8392609344097577970}
         reroutePoints: []
       _direction: 1
       _connectionType: 0
       _typeConstraint: 0
       _dynamic: 0
-  _nodeGuid: 46f08ca743ea410
+  _nodeGuid: 8e1980004975476
   _enabled: 1
   _enter:
     _fieldName: 
@@ -984,7 +1033,7 @@ MonoBehaviour:
       _connectionType: 0
       _typeConstraint: 0
       _dynamic: 0
-  _nodeGuid: a3abadffcfcc433
+  _nodeGuid: d283b4298485427
   _enabled: 1
   _enter:
     _fieldName: 
@@ -1062,7 +1111,7 @@ MonoBehaviour:
       _connectionType: 0
       _typeConstraint: 0
       _dynamic: 0
-  _nodeGuid: 422dd27c83d2473
+  _nodeGuid: a3f1094ba42e432
   _enabled: 1
   _enter:
     _fieldName: 
@@ -1152,7 +1201,7 @@ MonoBehaviour:
       _connectionType: 0
       _typeConstraint: 0
       _dynamic: 0
-  _nodeGuid: 8a1ebe5c9e214bd
+  _nodeGuid: d519be424a51408
   _enabled: 1
   _enter:
     _fieldName: 
@@ -1204,7 +1253,7 @@ MonoBehaviour:
       _connectionType: 0
       _typeConstraint: 0
       _dynamic: 0
-  _nodeGuid: 4458f4e58f024f1
+  _nodeGuid: dc3dcc75ff634d4
   _name: TestVal
   _color:
     serializedVersion: 2
@@ -1293,7 +1342,7 @@ MonoBehaviour:
       _connectionType: 0
       _typeConstraint: 0
       _dynamic: 0
-  _nodeGuid: 2a4bd4c5a593482
+  _nodeGuid: b48bd06f9f1a4f3
   _enabled: 1
   _enter:
     _fieldName: 
@@ -1401,7 +1450,7 @@ MonoBehaviour:
       _connectionType: 0
       _typeConstraint: 0
       _dynamic: 0
-  _nodeGuid: a46d6e0c0eb2465
+  _nodeGuid: 4c888addf95e4d5
   _enabled: 1
   _enter:
     _fieldName: 
@@ -1469,7 +1518,7 @@ MonoBehaviour:
       _connectionType: 0
       _typeConstraint: 0
       _dynamic: 0
-  _nodeGuid: 54fe681d58b249c
+  _nodeGuid: 9455be74cd4a4e0
   _enabled: 1
   _enter:
     _fieldName: 
@@ -1491,6 +1540,67 @@ MonoBehaviour:
     _dynamic: 0
   _character: {fileID: 11400000, guid: 7f230ed60ee36b74cb6adb00a85d76f3, type: 2}
   _emotion: Default
+--- !u!114 &7894791059499883833
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fa5ffd9c41a1a9c4e91e34efbe623642, type: 3}
+  m_Name: Jump To Dialogue
+  m_EditorClassIdentifier: 
+  graph: {fileID: 11400000}
+  position: {x: 5562.3545, y: -244.93408}
+  ports:
+    keys:
+    - _enter
+    - _exit
+    values:
+    - _fieldName: _enter
+      _node: {fileID: 7894791059499883833}
+      _typeQualifiedName: XNode.NodePort, XNode, Version=0.0.0.0, Culture=neutral,
+        PublicKeyToken=null
+      connections:
+      - fieldName: _exit
+        node: {fileID: -8392609344097577970}
+        reroutePoints: []
+      _direction: 0
+      _connectionType: 0
+      _typeConstraint: 0
+      _dynamic: 0
+    - _fieldName: _exit
+      _node: {fileID: 7894791059499883833}
+      _typeQualifiedName: XNode.NodePort, XNode, Version=0.0.0.0, Culture=neutral,
+        PublicKeyToken=null
+      connections: []
+      _direction: 1
+      _connectionType: 0
+      _typeConstraint: 0
+      _dynamic: 0
+  _nodeGuid: 351326cda69d4a4
+  _enabled: 1
+  _enter:
+    _fieldName: 
+    _node: {fileID: 0}
+    _typeQualifiedName: 
+    connections: []
+    _direction: 0
+    _connectionType: 0
+    _typeConstraint: 0
+    _dynamic: 0
+  _exit:
+    _fieldName: 
+    _node: {fileID: 0}
+    _typeQualifiedName: 
+    connections: []
+    _direction: 0
+    _connectionType: 0
+    _typeConstraint: 0
+    _dynamic: 0
+  _dialogue: {fileID: 11400000}
 --- !u!114 &8520928452356437448
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1544,7 +1654,7 @@ MonoBehaviour:
       _connectionType: 0
       _typeConstraint: 0
       _dynamic: 0
-  _nodeGuid: 27c8294a27034c9
+  _nodeGuid: f07794a599e3408
   _enabled: 1
   _enter:
     _fieldName: 
