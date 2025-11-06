@@ -130,8 +130,6 @@ namespace SiphoinUnityHelpers.XNodeExtensions
 
                 if (node is null)
                 {
-                    Debug.Log("666");
-
                     break;
                 }
 

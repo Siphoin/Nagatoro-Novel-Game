@@ -46,9 +46,6 @@ namespace SNEngine
 
                         
                     }
-
-                    
-
                     else if (item.Value is Character)
                     {
                         Character character = item.Value as Character;
@@ -62,8 +59,6 @@ namespace SNEngine
 
 
                     }
-
-                    
                 }
                 }
             
@@ -71,8 +66,6 @@ namespace SNEngine
             return text;
             
         }
-
-
 
         private static void ReplacePart (ref string text, string attribute, string newValue)
         {

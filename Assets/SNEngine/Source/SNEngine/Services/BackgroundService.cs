@@ -31,7 +31,7 @@ namespace SNEngine.Services
             _background = backgroundPrefab;
         }
 
-        public void ResetState()
+        public override void ResetState()
         {
             _background.ResetState();
         }

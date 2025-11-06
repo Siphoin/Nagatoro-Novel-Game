@@ -24,7 +24,10 @@ namespace SNEngine.Services
 
         internal void ResetState()
         {
-            
+            foreach (var item in _services)
+            {
+                item.ResetState();
+            }
         }
     }
 }

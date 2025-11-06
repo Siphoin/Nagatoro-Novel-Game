@@ -159,7 +159,7 @@ namespace SNEngine.Services
             }
         }
 
-        public void ResetState()
+        public override void ResetState()
         {
             foreach (var character in _characters.Values)
             {

@@ -181,9 +181,5 @@ namespace SNEngine
 
             Hide();
         }
-
-        public void Reset()
-        {
-        }
     }
 }

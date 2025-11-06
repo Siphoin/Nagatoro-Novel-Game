@@ -87,8 +87,9 @@ GameObject:
   - component: {fileID: 5481520523442937032}
   - component: {fileID: 5481520523442937033}
   - component: {fileID: 5481520523442937034}
+  - component: {fileID: 2979688803986581937}
   m_Layer: 5
-  m_Name: DalogOnScreenWindow
+  m_Name: DialogOnScreenWindow
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -183,6 +184,22 @@ MonoBehaviour:
   m_OnValueChanged:
     m_PersistentCalls:
       m_Calls: []
+--- !u!114 &2979688803986581937
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5481520523442937028}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 049880b951e023946a368824984df8ff, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _speedWriting: 0.06
+  _textMessage: {fileID: 7343165597044238632}
+  _durationScroolToDown: 0
+  _ease: 1
 --- !u!1 &5481520523845547529
 GameObject:
   m_ObjectHideFlags: 0

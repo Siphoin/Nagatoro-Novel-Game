@@ -45,7 +45,7 @@ namespace SNEngine.Services
             _dialogWindow.Hide();
         }
 
-        public void ResetState()
+        public override void ResetState()
         {
            _dialogWindow.ResetState();
         }
