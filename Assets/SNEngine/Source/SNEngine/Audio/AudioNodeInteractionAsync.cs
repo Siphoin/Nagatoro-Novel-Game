@@ -11,6 +11,7 @@ namespace SNEngine.Audio
 
         public override void Execute()
         {
+            base.Execute();
             var input = GetInputValue<AudioObject>(nameof(_input));
             if (!input)
             {
