@@ -18,6 +18,7 @@ namespace SiphoinUnityHelpers.XNodeExtensions
         public event Action OnEndExecute;
 
         public event Action<BaseNode> OnNextNode;
+        new private List<Node> nodes => base.nodes;
 
         public bool IsPaused { get; private set; }
 
