@@ -1,7 +1,9 @@
 ﻿using SiphoinUnityHelpers.XNodeExtensions;
 namespace SNEngine.Audio
 {
-    public abstract class AudioNodeInteraction : BaseNodeInteraction
+    [NodeTint("#6b593d")]
+
+    public abstract class AudioNode : BaseNodeInteraction
     {
     }
 }
