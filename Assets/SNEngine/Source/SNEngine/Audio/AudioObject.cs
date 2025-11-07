@@ -11,6 +11,7 @@ namespace SNEngine.Audio
     {
         [SerializeField] private AudioSource _audioSource;
         private CancellationTokenSource _cts;
+        private AudioMixerGroup _defaultMixer;
 
         public bool Mute { get => _audioSource.mute; set => _audioSource.mute = value; }
         public bool Loop { get => _audioSource.loop; set => _audioSource.loop = value; }
@@ -36,9 +37,28 @@ namespace SNEngine.Audio
         public bool IsPlaying => _audioSource.isPlaying;
         public float TimePosition { get => _audioSource.time; set => _audioSource.time = Mathf.Clamp(value, 0f, _audioSource.clip != null ? _audioSource.clip.length : 0f); }
 
-        public void Play() => _audioSource?.Play();
-        public void PlayDelayed(float delay) => _audioSource?.PlayDelayed(delay);
-        public void PlayScheduled(double time) => _audioSource?.PlayScheduled(time);
+        private void Awake()
+        {
+            _defaultMixer = Mixer;
+        }
+
+        public void Play()
+        {
+            _audioSource?.Play();
+            WatchPlaybackAsync(_cts?.Token ?? this.GetCancellationTokenOnDestroy()).Forget();
+        }
+
+        public void PlayDelayed(float delay)
+        {
+            _audioSource?.PlayDelayed(delay);
+            WatchPlaybackAsync(_cts?.Token ?? this.GetCancellationTokenOnDestroy()).Forget();
+        }
+
+        public void PlayScheduled(double time)
+        {
+            _audioSource?.PlayScheduled(time);
+            WatchPlaybackAsync(_cts?.Token ?? this.GetCancellationTokenOnDestroy()).Forget();
+        }
         public void Stop() => _audioSource?.Stop();
         public void Pause() => _audioSource?.Pause();
         public void UnPause() => _audioSource?.UnPause();
@@ -51,6 +71,22 @@ namespace SNEngine.Audio
 
         public void SetPosition(Vector3 position) => _audioSource.transform.position = position;
 
+
+        private async UniTaskVoid WatchPlaybackAsync(CancellationToken token)
+        {
+            try
+            {
+                while (_audioSource != null && _audioSource.isPlaying)
+                    await UniTask.Yield(PlayerLoopTiming.Update, token);
+
+                if (_audioSource != null && !_audioSource.loop && _audioSource.clip != null)
+                    ResetState();
+            }
+            catch (OperationCanceledException)
+            {
+            }
+        }
+
         public void Set3DSettings(float spatialBlend = 1f, float minDistance = 1f, float maxDistance = 500f)
         {
             SpatialBlend = spatialBlend;
@@ -58,26 +94,29 @@ namespace SNEngine.Audio
             MaxDistance = maxDistance;
         }
 
-        public void FadeIn(float duration, float targetVolume = 1f)
+        public async UniTask FadeInAsync(float duration, float targetVolume = 1f)
         {
             CancelFade();
             _cts = new CancellationTokenSource();
-            FadeRoutine(0f, targetVolume, duration, _cts.Token).Forget();
-        }
 
-        public void FadeOut(float duration)
-        {
-            CancelFade();
-            _cts = new CancellationTokenSource();
-            FadeRoutine(_audioSource.volume, 0f, duration, _cts.Token, stopAfterFade: true).Forget();
-        }
-
-        private async UniTaskVoid FadeRoutine(float from, float to, float duration, CancellationToken token, bool stopAfterFade = false)
-        {
-            _audioSource.volume = from;
+            float startVolume = _audioSource.volume;
             if (!_audioSource.isPlaying)
                 _audioSource.Play();
 
+            await FadeRoutineAsync(startVolume, targetVolume, duration, _cts.Token);
+        }
+
+        public async UniTask FadeOutAsync(float duration)
+        {
+            CancelFade();
+            _cts = new CancellationTokenSource();
+
+            float startVolume = _audioSource.volume;
+            await FadeRoutineAsync(startVolume, 0f, duration, _cts.Token, stopAfterFade: true);
+        }
+
+        private async UniTask FadeRoutineAsync(float from, float to, float duration, CancellationToken token, bool stopAfterFade = false)
+        {
             float elapsed = 0f;
 
             try
@@ -85,7 +124,7 @@ namespace SNEngine.Audio
                 while (elapsed < duration)
                 {
                     elapsed += Time.deltaTime;
-                    _audioSource.volume = Mathf.Lerp(from, to, elapsed / duration);
+                    _audioSource.volume = Mathf.Lerp(from, to, Mathf.Clamp01(elapsed / duration));
                     await UniTask.Yield(PlayerLoopTiming.Update, token);
                 }
 
@@ -96,7 +135,6 @@ namespace SNEngine.Audio
             }
             catch (OperationCanceledException)
             {
-                // ignored
             }
         }
 
@@ -124,6 +162,7 @@ namespace SNEngine.Audio
             Priority = 128;
             Mute = false;
             Loop = false;
+            Mixer = _defaultMixer;
             gameObject.SetActive(false);
             
         }
