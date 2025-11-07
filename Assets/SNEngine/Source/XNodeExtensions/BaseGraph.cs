@@ -27,6 +27,22 @@ namespace SiphoinUnityHelpers.XNodeExtensions
 
         public IDictionary<string, VaritableNode> Varitables => _varitables;
 
+        public IDictionary<string, BaseNode> AllNodes
+        {
+            get
+            {
+                Dictionary<string, BaseNode> data = new();
+                var baseNodes = nodes.OfType<BaseNode>();
+                foreach (var node in baseNodes)
+                {
+                    var key = node.GUID;
+                    data.Add(key, node);
+                }
+
+                return data;
+            }
+        }
+
         public virtual void Execute ()
         {
             var queue = new List<BaseNodeInteraction>();
