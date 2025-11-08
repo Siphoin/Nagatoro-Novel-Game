@@ -15,49 +15,43 @@ namespace SiphoinUnityHelpers.XNodeExtensions
     [NodeWidth(230)]
     public abstract class BaseNode : Node
     {
-        [SerializeField, NodeGuid] private string _nodeGuid = Guid.NewGuid().ToString("N").Substring(0, 15);
+        [SerializeField, NodeGuid]
+        private string _nodeGuid;
 
-        public string GUID => _nodeGuid;
-
-        protected virtual void Awake()
+        public string GUID
         {
-            _nodeGuid = Guid.NewGuid().ToString("N").Substring(0, 15);
+            get
+            {
+                if (string.IsNullOrEmpty(_nodeGuid))
+                    _nodeGuid = Guid.NewGuid().ToString("N").Substring(0, 15);
+                return _nodeGuid;
+            }
         }
 
-        public virtual void Execute ()
+        public virtual void Execute()
         {
-            throw new NotImplementedException($"Node {GetType().Name}");
+            throw new NotImplementedException($"Node {GetType().Name} has no implementation for Execute()");
         }
 
-        protected T GetDataFromPort<T> (string fieldName)
+        protected T GetDataFromPort<T>(string fieldName)
         {
             return (T)GetDataFromPort(fieldName, typeof(T));
-
         }
 
         protected object GetDataFromPort(string fieldName, Type type)
         {
             var inputParentPort = GetInputPort(fieldName);
-
-            if (inputParentPort.Connection is null)
-            {
+            if (inputParentPort?.Connection == null)
                 return null;
-            }
 
             var value = inputParentPort.Connection.GetOutputValue();
-
-            if (value is null)
-            {
+            if (value == null)
                 return null;
-            }
 
             if (type == typeof(IEnumerable))
-            {
                 return value as IEnumerable;
-            }
 
-                return Convert.ChangeType(value, type);
-
+            return Convert.ChangeType(value, type);
         }
 
         public override object GetValue(NodePort port)
@@ -67,12 +61,20 @@ namespace SiphoinUnityHelpers.XNodeExtensions
 
         public override string ToString()
         {
-            return $"{name} GUID: {GUID} Parent Graph {graph.name} Is Async? {this is IIncludeWaitingNode}";
+            return $"{name} GUID: {GUID} Parent Graph: {graph.name} Is Async? {this is IIncludeWaitingNode}";
         }
+
 #if UNITY_EDITOR
         protected string GetDefaultName()
         {
             return NodeEditorUtilities.NodeDefaultName(GetType());
+        }
+
+        [ContextMenu("Reset GUID")]
+        private void ResetGuid()
+        {
+            _nodeGuid = Guid.NewGuid().ToString("N").Substring(0, 15);
+            UnityEditor.EditorUtility.SetDirty(this);
         }
 #endif
     }

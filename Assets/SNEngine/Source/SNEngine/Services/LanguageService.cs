@@ -197,7 +197,7 @@ namespace SNEngine.Services
                             GUID = kvp.Key,
                             Value = kvp.Value
                         };
-                        _nodesLocalizeData[nodeData.GUID] = nodeData;
+                        _nodesLocalizeData.Add(kvp.Key, nodeData);
                         totalNodes++;
                         nodesInFile++;
                     }
@@ -237,6 +237,11 @@ namespace SNEngine.Services
                 if (_nodesLocalizeData.TryGetValue(node.GUID, out var localize))
                 {
                     node.SetValue(localize.Value);
+                }
+
+                else
+                {
+                    NovelGameDebug.LogError($"localize data for node {node.GUID} not found");
                 }
             }
 
