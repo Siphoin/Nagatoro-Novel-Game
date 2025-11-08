@@ -17,6 +17,13 @@ namespace SNEngine.Editor.Language
                 return;
             }
 
+            LanguageServiceEditor languageService = Resources.Load<LanguageServiceEditor>("Editor/SO/Language Service Editor");
+            if (languageService == null)
+            {
+                NovelGameDebug.LogError("[GeneratorLanguage] Failed to load LanguageServiceEditor");
+                return;
+            }
+
             string mainPath = Path.Combine(NovelDirectory.StreamingAssetsPath, "Language", nameLanguage);
 
             CreateRootLanguageFolderWorkerEditor.FolderName = nameLanguage;
@@ -25,13 +32,6 @@ namespace SNEngine.Editor.Language
             {
                 NameLanguage = nameLanguage,
             };
-
-            LanguageServiceEditor languageService = Resources.Load<LanguageServiceEditor>("Editor/SO/Language Service Editor");
-            if (languageService == null)
-            {
-                NovelGameDebug.LogError("[GeneratorLanguage] Failed to load LanguageServiceEditor");
-                return;
-            }
 
             await languageService.RunAllWorkersAsync();
         }
