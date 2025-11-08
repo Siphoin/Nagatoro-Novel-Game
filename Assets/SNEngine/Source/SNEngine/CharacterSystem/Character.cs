@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using System;
+using SNEngine.Services;
 namespace SNEngine.CharacterSystem
 {
     [CreateAssetMenu(menuName = "SNEngine/New Character")]
@@ -35,7 +36,13 @@ namespace SNEngine.CharacterSystem
 
         public IEnumerable<Emotion> Emotions => _emotions;
 
-        public string GetName () => _name;
+        public string OriginalName => _name;
+
+        public string GetName ()
+        {
+            LanguageService languageService = NovelGame.Instance.GetService<LanguageService>();
+            return languageService.TransliteNameCharacter(this);
+        }
 
         public Emotion GetEmotion (string name = DEFAULT_EMOTION_NAME)
         {

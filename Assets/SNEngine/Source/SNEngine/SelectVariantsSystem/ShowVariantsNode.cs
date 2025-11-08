@@ -137,16 +137,29 @@ namespace SNEngine.SelectVariantsSystem
 
         public void SetValue(object value)
         {
-            if (value is IEnumerable<string> strings)
+            if (value is IEnumerable<object> objectsEnumerable)
             {
-
+                if (objectsEnumerable.All(x => x is string))
+                {
+                    List<string> strings = objectsEnumerable.Cast<string>().ToList();
+                    _variants = strings.ToArray();
+                }
+                else
+                {
+                    NovelGameDebug.LogError($"Error SetValue for node {GetType().Name} GUID {GUID}: list contains non-string elements");
+                }
             }
 
+            else if (value is IEnumerable<string> stringsEnumerable)
+            {
+                _variants = stringsEnumerable.ToArray();
+            }
             else
             {
-                NovelGameDebug.LogError($"Error SetValue for node {GetType().Name} GUID {GUID} type not a String collection");
+                NovelGameDebug.LogError($"Error SetValue for node {GetType().Name} GUID {GUID}: value is not a List<object>");
             }
         }
+
 
         public object GetValue()
         {

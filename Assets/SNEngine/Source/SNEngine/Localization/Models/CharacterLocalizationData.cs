@@ -14,7 +14,7 @@ namespace SNEngine.Localization.Models
         public CharacterLocalizationData (Character character)
         {
             GUID = character.GUID;
-            Name = character.GetName();
+            Name = character.OriginalName;
             Description = character.Description;
         }
     }
