@@ -9,7 +9,7 @@ namespace SNEngine.Editor.Language
 {
     public static class GeneratorLanguage
     {
-        public static async UniTask Generate(string nameLanguage)
+        public static async UniTask Generate(string nameLanguage, string flagPath = "")
         {
             if (string.IsNullOrEmpty(nameLanguage))
             {
@@ -34,6 +34,8 @@ namespace SNEngine.Editor.Language
             };
             CharactersLanguageWorkerEditor.PathSave = mainPath;
             DialoguesLanguageWorkerEditor.PathSave = mainPath;
+            FlagsLanguageWorkerEditor.FlagToUse = flagPath;
+            FlagsLanguageWorkerEditor.PathSave = mainPath;
 
             await languageService.RunAllWorkersAsync();
         }
