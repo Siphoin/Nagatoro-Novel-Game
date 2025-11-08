@@ -39,7 +39,7 @@ namespace SNEngine.Services
 
                 newCharacter.SetData(character.Value);
 
-                newCharacter.name = character.Value.GetName();
+                newCharacter.name = character.Value.OriginalName;
 
                 _characters.Add(character.Value.name, newCharacter);
             }

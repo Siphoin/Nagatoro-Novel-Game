@@ -3,6 +3,7 @@ using SNEngine.Debugging;
 using SNEngine.DialogSystem;
 using SNEngine.Graphs;
 using System;
+using System.Threading.Tasks;
 using UnityEngine;
 using Object = UnityEngine.Object;
 
@@ -23,7 +24,7 @@ namespace SNEngine.Services
 
         private MonoBehaviour _frameDetector;
 
-        public override void Initialize()
+        public override async void Initialize()
         {
             _oldRenderDialogueService = NovelGame.Instance.GetService<RenderOldDialogueService>();
 
@@ -38,7 +39,9 @@ namespace SNEngine.Services
             DontDestroyOnLoad(prefabFrameDetector);
 
             _frameDetector = prefabFrameDetector;
+            // test
 
+            await UniTask.WaitForSeconds(3);
             JumpToStartDialogue();
             
         }
