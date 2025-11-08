@@ -176,6 +176,7 @@ MonoBehaviour:
     - _exit
     - _variants 0
     - _variants 1
+    - _variants 2
     values:
     - _fieldName: _variants
       _node: {fileID: -7317749270182219575}
@@ -264,6 +265,15 @@ MonoBehaviour:
       _connectionType: 1
       _typeConstraint: 0
       _dynamic: 1
+    - _fieldName: _variants 2
+      _node: {fileID: -7317749270182219575}
+      _typeQualifiedName: System.String[], mscorlib, Version=4.0.0.0, Culture=neutral,
+        PublicKeyToken=b77a5c561934e089
+      connections: []
+      _direction: 0
+      _connectionType: 1
+      _typeConstraint: 0
+      _dynamic: 1
   _nodeGuid: 49c0012182914fd
   _enabled: 1
   _enter:
@@ -287,6 +297,7 @@ MonoBehaviour:
   _variants:
   - Variant A
   - Variant B
+  - Variant C
   _hideCharacters: 1
   _hideDialogWindow: 1
   _returnCharacterVisible: 1
