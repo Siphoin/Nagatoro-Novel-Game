@@ -28,7 +28,7 @@ namespace SiphoinUnityHelpers.XNodeExtensions
 
         public IDictionary<string, VaritableNode> Varitables => _varitables;
 
-        public IDictionary<string, BaseNode> AllNodes
+        public IReadOnlyDictionary<string, BaseNode> AllNodes
         {
             get
             {
