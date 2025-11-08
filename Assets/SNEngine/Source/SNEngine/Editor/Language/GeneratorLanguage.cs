@@ -2,6 +2,7 @@
 using SNEngine.Debugging;
 using SNEngine.Editor.Language.Workers;
 using SNEngine.IO;
+using System;
 using System.IO;
 using UnityEngine;
 
@@ -31,6 +32,8 @@ namespace SNEngine.Editor.Language
             MetaDataLanguageWorkerEditor.MetaData = new()
             {
                 NameLanguage = nameLanguage,
+                Version = 1,
+                Author = Environment.UserName,
             };
             CharactersLanguageWorkerEditor.PathSave = mainPath;
             DialoguesLanguageWorkerEditor.PathSave = mainPath;
