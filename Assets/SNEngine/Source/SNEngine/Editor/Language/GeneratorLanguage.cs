@@ -32,6 +32,8 @@ namespace SNEngine.Editor.Language
             {
                 NameLanguage = nameLanguage,
             };
+            CharactersLanguageWorkerEditor.PathSave = mainPath;
+            DialoguesLanguageWorkerEditor.PathSave = mainPath;
 
             await languageService.RunAllWorkersAsync();
         }

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using SNEngine.CharacterSystem;
+using System;
 
 namespace SNEngine.Localization.Models
 {
@@ -8,5 +9,13 @@ namespace SNEngine.Localization.Models
         public string GUID { get; set; }
         public string Name { get; set; }
         public string Description { get; set; }
+
+        public CharacterLocalizationData() { }
+        public CharacterLocalizationData (Character character)
+        {
+            GUID = character.GUID;
+            Name = character.GetName();
+            Description = character.Description;
+        }
     }
 }

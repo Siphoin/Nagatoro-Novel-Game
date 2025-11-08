@@ -2,11 +2,13 @@
 using SiphoinUnityHelpers.XNodeExtensions.AsyncNodes;
 using SNEngine.Animations;
 using SNEngine.Attributes;
+using SNEngine.Debugging;
+using SNEngine.Localization;
 using UnityEngine;
 
 namespace SNEngine
 {
-    public abstract class PrinterTextNode : AsyncNode, IPrinterNode
+    public abstract class PrinterTextNode : AsyncNode, IPrinterNode, ILocalizationNode
     {
         [SerializeField, TextArea(10, 100)] private string _text = "Some Text";
 
@@ -25,6 +27,29 @@ namespace SNEngine
         public void MarkIsEnd()
         {
             StopTask();
+        }
+
+        #region Localization
+        public object GetOriginalValue()
+        {
+            return _text;
+        }
+
+        public object GetValue()
+        {
+            return _text;
+        }
+
+        public void SetValue(object value)
+        {
+            if (value is string == false)
+            {
+                NovelGameDebug.LogError($"Error SetValue for node {GetType().Name} GUID {GUID} type not a String");
+                return;
+            }
+
+            _text = value.ToString();
+            #endregion
         }
     }
 }

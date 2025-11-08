@@ -1,4 +1,6 @@
 ﻿using SNEngine.CharacterSystem;
+using SNEngine.Debugging;
+using SNEngine.Localization;
 using SNEngine.Services;
 using UnityEngine;
 
@@ -20,7 +22,6 @@ namespace SNEngine.DialogSystem
 
             serviceDialogs.ShowDialog(this);
         }
-
-
     }
+
 }

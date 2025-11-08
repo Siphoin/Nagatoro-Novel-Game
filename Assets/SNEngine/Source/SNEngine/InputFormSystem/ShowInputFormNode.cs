@@ -1,11 +1,13 @@
 ﻿using SiphoinUnityHelpers.XNodeExtensions.AsyncNodes;
+using SNEngine.Debugging;
+using SNEngine.Localization;
 using SNEngine.Services;
 using UnityEngine;
 using XNode;
 
 namespace SNEngine.InputFormSystem
 {
-    public class ShowInputFormNode : AsyncNode
+    public class ShowInputFormNode : AsyncNode, ILocalizationNode
     {
         [SerializeField] private string _label = "Input Value";
 
@@ -50,7 +52,28 @@ namespace SNEngine.InputFormSystem
 
             StopTask();
         }
+        #region Localization
+        public object GetOriginalValue()
+        {
+            return _label;
+        }
 
+        public void SetValue(object value)
+        {
+            if (value is string == false)
+            {
+                NovelGameDebug.LogError($"Error SetValue for node {GetType().Name} GUID {GUID} type not a String");
+                return;
+            }
+
+            _label = value.ToString();
+        }
+
+        public object GetValue()
+        {
+            return _label;
+        }
+        #endregion
         public override object GetValue(NodePort port)
         {
             return _output;
