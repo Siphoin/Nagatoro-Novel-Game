@@ -11,17 +11,24 @@ namespace SNEngine
     public abstract class PrinterTextNode : AsyncNode, IPrinterNode, ILocalizationNode
     {
         [SerializeField, TextArea(10, 100)] private string _text = "Some Text";
-
-        public string Text => _text;
+        private string _currentText;
 
         public override void Execute()
         {
+            if (string.IsNullOrEmpty(_currentText))
+            {
+                _currentText = _text;
+            }
             base.Execute();
         }
 
         public string GetText()
         {
-            return TextParser.ParseWithProperties(_text, graph as BaseGraph);
+            if (string.IsNullOrEmpty(_currentText))
+            {
+                _currentText = _text;
+            }
+            return TextParser.ParseWithProperties(_currentText, graph as BaseGraph);
         }
 
         public void MarkIsEnd()
@@ -48,7 +55,7 @@ namespace SNEngine
                 return;
             }
 
-            _text = value.ToString();
+            _currentText = value.ToString();
             #endregion
         }
     }

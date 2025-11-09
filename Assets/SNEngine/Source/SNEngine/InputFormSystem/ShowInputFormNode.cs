@@ -22,9 +22,14 @@ namespace SNEngine.InputFormSystem
         [Output(ShowBackingValue.Never), SerializeField] private string _output;
 
         private InputFormService _service;
+        private string _currentLabel;
 
         public override void Execute()
         {
+            if (string.IsNullOrEmpty(_currentLabel))
+            {
+                _currentLabel = _label;
+            }
             base.Execute();
 
             bool isTrimming = _trimming;
@@ -38,7 +43,7 @@ namespace SNEngine.InputFormSystem
 
             _service = NovelGame.Instance.GetService<InputFormService>();
 
-            _service.Show(_type, _label, isTrimming);
+            _service.Show(_type, _currentLabel, isTrimming);
 
             _service.OnSubmit += OnSubmit;
         }
@@ -66,7 +71,7 @@ namespace SNEngine.InputFormSystem
                 return;
             }
 
-            _label = value.ToString();
+            _currentLabel = value.ToString();
         }
 
         public object GetValue()

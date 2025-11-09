@@ -21,6 +21,8 @@ namespace SNEngine.SelectVariantsSystem
             "Variant A",
             "Variant B"
         };
+
+        private string[] _currentVariants;
         [Header("Parameters:")]
 
         [Space]
@@ -57,22 +59,19 @@ namespace SNEngine.SelectVariantsSystem
             return _index;
         }
 
-        private async UniTask Show ()
+        private async UniTask Show()
         {
             _index = START_VALUE_INDEX;
 
-            var variants = _variants.ToArray();
+            var sourceVariants = _currentVariants ?? _variants;
+            var variants = sourceVariants.ToArray();
 
             bool hideDialogWindow = _hideDialogWindow;
-
             bool hideCharacters = _hideCharacters;
-
             bool returnCharacterVisible = _returnCharacterVisible;
 
             var inputHideDialogWindow = GetInputPort(nameof(_hideDialogWindow));
-
             var inputHideCharacters = GetInputPort(nameof(_hideCharacters));
-
             var inputReturnCharacterVisible = GetInputPort(nameof(_returnCharacterVisible));
 
             if (inputHideCharacters.Connection != null)
@@ -92,7 +91,6 @@ namespace SNEngine.SelectVariantsSystem
 
             for (int i = 0; i < variants.Length; i++)
             {
-
                 string fieldName = $"{nameof(_variants)} {i}";
 
                 var port = GetInputPort(fieldName);
@@ -113,9 +111,8 @@ namespace SNEngine.SelectVariantsSystem
 
             while (_index == START_VALUE_INDEX)
             {
-                await UniTask.WaitUntil(() => _index == START_VALUE_INDEX, cancellationToken: TokenSource.Token);
+                await UniTask.WaitUntil(() => _index != START_VALUE_INDEX, cancellationToken: TokenSource.Token);
             }
-
         }
 
         private void OnSelect(int index)
@@ -142,7 +139,7 @@ namespace SNEngine.SelectVariantsSystem
                 if (objectsEnumerable.All(x => x is string))
                 {
                     List<string> strings = objectsEnumerable.Cast<string>().ToList();
-                    _variants = strings.ToArray();
+                    _currentVariants = strings.ToArray();
                 }
                 else
                 {
@@ -152,7 +149,7 @@ namespace SNEngine.SelectVariantsSystem
 
             else if (value is IEnumerable<string> stringsEnumerable)
             {
-                _variants = stringsEnumerable.ToArray();
+                _currentVariants = stringsEnumerable.ToArray();
             }
             else
             {
