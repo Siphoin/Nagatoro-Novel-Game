@@ -1,5 +1,6 @@
 ﻿using SiphoinUnityHelpers.XNodeExtensions;
 using SNEngine.DialogSystem;
+using SNEngine.Extensions;
 using SNEngine.Services;
 using UnityEngine;
 
@@ -16,5 +17,9 @@ namespace SNEngine.Graphs
             base.Execute();
         }
 
+        public bool HasNextDialogueOnExit()
+        {
+            return Queue.HasNextDialogueOnExit();
+        }
     }
 }
