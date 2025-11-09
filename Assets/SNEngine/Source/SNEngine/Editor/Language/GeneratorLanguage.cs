@@ -39,6 +39,7 @@ namespace SNEngine.Editor.Language
             DialoguesLanguageWorkerEditor.PathSave = mainPath;
             FlagsLanguageWorkerEditor.FlagToUse = flagPath;
             FlagsLanguageWorkerEditor.PathSave = mainPath;
+            UITemplateLanguageWorkerEditor.PathSave = mainPath;
 
             await languageService.RunAllWorkersAsync();
         }
