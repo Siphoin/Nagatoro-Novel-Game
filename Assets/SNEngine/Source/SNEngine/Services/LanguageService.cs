@@ -21,15 +21,19 @@ namespace SNEngine.Services
         private const string DEFAULT_LANGUAGE = "en";
         private Dictionary<string, CharacterLocalizationData> _chatacterLocalizeData;
         private Dictionary<string, NodeLocalizationData> _nodesLocalizeData;
+        private Dictionary<string, string> _uiLocalizeData;
         private LanguageMetaData _metaData;
         private Texture2D _flag;
         private Dictionary<string, object> _originalNodeValues;
         private DialogueGraph _currentGraph;
+        public event Action<string> OnLanguageLoaded;
 #if UNITY_EDITOR
         [SerializeField] private string _testLang = "ru";
 #endif
 
         public bool LanguageIsLoaded { get; private set; }
+        public string CurrentLanguageCode { get; private set; }
+        public LanguageMetaData MetaData => _metaData;
 
 #if UNITY_EDITOR
         private void OnEnable()
@@ -71,7 +75,7 @@ namespace SNEngine.Services
             _currentGraph = null;
         }
 #endif
-    
+
 
         public override async void Initialize()
         {
@@ -88,6 +92,7 @@ namespace SNEngine.Services
         public async UniTask LoadLanguage(string codeLanguage)
         {
             LanguageIsLoaded = false;
+            CurrentLanguageCode = null;
 
             string langPath = Path.Combine(NovelDirectory.StreamingAssetsPath, "Language", codeLanguage);
 
@@ -101,8 +106,11 @@ namespace SNEngine.Services
             await LoadFlagAsync(langPath);
             await LoadMetadataAsync(langPath);
             await LoadDialoguesAsync(langPath);
+            await LoadUIAsync(langPath);
 
             LanguageIsLoaded = true;
+            CurrentLanguageCode = codeLanguage;
+            OnLanguageLoaded?.Invoke(codeLanguage);
             NovelGameDebug.Log($"Language {codeLanguage} loaded successfully!");
         }
 
@@ -215,6 +223,30 @@ namespace SNEngine.Services
             NovelGameDebug.Log($"Loaded {_nodesLocalizeData.Count} nodes across {dialogueFiles.Length} dialogue files (total nodes counted: {totalNodes})");
         }
 
+
+        private async UniTask LoadUIAsync(string langPath)
+        {
+            string uiPath = Path.Combine(langPath, "ui.yaml");
+            _uiLocalizeData = new Dictionary<string, string>();
+
+            if (!NovelFile.Exists(uiPath)) return;
+
+            try
+            {
+                string yamlText = await NovelFile.ReadAllTextAsync(uiPath);
+                Serializer deserializer = new Serializer();
+                var uiDictionary = deserializer.Deserialize<Dictionary<string, string>>(yamlText);
+                _uiLocalizeData = uiDictionary ?? new Dictionary<string, string>();
+
+                NovelGameDebug.Log($"Loaded {_uiLocalizeData.Count} UI localization entries from ui.yaml");
+            }
+            catch (Exception ex)
+            {
+                NovelGameDebug.LogError($"Failed to load ui.yaml: {ex.Message}");
+            }
+        }
+
+
         public void TransliteGraph(DialogueGraph graph)
         {
             if (!LanguageIsLoaded)
@@ -223,7 +255,6 @@ namespace SNEngine.Services
                 return;
             }
             _currentGraph = graph;
-            // Сохраняем оригинальные значения перед переводом
             _originalNodeValues = new Dictionary<string, object>();
 
             IEnumerable<ILocalizationNode> nodes = _currentGraph.AllNodes
@@ -251,7 +282,7 @@ namespace SNEngine.Services
 #endif
         }
 
-        public string TransliteNameCharacter (Character character)
+        public string TransliteNameCharacter(Character character)
         {
             string name = character.OriginalName;
             if (!LanguageIsLoaded)
@@ -259,13 +290,30 @@ namespace SNEngine.Services
                 NovelGameDebug.LogError("language not loaded");
                 return name;
             }
-            if (_chatacterLocalizeData.TryGetValue (character.GUID, out var localize))
+            if (_chatacterLocalizeData.TryGetValue(character.GUID, out var localize))
             {
                 name = localize.Name;
             }
 
             return name;
         }
+
+
+        public string TransliteUI(string key)
+        {
+            if (!LanguageIsLoaded)
+            {
+                NovelGameDebug.LogError("language not loaded");
+                return key;
+            }
+
+            if (_uiLocalizeData.TryGetValue(key, out var localizedText))
+            {
+                return localizedText;
+            }
+            return key;
+        }
+
 
 #if UNITY_EDITOR
         private void RestoreOriginalValues()
