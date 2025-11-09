@@ -36,12 +36,21 @@ namespace SNEngine.Editor.Language.Workers
 
             foreach (var dialogue in dialogues)
             {
+                var localizationNodes = GetNodesFromGraph(dialogue).ToList();
+
+                if (localizationNodes.Count == 0)
+                {
+                    NovelGameDebug.Log($"[{nameof(DialoguesLanguageWorkerEditor)}] Dialogue '{dialogue.name}' has no localization nodes. Skipping file creation.");
+                    continue;
+                }
+
                 string dialoguePath = Path.Combine(PathSave, ROOT_FOLDER);
                 if (!NovelDirectory.Exists(dialoguePath))
                     await NovelDirectory.CreateAsync(dialoguePath);
 
                 string filePath = Path.Combine(dialoguePath, $"{dialogue.name}.yaml");
-                var currentData = GetNodesFromGraph(dialogue)
+
+                var currentData = localizationNodes
                     .ToDictionary(n => n.GUID, n => (object)n.GetValue());
 
                 Dictionary<string, object> existingData = null;
@@ -65,6 +74,7 @@ namespace SNEngine.Editor.Language.Workers
                 string output = serializer.Serialize(mergedData);
                 await NovelFile.WriteAllTextAsync(filePath, output);
             }
+
 
             return result;
         }
