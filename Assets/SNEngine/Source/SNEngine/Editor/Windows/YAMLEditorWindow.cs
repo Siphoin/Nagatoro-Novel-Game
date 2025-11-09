@@ -46,6 +46,10 @@ public class YAMLEditorWindow : EditorWindow
     private string _rootLangPathNormalized;
     private string _lastInputText = "";
 
+    private string _searchQuery = "";
+
+    private bool _hasLanguages = false; // Добавлено для проверки наличия языков
+
     [MenuItem("SNEngine/YAML Editor")]
     private static void Open() => GetWindow<YAMLEditorWindow>("YAML Editor");
 
@@ -135,14 +139,23 @@ public class YAMLEditorWindow : EditorWindow
         if (_langService == null)
         {
             Debug.LogError("LanguageServiceEditor not found in Resources!");
+            _hasLanguages = false;
             return;
         }
 
         _availableLanguages = _langService.GetAvailableLanguages().ToList();
-        if (_availableLanguages.Count > 0)
+        _hasLanguages = _availableLanguages.Count > 0;
+
+        if (_hasLanguages)
         {
             _selectedLanguage = _availableLanguages[0];
             ReloadLanguageStructure();
+        }
+        else
+        {
+            _selectedLanguage = null;
+            _languageStructure.Clear();
+            _foldouts.Clear();
         }
     }
 
@@ -187,7 +200,6 @@ public class YAMLEditorWindow : EditorWindow
 
         highlighted = Regex.Replace(highlighted, @"(#[^\n]*)", $"<color={ColorGreenComment}>$1</color>");
 
-        // 2. Ключи (Фиолетовый)
         highlighted = Regex.Replace(highlighted, @"^(\s*[-]?\s*)([^\s#:-][^\s#:]*):",
             m => $"{m.Groups[1].Value}<color={ColorPurpleKey}>{m.Groups[2].Value}</color>:", RegexOptions.Multiline);
 
@@ -224,25 +236,36 @@ public class YAMLEditorWindow : EditorWindow
         EditorGUILayout.BeginHorizontal(EditorStyles.toolbar);
 
         EditorGUILayout.LabelField("Language:", GUILayout.Width(70));
-        int langIndex = _availableLanguages.IndexOf(_selectedLanguage);
-        int newLangIndex = EditorGUILayout.Popup(langIndex, _availableLanguages.ToArray(), GUILayout.Width(120));
-        if (newLangIndex >= 0 && _selectedLanguage != _availableLanguages[newLangIndex])
+
+        // Отрисовка выпадающего списка только при наличии языков
+        if (_hasLanguages)
         {
-            string newLanguage = _availableLanguages[newLangIndex];
-
-            if (_isDirty)
+            int langIndex = _availableLanguages.IndexOf(_selectedLanguage);
+            int newLangIndex = EditorGUILayout.Popup(langIndex, _availableLanguages.ToArray(), GUILayout.Width(120));
+            if (newLangIndex >= 0 && _selectedLanguage != _availableLanguages[newLangIndex])
             {
-                if (EditorUtility.DisplayDialog("Unsaved Changes",
-                    $"Do you want to save changes to '{Path.GetFileName(_selectedFilePath)}' before changing language?",
-                    "Save and Change", "Change without Saving"))
-                {
-                    SaveFile(_selectedFilePath);
-                }
-            }
+                string newLanguage = _availableLanguages[newLangIndex];
 
-            _selectedLanguage = newLanguage;
-            ReloadLanguageStructure();
+                if (_isDirty)
+                {
+                    if (EditorUtility.DisplayDialog("Unsaved Changes",
+                        $"Do you want to save changes to '{Path.GetFileName(_selectedFilePath)}' before changing language?",
+                        "Save and Change", "Change without Saving"))
+                    {
+                        SaveFile(_selectedFilePath);
+                    }
+                }
+
+                _selectedLanguage = newLanguage;
+                ReloadLanguageStructure();
+            }
         }
+        else
+        {
+            // Заглушка, если языки отсутствуют
+            EditorGUILayout.LabelField("N/A", GUILayout.Width(120));
+        }
+
 
         if (GUILayout.Button("Reload Structure", EditorStyles.toolbarButton, GUILayout.Width(100))) ReloadLanguageStructure();
 
@@ -260,21 +283,43 @@ public class YAMLEditorWindow : EditorWindow
 
         EditorGUILayout.BeginVertical(GUILayout.Width(FileBlockWidth), GUILayout.ExpandHeight(true));
 
-        if (_languageStructure.ContainsKey(_rootLangPathNormalized))
+        // Отрисовка блока поиска только при наличии языков
+        if (_hasLanguages)
+        {
+            DrawFileBlockSearch();
+        }
+
+        if (_hasLanguages && _languageStructure.ContainsKey(_rootLangPathNormalized))
         {
             _scrollPosFiles = EditorGUILayout.BeginScrollView(_scrollPosFiles);
             DrawFolder(_rootLangPathNormalized, _languageStructure[_rootLangPathNormalized]);
             EditorGUILayout.EndScrollView();
         }
-        else
+        else if (_hasLanguages)
         {
             EditorGUILayout.LabelField("No language structure loaded.", EditorStyles.centeredGreyMiniLabel, GUILayout.ExpandHeight(true));
+        }
+        else
+        {
+            EditorGUILayout.LabelField("No Languages Found.", EditorStyles.centeredGreyMiniLabel, GUILayout.ExpandHeight(true));
         }
 
         EditorGUILayout.EndVertical();
 
+        // --- Измененная логика центральной панели ---
+        if (!_hasLanguages)
+        {
+            GUIStyle errorStyle = new GUIStyle(EditorStyles.boldLabel)
+            {
+                alignment = TextAnchor.MiddleCenter,
+                normal = { textColor = Color.red },
+                fontSize = 16
+            };
 
-        if (!string.IsNullOrEmpty(_selectedFilePath))
+            EditorGUILayout.LabelField("Please generate any language",
+                errorStyle, GUILayout.ExpandHeight(true), GUILayout.ExpandWidth(true));
+        }
+        else if (!string.IsNullOrEmpty(_selectedFilePath))
         {
             DrawYamlEditor();
         }
@@ -287,6 +332,29 @@ public class YAMLEditorWindow : EditorWindow
 
         EditorGUILayout.EndHorizontal();
     }
+
+    private void DrawFileBlockSearch()
+    {
+        EditorGUILayout.BeginHorizontal(EditorStyles.toolbar);
+        GUI.SetNextControlName("FileSearchField");
+        string newSearchQuery = GUILayout.TextField(_searchQuery, EditorStyles.toolbarSearchField);
+
+        if (newSearchQuery != _searchQuery)
+        {
+            _searchQuery = newSearchQuery;
+            Repaint();
+        }
+
+        if (GUILayout.Button(EditorGUIUtility.IconContent("d_winbtn_close"), EditorStyles.toolbarButton, GUILayout.Width(20)))
+        {
+            _searchQuery = "";
+            GUI.FocusControl(null);
+            Repaint();
+        }
+
+        EditorGUILayout.EndHorizontal();
+    }
+
 
     private void DrawYamlEditor()
     {
@@ -511,6 +579,7 @@ public class YAMLEditorWindow : EditorWindow
         _selectedFilePath = null;
         _yamlText = "";
         _lastInputText = "";
+        _searchQuery = "";
 
 
         if (Directory.Exists(langPath))
@@ -548,25 +617,99 @@ public class YAMLEditorWindow : EditorWindow
         }
     }
 
+    private bool CheckFolderForMatchRecursive(string folderPathNormalized)
+    {
+        if (string.IsNullOrEmpty(_searchQuery)) return true;
+        if (!_languageStructure.ContainsKey(folderPathNormalized)) return false;
+
+        string query = _searchQuery.ToLowerInvariant();
+
+        if (_languageStructure[folderPathNormalized]
+            .Any(f => f.ToLowerInvariant().Contains(query)))
+        {
+            return true;
+        }
+
+        char separator = Path.DirectorySeparatorChar;
+        string pathPrefix = folderPathNormalized + separator;
+
+        List<string> subFolders = _languageStructure.Keys
+            .Where(k =>
+            {
+                if (!k.StartsWith(pathPrefix, System.StringComparison.OrdinalIgnoreCase))
+                    return false;
+
+                string remainingPath = k.Substring(pathPrefix.Length);
+
+                return !remainingPath.Contains(separator);
+            })
+            .OrderBy(k => Path.GetFileName(k))
+            .ToList();
+
+        foreach (string subFolder in subFolders)
+        {
+            if (_languageStructure.ContainsKey(subFolder) && CheckFolderForMatchRecursive(subFolder))
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
     private void DrawFolder(string folderPathNormalized, List<string> files)
     {
-        string folderName = Path.GetFileName(folderPathNormalized);
+        if (string.IsNullOrEmpty(folderPathNormalized)) return;
 
+        string folderName = Path.GetFileName(folderPathNormalized);
         if (string.Equals(folderPathNormalized, _rootLangPathNormalized, System.StringComparison.OrdinalIgnoreCase))
         {
             folderName = _selectedLanguage;
         }
 
+        bool isSearching = !string.IsNullOrEmpty(_searchQuery);
+        string query = _searchQuery.ToLowerInvariant();
+
+        List<string> filteredFiles = isSearching
+            ? files.Where(f => f.ToLowerInvariant().Contains(query)).ToList()
+            : files;
+
+        bool folderMatches = CheckFolderForMatchRecursive(folderPathNormalized);
+
+        if (isSearching && !folderMatches && !string.Equals(folderPathNormalized, _rootLangPathNormalized, System.StringComparison.OrdinalIgnoreCase))
+        {
+            return;
+        }
+
         if (!_foldouts.ContainsKey(folderPathNormalized))
             _foldouts[folderPathNormalized] = false;
 
-        _foldouts[folderPathNormalized] = EditorGUILayout.Foldout(_foldouts[folderPathNormalized], folderName);
+        bool shouldBeOpen = _foldouts[folderPathNormalized];
 
-        if (_foldouts[folderPathNormalized])
+        if (isSearching && folderMatches)
+        {
+            if (string.Equals(folderPathNormalized, _rootLangPathNormalized, System.StringComparison.OrdinalIgnoreCase))
+            {
+                _foldouts[folderPathNormalized] = EditorGUILayout.Foldout(_foldouts[folderPathNormalized], folderName);
+                shouldBeOpen = _foldouts[folderPathNormalized];
+            }
+            else
+            {
+                EditorGUILayout.Foldout(true, folderName, true);
+                shouldBeOpen = true;
+            }
+        }
+        else
+        {
+            _foldouts[folderPathNormalized] = EditorGUILayout.Foldout(_foldouts[folderPathNormalized], folderName);
+            shouldBeOpen = _foldouts[folderPathNormalized];
+        }
+
+        if (shouldBeOpen)
         {
             EditorGUI.indentLevel++;
 
-            foreach (string file in files)
+            foreach (string file in filteredFiles)
             {
                 string fullPath = Path.Combine(folderPathNormalized, file);
                 bool isSelected = NormalizePath(fullPath) == NormalizePath(_selectedFilePath);
