@@ -41,8 +41,8 @@ namespace SNEngine.Services
             _frameDetector = prefabFrameDetector;
             // test
 
-            await UniTask.WaitForSeconds(3);
-            JumpToStartDialogue();
+           // await UniTask.WaitForSeconds(3);
+            // JumpToStartDialogue();
             
         }
 

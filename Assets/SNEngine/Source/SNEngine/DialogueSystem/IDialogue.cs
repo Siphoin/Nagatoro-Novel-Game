@@ -9,7 +9,7 @@ namespace SNEngine.DialogSystem
         event Action OnEndExecute;
 
         void Execute();
-
+        bool HasNextDialogueOnExit();
         void Pause();
 
         void Stop();

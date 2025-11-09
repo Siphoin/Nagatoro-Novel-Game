@@ -47,6 +47,10 @@ namespace SNEngine.SelectVariantsSystem
 
         public override void Execute()
         {
+            if (_currentVariants is null || _currentVariants.Length == 0)
+            {
+                _currentVariants = _variants;
+            }
             base.Execute();
 
             Show().Forget();
