@@ -22,16 +22,35 @@ namespace SiphoinUnityHelpers.XNodeExtensions
         {
             get
             {
-                if (string.IsNullOrEmpty(_nodeGuid))
-                    _nodeGuid = Guid.NewGuid().ToString("N").Substring(0, 15);
+#if UNITY_EDITOR
+                RegenerateGUID();
+#endif
                 return _nodeGuid;
             }
         }
+#if UNITY_EDITOR
+        private void RegenerateGUID()
+        {
+            if (string.IsNullOrEmpty(_nodeGuid))
+                ResetGUID();
+        }
+
+        private void ResetGUID()
+        {
+            _nodeGuid = Guid.NewGuid().ToString("N").Substring(0, 15);
+        }
+
+        private void Awake()
+        {
+            RegenerateGUID();
+        }
+#endif
 
         public virtual void Execute()
         {
             throw new NotImplementedException($"Node {GetType().Name} has no implementation for Execute()");
         }
+
 
         protected T GetDataFromPort<T>(string fieldName)
         {
