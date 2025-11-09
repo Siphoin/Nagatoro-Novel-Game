@@ -998,6 +998,7 @@ GameObject:
   - component: {fileID: 4353847022928292859}
   - component: {fileID: 8049074889248754200}
   - component: {fileID: 3170101251410139005}
+  - component: {fileID: 3250200574046770777}
   m_Layer: 5
   m_Name: SelectLanguageButton
   m_TagString: Untagged
@@ -1021,8 +1022,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 1, y: 0}
   m_AnchorMax: {x: 1, y: 0}
-  m_AnchoredPosition: {x: -100.01001, y: 100.00006}
-  m_SizeDelta: {x: 200, y: 200}
+  m_AnchoredPosition: {x: -57.3, y: 32.3}
+  m_SizeDelta: {x: 102.0662, y: 51.0331}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &4353847022928292859
 CanvasRenderer:
@@ -1045,14 +1046,14 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 0.5283019, g: 0.49590603, b: 0.49590603, a: 1}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 0}
+  m_Sprite: {fileID: -4394528681007485823, guid: 9bb4ce4d71860c24e8745a0e9ec79c8e, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -1106,6 +1107,20 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls: []
+--- !u!114 &3250200574046770777
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8217202092804750281}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4dc0d8ae9574e5c458ba073e4d13557c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _button: {fileID: 3170101251410139005}
+  _image: {fileID: 8049074889248754200}
 --- !u!1 &8481977834977349046
 GameObject:
   m_ObjectHideFlags: 0

@@ -35,6 +35,8 @@ namespace SNEngine.Services
         public string CurrentLanguageCode { get; private set; }
         public LanguageMetaData MetaData => _metaData;
 
+        public Texture2D Flag => _flag;
+
 #if UNITY_EDITOR
         private void OnEnable()
         {
