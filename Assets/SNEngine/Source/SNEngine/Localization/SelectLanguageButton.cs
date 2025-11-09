@@ -17,6 +17,12 @@ namespace SNEngine.Localization
         private LanguageService LanguageService => NovelGame.Instance.GetService<LanguageService>();
         private Sprite _currentFlagSprite;
 
+        private void Awake()
+        {
+            _button.enabled = false;
+            _image.enabled = false;
+        }
+
         private void OnEnable()
         {
             LanguageService.OnLanguageLoaded += OnLanguageLoaded;
@@ -48,6 +54,8 @@ namespace SNEngine.Localization
 
                 _image.sprite = newFlagSprite;
                 _currentFlagSprite = newFlagSprite;
+                _image.enabled = true;
+                _button.enabled = true;
             }
             else
             {
