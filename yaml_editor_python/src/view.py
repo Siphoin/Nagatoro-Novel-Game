@@ -866,38 +866,59 @@ class YAMLEditorWindow(QMainWindow):
         self.update_status_bar()
         self.update_undo_redo_ui()
         
-    def try_close_tab(self, index: int):
-        # ... (Код try_close_tab) ...
-        if index < 0 or index >= len(self.open_tabs): return
 
+    def try_close_tab(self, index: int):
+        """
+        Обрабатывает запрос на закрытие вкладки по индексу, 
+        проверяя несохраненные изменения и обновляя содержимое QTextEdit.
+        
+        ИСПРАВЛЕНИЕ: Гарантирует, что после удаления вкладки поле ввода
+        обновится содержимым новой активной вкладки или очистится.
+        """
+        
+        if not (0 <= index < len(self.open_tabs)):
+            return 
+            
         tab_to_close = self.open_tabs[index]
 
+        # --- 1. Проверка сохранения ---
         if tab_to_close.is_dirty:
-            reply = QMessageBox.question(self, 'Unsaved Changes',
-                f"Do you want to save changes to file '{os.path.basename(tab_to_close.file_path)}' before closing?",
-                QMessageBox.Save | QMessageBox.Discard | QMessageBox.Cancel, QMessageBox.Cancel)
+            reply = QMessageBox.question(self, 'Сохранить изменения', 
+                                         f"Файл '{os.path.basename(tab_to_close.file_path)}' имеет несохраненные изменения. Хотите сохранить?",
+                                         QMessageBox.Save | QMessageBox.Discard | QMessageBox.Cancel, QMessageBox.Cancel)
             
             if reply == QMessageBox.Cancel:
-                return
-            elif reply == QMessageBox.Save:
-                self.save_file_action(tab_to_close)
+                return # Отмена закрытия
+            
+            if reply == QMessageBox.Save:
+                # Предполагаем, что save_file_action обновляет tab_to_save.is_dirty
+                self.save_file_action(tab_to_close) 
                 if tab_to_close.is_dirty: 
-                    return
+                    return # Если сохранить не удалось, отменяем закрытие
 
+        # --- 2. Удаление вкладки из списка моделей (YAMLTab) ---
         self.open_tabs.pop(index)
 
-        if len(self.open_tabs) == 0:
-            self.current_tab_index = -1
-            self.current_tab = None
-            self.text_edit.setText("")
-        elif self.current_tab_index == index:
-            new_index = max(0, index - 1)
-            self.switch_tab_action(new_index) 
-        elif self.current_tab_index > index:
-            self.current_tab_index -= 1
-            self.current_tab = self.open_tabs[self.current_tab_index]
+        # --- 3. Обновление текущей активной вкладки и контента редактора ---
+        if self.open_tabs:
+            # 1. Определяем новый индекс
+            # Если удаленная вкладка была последней, переходим к предпоследней, иначе - к вкладке на ее месте.
+            new_index = min(index, len(self.open_tabs) - 1)
             
-        self.draw_tabs_placeholder()
+            # 2. Устанавливаем новую активную вкладку и обновляем контент
+            # Вместо дублирования логики переключения, вызываем существующий метод switch_tab_action.
+            # Если switch_tab_action корректно реализован (как показано выше), он сделает все необходимое.
+            self.switch_tab_action(new_index)
+            
+        else:
+            # Если вкладок не осталось: очищаем поле ввода
+            self.current_tab = None
+            self.current_tab_index = -1
+            self.text_edit.setText("") # <--- КЛЮЧЕВОЕ ИСПРАВЛЕНИЕ: Очистка редактора
+            self.text_edit.clearUndoRedoStacks()
+
+        # --- 4. Обновление остальных элементов UI ---
+        self.draw_tabs_placeholder() # Обновление списка вкладок в UI
         self.draw_file_tree()
         self.update_status_bar()
         self.update_undo_redo_ui()
