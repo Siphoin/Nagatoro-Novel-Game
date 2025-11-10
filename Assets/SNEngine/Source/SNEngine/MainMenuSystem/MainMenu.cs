@@ -14,10 +14,6 @@ namespace SNEngine.MainMenuSystem
         [SerializeField] private Button _buttonSettings;
         [SerializeField] private Button _buttonQuit;
 
-        [SerializeField] private TextMeshProUGUI _textVersion;
-        [SerializeField] private TextMeshProUGUI _textAppName;
-        [SerializeField] private TextMeshProUGUI _textCompanyName;
-
         private DialogueService _dialogueService;
 
         private void Awake()
@@ -35,21 +31,6 @@ namespace SNEngine.MainMenuSystem
             if (!_buttonSettings)
             {
                 throw new NullReferenceException("button settings game not seted on main menu script");
-            }
-
-            if (!_textVersion)
-            {
-                throw new NullReferenceException("text version game not seted on main menu script");
-            }
-
-            if (!_textAppName)
-            {
-                throw new NullReferenceException("text app name game not seted on main menu script");
-            }
-
-            if (!_textCompanyName)
-            {
-                throw new NullReferenceException("text company name game not seted on main menu script");
             }
 
 #if UNITY_STANDALONE
@@ -94,9 +75,6 @@ namespace SNEngine.MainMenuSystem
 #if UNITY_ANDROID || UNITY_IOS
             Destroy(_buttonQuit.gameObject);
 #endif
-            _textVersion.text = Application.version;
-            _textAppName.text = Application.productName;
-            _textCompanyName.text = Application.companyName;
         }
 
         public void Hide()
