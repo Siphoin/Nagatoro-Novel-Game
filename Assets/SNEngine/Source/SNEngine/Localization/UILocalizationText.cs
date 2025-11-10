@@ -31,7 +31,14 @@ namespace SNEngine.Localization
 
         private void OnLanguageLoaded(string languageCode)
         {
-            _component.text = LanguageService.TransliteUI(_key);
+            if (_key.StartsWith("%") && !string.IsNullOrWhiteSpace(_key))
+            {
+                _component.text = LocalizationConstants.GetValue(_key);
+            }
+            else
+            {
+                _component.text = LanguageService.TransliteUI(_key);
+            }
         }
 
         private void OnValidate()
