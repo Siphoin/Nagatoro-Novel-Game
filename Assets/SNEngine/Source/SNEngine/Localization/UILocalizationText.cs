@@ -17,6 +17,11 @@ namespace SNEngine.Localization
         private void OnEnable()
         {
             LanguageService.OnLanguageLoaded += OnLanguageLoaded;
+
+            if (LanguageService.LanguageIsLoaded)
+            {
+                OnLanguageLoaded(LanguageService.CurrentLanguageCode);
+            }
         }
 
         private void OnDisable()

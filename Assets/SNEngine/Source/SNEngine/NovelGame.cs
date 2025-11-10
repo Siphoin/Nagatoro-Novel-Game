@@ -5,6 +5,7 @@ using UnityEngine;
 
 namespace SNEngine
 {
+    [RequireComponent(typeof(MonoStratup))]
     public class NovelGame : MonoBehaviour, INovelGame
     {
         [SerializeField] private ServiceContainer _serviceContainer;

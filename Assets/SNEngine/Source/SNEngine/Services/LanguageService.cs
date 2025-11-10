@@ -18,7 +18,6 @@ namespace SNEngine.Services
     [CreateAssetMenu(menuName = "SNEngine/Services/Language Service")]
     public class LanguageService : ServiceBase
     {
-        private const string DEFAULT_LANGUAGE = "en";
         private Dictionary<string, CharacterLocalizationData> _chatacterLocalizeData;
         private Dictionary<string, NodeLocalizationData> _nodesLocalizeData;
         private Dictionary<string, string> _uiLocalizeData;
@@ -77,20 +76,6 @@ namespace SNEngine.Services
             _currentGraph = null;
         }
 #endif
-
-
-        public override async void Initialize()
-        {
-            string codeStart = DEFAULT_LANGUAGE;
-#if UNITY_EDITOR
-            if (!string.IsNullOrEmpty(_testLang))
-            {
-                codeStart = _testLang;
-            }
-#endif
-            
-            await LoadLanguage(codeStart);
-        }
 
         public async UniTask LoadLanguage(string codeLanguage)
         {
