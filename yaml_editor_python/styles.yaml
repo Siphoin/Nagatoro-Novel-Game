@@ -1,0 +1,25 @@
+# styles.yaml
+# Цветовая схема для редактора YAML.
+# Используется в view.py для динамической генерации CSS.
+
+DarkTheme:
+  # Основные цвета
+  Background: "#3C3C3C"        # Общий фон
+  Foreground: "#CCCCCC"        # Общий текст
+  SecondaryBackground: "#4C4C4C" # Тулбар, статус-бар
+  EditorBackground: "#2D2D2D"    # Фон текстового редактора
+  BorderColor: "#1D1D1D"       # Цвет рамки ввода/текста
+  HighlightColor: "#0078D7"    # Основной цвет выделения (синий)
+  HoverColor: "#5C5C5C"       # Цвет при наведении
+
+  # Цвета панели файлов
+  FilePanelBackground: "#333333"
+  FilePanelHover: "#4C4C4C"
+  FolderColor: "#FFC107"       # Желтый для папок
+
+  # Цвета уведомлений/статуса
+  StatusDefault: "#AAAAAA"
+  NotificationSuccess: "#28A745" # Зеленый
+  NotificationError: "#DC3545"   # Красный
+  NotificationWarning: "#FFC107" # Желтый
+  NotificationWarning: "#FFC107"
