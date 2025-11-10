@@ -2,6 +2,7 @@
 using System.IO;
 using System.Text;
 using Cysharp.Threading.Tasks;
+using SNEngine.Debugging;
 using UnityEngine;
 
 namespace SNEngine.IO
@@ -131,5 +132,23 @@ namespace SNEngine.IO
 
         public static void Replace(string sourceFileName, string destinationFileName, string destinationBackupFileName, bool ignoreMetadataErrors) =>
             File.Replace(sourceFileName, destinationFileName, destinationBackupFileName, ignoreMetadataErrors);
+
+        public static string GetAbsolutePath(string path)
+        {
+            if (Path.IsPathRooted(path))
+            {
+                return path;
+            }
+
+            try
+            {
+                return Path.GetFullPath(path);
+            }
+            catch (Exception ex)
+            {
+                NovelGameDebug.LogError($"Failed to get full path for {path}: {ex.Message}");
+                return path;
+            }
+        }
     }
 }

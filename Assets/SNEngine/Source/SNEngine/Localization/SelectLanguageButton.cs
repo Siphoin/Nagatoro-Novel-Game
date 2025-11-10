@@ -21,6 +21,12 @@ namespace SNEngine.Localization
         {
             _button.enabled = false;
             _image.enabled = false;
+            _button.onClick.AddListener(OpenLanguageSelectWindow);
+        }
+
+        private void OpenLanguageSelectWindow()
+        {
+            NovelGame.Instance.GetService<LanguageListViewService>().Show();
         }
 
         private void OnEnable()

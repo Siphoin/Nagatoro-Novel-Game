@@ -2,3 +2,5 @@ new_game: New Game
 settings: Settings
 continue: Continue
 exit: Exit
+select_language: Select Language
+input_placeholder: Enter text...

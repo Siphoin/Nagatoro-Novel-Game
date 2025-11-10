@@ -30,17 +30,33 @@ namespace SNEngine.Services
         [SerializeField] private string _testLang = "ru";
 #endif
 
-        public bool LanguageIsLoaded { get; private set; }
+        public bool LanguageIsLoaded
+        {
+            get
+            {
+                return _metaData != null;
+            }
+        }
         public string CurrentLanguageCode { get; private set; }
         public LanguageMetaData MetaData => _metaData;
 
         public Texture2D Flag => _flag;
 
-#if UNITY_EDITOR
         private void OnEnable()
         {
+#if UNITY_EDITOR
             EditorApplication.playModeStateChanged += OnPlayModeStateChanged;
+#endif
+
+            _metaData = null;
+            _flag = null;
+            _originalNodeValues = null;
+            _nodesLocalizeData = null;
+            _uiLocalizeData = null;
+
         }
+
+#if UNITY_EDITOR
 
         private void OnDisable()
         {
@@ -79,7 +95,6 @@ namespace SNEngine.Services
 
         public async UniTask LoadLanguage(string codeLanguage)
         {
-            LanguageIsLoaded = false;
             CurrentLanguageCode = null;
 
             string langPath = Path.Combine(NovelDirectory.StreamingAssetsPath, "Language", codeLanguage);
@@ -96,7 +111,6 @@ namespace SNEngine.Services
             await LoadDialoguesAsync(langPath);
             await LoadUIAsync(langPath);
 
-            LanguageIsLoaded = true;
             CurrentLanguageCode = codeLanguage;
             OnLanguageLoaded?.Invoke(codeLanguage);
             NovelGameDebug.Log($"Language {codeLanguage} loaded successfully!");
@@ -232,6 +246,53 @@ namespace SNEngine.Services
             {
                 NovelGameDebug.LogError($"Failed to load ui.yaml: {ex.Message}");
             }
+        }
+
+        public async UniTask<Dictionary<string, PreloadLanguageData>> GetAvailableLanguagesAsync()
+        {
+            Dictionary<string, PreloadLanguageData> availableLanguages = new Dictionary<string, PreloadLanguageData>();
+            string langRootPath = Path.Combine(NovelDirectory.StreamingAssetsPath, "Language");
+
+            if (!NovelDirectory.Exists(langRootPath))
+            {
+                NovelGameDebug.LogError($"Language root folder not found: {langRootPath}");
+                return availableLanguages;
+            }
+
+            string[] languageFolders = await NovelDirectory.GetDirectoriesAsync(langRootPath);
+            Serializer deserializer = new Serializer();
+
+            foreach (var langPath in languageFolders)
+            {
+                string codeLanguage = Path.GetFileName(langPath);
+                string metadataPath = Path.Combine(langPath, "metadata.yaml");
+                string flagPath = Path.Combine(langPath, "flag.png");
+
+                if (!NovelFile.Exists(metadataPath))
+                {
+                    NovelGameDebug.LogWarning($"Metadata file not found for language: {codeLanguage}");
+                    continue;
+                }
+
+                try
+                {
+                    string yamlText = await NovelFile.ReadAllTextAsync(metadataPath);
+                    LanguageMetaData metaData = deserializer.Deserialize<LanguageMetaData>(yamlText);
+
+                    availableLanguages.Add(codeLanguage, new PreloadLanguageData
+                    {
+                        CodeLanguage = codeLanguage,
+                        MetaData = metaData,
+                        PathFlag = NovelFile.GetAbsolutePath(flagPath)
+                    });
+                }
+                catch (Exception ex)
+                {
+                    NovelGameDebug.LogError($"Failed to read or deserialize metadata for language {codeLanguage}: {ex.Message}");
+                }
+            }
+
+            return availableLanguages;
         }
 
 

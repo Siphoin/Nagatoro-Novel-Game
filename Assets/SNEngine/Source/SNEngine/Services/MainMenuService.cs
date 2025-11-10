@@ -27,7 +27,7 @@ namespace SNEngine.Services
 
             ui.AddElementToUIContainer(prefab.gameObject);
 
-            _mainMenu.Hide();
+            prefab.gameObject.SetActive(false);
 
             _dialogueService.OnEndDialogue += OnEndDialogue;
         }

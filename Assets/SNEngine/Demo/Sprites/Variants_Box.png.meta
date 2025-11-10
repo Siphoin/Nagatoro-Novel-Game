@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: c2d953095d8a40d4a83dba77e2b6d2b6
+guid: 69f4b6c8629556940a14359b7d33bf72
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: -2524007695634762480
-    second: Dialogue_Designs_Transparent_0
+      213: -8510481760627712780
+    second: Variants_Box_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -100,7 +100,7 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: Dialogue_Designs_Transparent_0
+      name: Variants_Box_0
       rect:
         serializedVersion: 2
         x: 0
@@ -109,14 +109,14 @@ TextureImporter:
         height: 256
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
-      border: {x: 20, y: 20, z: 20, w: 20}
+      border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 0157653af5ce8fcd0800000000000000
-      internalID: -2524007695634762480
+      spriteID: 4fc185edde1b4e980800000000000000
+      internalID: -8510481760627712780
       vertices: []
       indices: 
       edges: []
@@ -125,8 +125,8 @@ TextureImporter:
     customData: 
     physicsShape: []
     bones: []
-    spriteID: 2d83b3c47b227e6498fee333b39caaca
-    internalID: 977589387
+    spriteID: 5e97eb03825dee720800000000000000
+    internalID: 1537655665
     vertices: []
     indices: 
     edges: []
@@ -135,7 +135,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      Dialogue_Designs_Transparent_0: -2524007695634762480
+      Variants_Box_0: -8510481760627712780
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

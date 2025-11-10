@@ -926,7 +926,7 @@ public class YAMLEditorWindow : EditorWindow
             Repaint();
         }
 
-        if (GUILayout.Button(EditorGUIUtility.IconContent("d_winbtn_close"), EditorStyles.toolbarButton, GUILayout.Width(20)))
+        if (GUILayout.Button("", EditorStyles.iconButton, GUILayout.Width(20)))
         {
             _searchQuery = "";
             GUI.FocusControl(null);
