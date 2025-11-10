@@ -4,6 +4,7 @@ using SNEngine.Editor.Windows.Models;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text;
 using System.Text.RegularExpressions;
 using UnityEditor;
 using UnityEngine;
@@ -754,29 +755,164 @@ public class YAMLEditorWindow : EditorWindow
     {
         if (string.IsNullOrEmpty(input) || _syntaxStyle == null) return input;
 
-        string highlighted = input;
-
         string ColorGreenComment = _syntaxStyle.CommentColor;
         string ColorPurpleKey = _syntaxStyle.KeyColor;
         string ColorYellowKeyword = _syntaxStyle.KeywordColor;
         string ColorBlueString = _syntaxStyle.StringColor;
 
-        highlighted = Regex.Replace(highlighted, @"(#[^\n]*)", $"<color={ColorGreenComment}>$1</color>");
+        var sb = new StringBuilder();
+        var lines = input.Split('\n');
 
-        highlighted = Regex.Replace(highlighted, @"^(\s*[-]?\s*)([^\s#:-][^\s#:]*):",
-            m => $"{m.Groups[1].Value}<color={ColorPurpleKey}>{m.Groups[2].Value}</color>:", RegexOptions.Multiline);
+        foreach (var rawLine in lines)
+        {
+            string line = rawLine.TrimEnd('\r');
+            int commentIndex = IndexOfHashOutsideQuotes(line);
+            string commentPart = commentIndex >= 0 ? line.Substring(commentIndex) : null;
+            string content = commentIndex >= 0 ? line.Substring(0, commentIndex) : line;
+            int colonIndex = IndexOfCharOutsideQuotes(content, ':');
 
-        highlighted = Regex.Replace(highlighted, @"\b(\d+(\.\d+)?|true|false|null)\b", $"<color={ColorYellowKeyword}>$1</color>");
+            if (colonIndex >= 0)
+            {
+                string left = content.Substring(0, colonIndex);
+                string right = content.Substring(colonIndex + 1);
+                var leftMatch = System.Text.RegularExpressions.Regex.Match(left, @"^(\s*)(-?\s*)?(.*)$");
+                string indent = leftMatch.Groups[1].Value;
+                string maybeDash = leftMatch.Groups[2].Value ?? "";
+                string keyText = leftMatch.Groups[3].Value ?? "";
+                keyText = keyText.TrimEnd();
 
-        highlighted = Regex.Replace(highlighted, @"(['""][^'""]*['""])", $"<color={ColorBlueString}>$1</color>");
+                var linePart = new StringBuilder();
+                linePart.Append(indent);
+                if (!string.IsNullOrEmpty(maybeDash) && maybeDash.Contains("-"))
+                    linePart.Append($"<color={ColorBlueString}>{maybeDash}</color>");
+                if (!string.IsNullOrEmpty(keyText))
+                    linePart.Append($"<color={ColorPurpleKey}>{keyText}</color>");
+                linePart.Append(":");
 
-        highlighted = Regex.Replace(highlighted, @"^(\s*)(-\s)([^\n]+)",
-            m => $"{m.Groups[1].Value}<color={ColorBlueString}>{m.Groups[2].Value}{m.Groups[3].Value}</color>", RegexOptions.Multiline);
+                int leadSpaces = 0;
+                while (leadSpaces < right.Length && char.IsWhiteSpace(right[leadSpaces])) leadSpaces++;
+                string valueLead = right.Substring(0, leadSpaces);
+                string value = right.Substring(leadSpaces);
 
-        highlighted = Regex.Replace(highlighted, @":\s([^\n]+)", $": <color={ColorBlueString}>$1</color>");
+                string highlightedValue = "";
+                if (string.IsNullOrEmpty(value))
+                    highlightedValue = "";
+                else if (value.StartsWith("'") || value.StartsWith("\""))
+                    highlightedValue = $"{valueLead}<color={ColorBlueString}>{value}</color>";
+                else if (value.StartsWith("|") || value.StartsWith(">"))
+                    highlightedValue = $"{valueLead}<color={ColorBlueString}>{value}</color>";
+                else
+                    highlightedValue = valueLead + HighlightUnquotedValue(value, ColorBlueString, ColorYellowKeyword);
 
-        return highlighted;
+                sb.Append(linePart.ToString());
+                sb.Append(highlightedValue);
+                if (commentPart != null) sb.Append($"<color={ColorGreenComment}>{commentPart}</color>");
+                sb.Append('\n');
+            }
+            else
+            {
+                int firstNonSpace = 0;
+                while (firstNonSpace < content.Length && char.IsWhiteSpace(content[firstNonSpace])) firstNonSpace++;
+                if (firstNonSpace < content.Length && content[firstNonSpace] == '-')
+                {
+                    string before = content.Substring(0, firstNonSpace);
+                    string dash = "-";
+                    string after = content.Substring(firstNonSpace + 1);
+                    int afterLead = 0;
+                    while (afterLead < after.Length && char.IsWhiteSpace(after[afterLead])) afterLead++;
+                    string afterLeadStr = after.Substring(0, afterLead);
+                    string value = after.Substring(afterLead);
+
+                    string highlightedValue;
+                    if (string.IsNullOrEmpty(value)) highlightedValue = "";
+                    else if (value.StartsWith("'") || value.StartsWith("\""))
+                        highlightedValue = $"{afterLeadStr}<color={ColorBlueString}>{value}</color>";
+                    else
+                        highlightedValue = afterLeadStr + HighlightUnquotedValue(value, ColorBlueString, ColorYellowKeyword);
+
+                    sb.Append(before);
+                    sb.Append($"<color={ColorBlueString}>{dash}</color>");
+                    sb.Append(highlightedValue);
+                    if (commentPart != null) sb.Append($"<color={ColorGreenComment}>{commentPart}</color>");
+                    sb.Append('\n');
+                }
+                else
+                {
+                    if (!string.IsNullOrEmpty(content)) sb.Append(System.Net.WebUtility.HtmlEncode(content));
+                    if (commentPart != null) sb.Append($"<color={ColorGreenComment}>{commentPart}</color>");
+                    sb.Append('\n');
+                }
+            }
+        }
+
+        if (sb.Length > 0 && sb[sb.Length - 1] == '\n') sb.Length--;
+
+        return sb.ToString();
     }
+
+    private static int IndexOfHashOutsideQuotes(string line)
+    {
+        bool inSingle = false, inDouble = false;
+        for (int i = 0; i < line.Length; i++)
+        {
+            char c = line[i];
+            if (c == '\'' && !inDouble) inSingle = !inSingle;
+            else if (c == '"' && !inSingle) inDouble = !inDouble;
+            else if (c == '#' && !inSingle && !inDouble) return i;
+        }
+        return -1;
+    }
+
+    private static int IndexOfCharOutsideQuotes(string line, char target)
+    {
+        bool inSingle = false, inDouble = false;
+        for (int i = 0; i < line.Length; i++)
+        {
+            char c = line[i];
+            if (c == '\'' && !inDouble) inSingle = !inSingle;
+            else if (c == '"' && !inSingle) inDouble = !inDouble;
+            else if (c == target && !inSingle && !inDouble) return i;
+        }
+        return -1;
+    }
+
+    private static string HighlightUnquotedValue(string value, string colorForStrings, string colorForKeywords)
+    {
+        var separators = new[] { ' ', '\t', ',', '[', ']', '{', '}', ':' };
+        var sb = new StringBuilder();
+        int i = 0;
+        while (i < value.Length)
+        {
+            if (separators.Contains(value[i]))
+            {
+                sb.Append(value[i]);
+                i++;
+                continue;
+            }
+
+            int start = i;
+            while (i < value.Length && !separators.Contains(value[i])) i++;
+            string token = value.Substring(start, i - start);
+
+            if (IsYamlNumber(token) || IsYamlBoolOrNull(token))
+                sb.Append($"<color={colorForKeywords}>{token}</color>");
+            else
+                sb.Append($"<color={colorForStrings}>{token}</color>");
+        }
+        return sb.ToString();
+    }
+
+    private static bool IsYamlNumber(string s)
+    {
+        return System.Text.RegularExpressions.Regex.IsMatch(s, @"^[+-]?\d+(\.\d+)?$");
+    }
+
+    private static bool IsYamlBoolOrNull(string s)
+    {
+        return s == "true" || s == "false" || s == "null" ||
+               s == "True" || s == "False" || s == "NULL";
+    }
+
 
     private void DrawFileBlockSearch()
     {
