@@ -88,6 +88,7 @@ namespace SNEngine.Services
                 codeStart = _testLang;
             }
 #endif
+            
             await LoadLanguage(codeStart);
         }
 
