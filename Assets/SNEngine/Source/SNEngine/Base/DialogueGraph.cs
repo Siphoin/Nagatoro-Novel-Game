@@ -11,6 +11,8 @@ namespace SNEngine.Graphs
     {
         public object Name => name;
 
+        public BaseNode CurrentExecuteNode => Queue.Current;
+
         public override void Execute()
         {
             NovelGame.Instance.GetService<LanguageService>().TransliteGraph(this);
@@ -21,5 +23,7 @@ namespace SNEngine.Graphs
         {
             return Queue.HasNextDialogueOnExit();
         }
+
+       
     }
 }

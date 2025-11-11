@@ -1,36 +1,39 @@
 ﻿using UnityEngine;
 using System.IO;
 using SNEngine.IO;
+using SNEngine.Debugging;
 using Object = UnityEngine.Object;
+using Cysharp.Threading.Tasks;
 
 namespace SNEngine.SaveSystem
 {
     public static class CameraSaver
     {
-        public static void SaveCameraRenderToPNG(int size, string fullSavePath)
+        public static async UniTask SaveCameraRenderToPNGAsync(int size, string fullSavePath)
         {
-            Camera camera = Camera.main;
+            await UniTask.WaitForEndOfFrame();
 
-            RenderTexture rt = new RenderTexture(size, size, 24, RenderTextureFormat.ARGB32);
-            RenderTexture oldRT = camera.targetTexture;
+            int width = Screen.width;
+            int height = Screen.height;
 
-            camera.targetTexture = rt;
-            camera.Render();
+            Texture2D screenTexture = new Texture2D(width, height, TextureFormat.RGB24, false);
+            screenTexture.ReadPixels(new Rect(0, 0, width, height), 0, 0);
+            screenTexture.Apply();
+
+            RenderTexture rt = RenderTexture.GetTemporary(size, size, 24, RenderTextureFormat.ARGB32);
+            Graphics.Blit(screenTexture, rt);
 
             RenderTexture.active = rt;
-
-            Texture2D tex = new Texture2D(size, size, TextureFormat.RGB24, false);
-
-            tex.ReadPixels(new Rect(0, 0, size, size), 0, 0);
-            tex.Apply();
-
-            byte[] bytes = tex.EncodeToPNG();
-
-            camera.targetTexture = oldRT;
+            Texture2D croppedTex = new Texture2D(size, size, TextureFormat.RGB24, false);
+            croppedTex.ReadPixels(new Rect(0, 0, size, size), 0, 0);
+            croppedTex.Apply();
             RenderTexture.active = null;
+            RenderTexture.ReleaseTemporary(rt);
 
-            Object.Destroy(rt);
-            Object.Destroy(tex);
+            Object.Destroy(screenTexture);
+
+            byte[] bytes = croppedTex.EncodeToPNG();
+            Object.Destroy(croppedTex);
 
             string directoryPath = Path.GetDirectoryName(fullSavePath);
 
@@ -39,8 +42,9 @@ namespace SNEngine.SaveSystem
                 NovelDirectory.Create(directoryPath);
             }
 
-            NovelFile.WriteAllBytes(fullSavePath, bytes);
-            Debug.Log($"Camera rendered and saved to: {fullSavePath}");
+            await NovelFile.WriteAllBytesAsync(fullSavePath, bytes);
+
+            NovelGameDebug.Log($"Camera rendered and saved to: {fullSavePath}");
 
 #if UNITY_EDITOR
             string assetPath = fullSavePath.Replace(Application.dataPath, "Assets");

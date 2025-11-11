@@ -67,6 +67,7 @@ namespace SiphoinUnityHelpers.XNodeExtensions
             Build(nodes);
         }
 
+
         private void ValidateGraph(IEnumerable<BaseNodeInteraction> nodes)
         {
             Func<BaseNodeInteraction, bool> predicateFindStartNode = x => x is StartNode && x.Enabled && x.GetExitPort().Connection != null;
@@ -147,6 +148,41 @@ namespace SiphoinUnityHelpers.XNodeExtensions
             XNodeExtensionsDebug.Log(stringBuilder.ToString());
         }
 
+        public void JumpToNode(string nodeGUID)
+        {
+            var targetNode = _nodes.FirstOrDefault(n => n.GUID == nodeGUID);
+
+            if (targetNode is null)
+            {
+                throw new NodeQueueException($"Node with GUID '{nodeGUID}' not found in queue of graph {_graph.name}");
+            }
+
+            int targetIndex = _nodes.IndexOf(targetNode);
+
+            if (_index > targetIndex)
+            {
+                _index = 0;
+            }
+
+            XNodeExtensionsDebug.Log($"Starting fast execution (no waits) from index {_index} to target node <b>{targetNode.name}</b> at index {targetIndex} in graph {_graph.name}");
+
+            while (_index < targetIndex)
+            {
+                var nodeToExecute = _nodes[_index];
+
+                if (nodeToExecute.Enabled)
+                {
+                    nodeToExecute.Execute();
+                }
+
+                _index++;
+            }
+
+            _index = targetIndex;
+
+            XNodeExtensionsDebug.Log($"Fast execution finished. Current index set to {_index}, node <b>{targetNode.name}</b>.");
+        }
+
         private void OnExit(object sender, EventArgs e)
         {
             var node = sender as ExitNode;
@@ -190,8 +226,6 @@ namespace SiphoinUnityHelpers.XNodeExtensions
 
                     await XNodeExtensionsUniTask.WaitAsyncNode(asyncNode, _cancellationTokenSource);
                 }
-
-
 
                 if (_index != Count)
                 {
