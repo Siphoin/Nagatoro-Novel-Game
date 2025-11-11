@@ -13,7 +13,10 @@ namespace SNEngine.SaveSystem.Models
 
         public void Dispose()
         {
-            UnityEngine.Object.Destroy(PreviewTexture);
+            if (PreviewTexture != null)
+            {
+                UnityEngine.Object.Destroy(PreviewTexture);
+            }
             SaveData = null;
             SaveName = null;
         }

@@ -1,6 +1,7 @@
 ﻿using SiphoinUnityHelpers.XNodeExtensions;
 using SNEngine.DialogSystem;
 using SNEngine.Extensions;
+using SNEngine.SaveSystem.Models;
 using SNEngine.Services;
 using UnityEngine;
 
@@ -22,6 +23,12 @@ namespace SNEngine.Graphs
         public bool HasNextDialogueOnExit()
         {
             return Queue.HasNextDialogueOnExit();
+        }
+
+        public void LoadSave (string nodeGuid)
+        {
+            NovelGame.Instance.GetService<LanguageService>().TransliteGraph(this);
+            JumpToNode(nodeGuid);
         }
 
        

@@ -1,15 +1,18 @@
-﻿using XNode;
-using UnityEngine;
+﻿using Cysharp.Threading.Tasks;
+using SiphoinUnityHelpers.XNodeExtensions.Attributes;
+using SiphoinUnityHelpers.XNodeExtensions.Debugging;
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using Cysharp.Threading.Tasks;
-using System;
-using SiphoinUnityHelpers.XNodeExtensions.Debugging;
+using UnityEngine;
+using XNode;
 
 namespace SiphoinUnityHelpers.XNodeExtensions
 {
     public abstract class BaseGraph : NodeGraph
     {
+        [SerializeField]
+        private string _nodeGuid;
 
         private NodeQueue _queue;
 
@@ -43,6 +46,34 @@ namespace SiphoinUnityHelpers.XNodeExtensions
                 return data;
             }
         }
+
+        public string GUID
+        {
+            get
+            {
+#if UNITY_EDITOR
+                RegenerateGUID();
+#endif
+                return _nodeGuid;
+            }
+        }
+#if UNITY_EDITOR
+        private void RegenerateGUID()
+        {
+            if (string.IsNullOrEmpty(_nodeGuid))
+                ResetGUID();
+        }
+
+        private void ResetGUID()
+        {
+            _nodeGuid = Guid.NewGuid().ToString("N").Substring(0, 15);
+        }
+
+        private void Awake()
+        {
+            RegenerateGUID();
+        }
+#endif
 
         public virtual void Execute ()
         {
@@ -104,22 +135,27 @@ namespace SiphoinUnityHelpers.XNodeExtensions
             return (T)value;
         }
 
-        public void Continue ()
+        public virtual void Continue ()
         {
             IsPaused = true;
         }
 
-        public void Pause ()
+        public virtual void Pause ()
         {
             IsPaused = false;
         }
 
-        public void Stop ()
+        public virtual void Stop ()
         {
-
             End();
 
             _queue.Exit();       
+        }
+
+        public virtual void JumpToNode(string nodeGUID)
+        {
+            Execute();
+            _queue.JumpToNode(nodeGUID);
         }
 
         public BaseNode GetNodeByGuid (string guid)

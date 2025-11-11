@@ -3,5 +3,7 @@
     public interface IIncludeWaitingNode
     {
         public bool IsWorking { get; }
+
+        void SkipWait();
     }
 }

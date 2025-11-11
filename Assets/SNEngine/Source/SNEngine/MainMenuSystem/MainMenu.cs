@@ -4,6 +4,7 @@ using UnityEngine.UI;
 using SNEngine.Services;
 using UnityEngine.Events;
 using TMPro;
+using SNEngine.SaveSystem;
 
 namespace SNEngine.MainMenuSystem
 {
@@ -101,7 +102,7 @@ namespace SNEngine.MainMenuSystem
 
         private void Continue ()
         {
-            throw new NotImplementedException();
+            NovelGame.Instance.GetService<SaveListViewService>().Show();
         }
 
         private void OpenSettings ()

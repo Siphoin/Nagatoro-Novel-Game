@@ -2,9 +2,12 @@
 using SNEngine.Localization.UI;
 using SNEngine.Polling;
 using SNEngine.SaveSystem.Models;
+using SNEngine.Services;
 using SNEngine.Utils;
+using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 namespace SNEngine.SaveSystem.UI
@@ -42,10 +45,12 @@ namespace SNEngine.SaveSystem.UI
             {
                 try
                 {
-                    var save = await saveLoadService.Load(saveName);
+                    var save = await saveLoadService.LoadPreloadSave(saveName);
                     var view = _pool.GetFreeElement();
                     view.gameObject.SetActive(true);
                     view.SetData(save);
+                    view.OnSelect -= OnSaveSelected;
+                    view.OnSelect += OnSaveSelected;
                     _cacheSaves.Add(save);
                     
 
@@ -56,6 +61,20 @@ namespace SNEngine.SaveSystem.UI
                     continue;
                 }
 
+            }
+        }
+
+        private async void OnSaveSelected(string saveName)
+        {
+            var targetSave = _cacheSaves.FirstOrDefault(x => x.SaveName == saveName);
+            var saveLoadService = NovelGame.Instance.GetService<SaveLoadService>();
+            SaveData saveData = await saveLoadService.LoadSave(saveName);
+
+            if (targetSave != null)
+            {
+                NovelGame.Instance.GetService<DialogueService>().ToDialogue(saveData);
+                NovelGame.Instance.GetService<MainMenuService>().Hide();
+                NovelGame.Instance.GetService<SaveListViewService>().Hide();
             }
         }
 

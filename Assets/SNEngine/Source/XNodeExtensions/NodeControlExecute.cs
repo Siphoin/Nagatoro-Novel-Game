@@ -17,6 +17,10 @@ namespace SiphoinUnityHelpers.XNodeExtensions
 
         public bool IsWorking => _cancellationTokenSource != null;
 
+        public void SkipWait()
+        {
+        }
+
         protected async UniTask ExecuteNodesFromPort(NodePort port)
         {
             var connections = port.GetConnections();

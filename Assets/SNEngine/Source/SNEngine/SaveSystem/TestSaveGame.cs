@@ -44,6 +44,7 @@ namespace Assets.SNEngine.Source.SNEngine.SaveSystem
                     CurrentNode = nodeGuid,
                     Varitables = varitablesData,
                     GlobalVaritables = globalVaritablesData,
+                    DialogueGUID = dialogueGraph.GUID,
                 };
 
                 NovelGame.Instance.GetService<SaveLoadService>().Save("autosave", saveData).Forget();

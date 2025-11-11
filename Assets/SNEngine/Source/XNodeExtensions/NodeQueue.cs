@@ -148,11 +148,11 @@ namespace SiphoinUnityHelpers.XNodeExtensions
             XNodeExtensionsDebug.Log(stringBuilder.ToString());
         }
 
-        public void JumpToNode(string nodeGUID)
+        public async UniTask JumpToNode(string nodeGUID)
         {
             var targetNode = _nodes.FirstOrDefault(n => n.GUID == nodeGUID);
 
-            if (targetNode is null)
+            if (targetNode == null)
             {
                 throw new NodeQueueException($"Node with GUID '{nodeGUID}' not found in queue of graph {_graph.name}");
             }
@@ -164,7 +164,7 @@ namespace SiphoinUnityHelpers.XNodeExtensions
                 _index = 0;
             }
 
-            XNodeExtensionsDebug.Log($"Starting fast execution (no waits) from index {_index} to target node <b>{targetNode.name}</b> at index {targetIndex} in graph {_graph.name}");
+            XNodeExtensionsDebug.Log($"Starting fast execution (skipping waits) from index {_index} to target node <b>{targetNode.name}</b> at index {targetIndex} in graph {_graph.name}");
 
             while (_index < targetIndex)
             {
@@ -173,6 +173,8 @@ namespace SiphoinUnityHelpers.XNodeExtensions
                 if (nodeToExecute.Enabled)
                 {
                     nodeToExecute.Execute();
+
+                    // Асинхронные ноды запускаются, но не ожидаются, обеспечивая пропуск
                 }
 
                 _index++;

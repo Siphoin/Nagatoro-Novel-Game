@@ -24,6 +24,11 @@ namespace SiphoinUnityHelpers.XNodeExtensions.AsyncNodes
             _tokenSource = null;
         }
 
+        public virtual void SkipWait ()
+        {
+            StopTask();
+        }
+
 
     }
 }

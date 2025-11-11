@@ -2,8 +2,10 @@
 using SNEngine.Debugging;
 using SNEngine.DialogSystem;
 using SNEngine.Graphs;
+using SNEngine.SaveSystem.Models;
 using SNEngine.Utils;
 using System;
+using System.Linq;
 using UnityEngine;
 
 namespace SNEngine.Services
@@ -71,6 +73,19 @@ namespace SNEngine.Services
             NovelGameDebug.Log($"Jump To Dialogue: {_currentDialogue.Name}");
 
             _currentDialogue.Execute();
+        }
+
+        public void ToDialogue(SaveData saveData)
+        {
+            var dislogues = Resources.LoadAll<DialogueGraph>("Dialogues");
+            var targetDialogue = dislogues.FirstOrDefault(x => x.GUID == saveData.DialogueGUID);
+
+            if (targetDialogue != null)
+            {
+                targetDialogue.LoadSave(saveData.CurrentNode);
+            }
+
+            _currentDialogue = targetDialogue;
         }
 
         private void OnEndExecute()

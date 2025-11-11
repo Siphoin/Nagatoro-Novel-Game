@@ -130,6 +130,11 @@ namespace SNEngine.SelectVariantsSystem
             StopTask();
 
         }
+
+        public override void SkipWait()
+        {
+            base.StopTask();
+        }
         #region Localization
         public object GetOriginalValue()
         {

@@ -9,6 +9,7 @@ using System.IO;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using SNEngine.Graphs;
 
 namespace SNEngine.SaveSystem
 {
@@ -57,7 +58,7 @@ namespace SNEngine.SaveSystem
             }
         }
 
-        public async UniTask<PreloadSave> Load(string saveName)
+        public async UniTask<PreloadSave> LoadPreloadSave(string saveName)
         {
             string saveFilePath = GetSaveFilePath(saveName);
             string previewFilePath = GetPreviewFilePath(saveName);
@@ -69,7 +70,7 @@ namespace SNEngine.SaveSystem
 
                 Texture2D previewTexture = await LoadTextureAsync(previewFilePath);
 
-                NovelGameDebug.Log($"[SaveLoadService] Loaded save: {saveName} from {saveFilePath}");
+                NovelGameDebug.Log($"[SaveLoadService] Loaded preload save data: {saveName} from {saveFilePath}");
 
                 return new PreloadSave
                 {
@@ -77,6 +78,31 @@ namespace SNEngine.SaveSystem
                     PreviewTexture = previewTexture,
                     SaveName = saveName
                 };
+            }
+            catch (FileNotFoundException)
+            {
+                NovelGameDebug.LogError($"[SaveLoadService] Save file not found for: {saveName}");
+                return null;
+            }
+            catch (Exception ex)
+            {
+                NovelGameDebug.LogError($"[SaveLoadService] Failed to load/deserialize '{saveName}': {ex.Message}");
+                return null;
+            }
+        }
+
+        public async UniTask<SaveData> LoadSave(string saveName)
+        {
+            string saveFilePath = GetSaveFilePath(saveName);
+
+            try
+            {
+                string json = await NovelFile.ReadAllTextAsync(saveFilePath);
+                SaveData saveData = JsonConvert.DeserializeObject<SaveData>(json);
+                NovelGameDebug.Log($"[SaveLoadService] Loaded save: {saveName} from {saveFilePath}");
+                return saveData;
+
+
             }
             catch (FileNotFoundException)
             {
