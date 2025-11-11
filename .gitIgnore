@@ -106,3 +106,5 @@ auto-generated files
 
 # Auto-generated scenes by play mode tests
 /[Aa]ssets/[Ii]nit[Tt]est[Ss]cene*.unity*
+Assets/SNEngine/Source/SNEngine/Editor/Utils/session.json
+Assets/SNEngine/Source/SNEngine/Editor/Utils/session.json.meta
