@@ -1,9 +1,11 @@
 ﻿using Cysharp.Threading.Tasks;
 using SiphoinUnityHelpers.XNodeExtensions.Attributes;
 using SiphoinUnityHelpers.XNodeExtensions.Debugging;
+using SiphoinUnityHelpers.XNodeExtensions.Exceptions;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using UnityEngine;
 using XNode;
 
@@ -152,11 +154,62 @@ namespace SiphoinUnityHelpers.XNodeExtensions
             _queue.Exit();       
         }
 
-        public virtual void JumpToNode(string nodeGUID)
+        public virtual void JumptToNode(string targetGuid)
         {
-            Execute();
-            _queue.JumpToNode(nodeGUID);
+            BuidVaritableNodes();
+
+            // Собираем все BaseNodeInteraction ноды графа
+            var allNodes = nodes.OfType<BaseNodeInteraction>().ToList();
+
+            // Ищем целевую ноду
+            var targetNode = allNodes.FirstOrDefault(n => n.GUID == targetGuid);
+            if (targetNode == null)
+            {
+                throw new NodeQueueException($"Node with GUID '{targetGuid}' not found in graph {name}");
+            }
+
+            var queue = new List<BaseNodeInteraction>();
+
+            // Добавляем все ноды до целевой, если CanSkip == false
+            foreach (var node in allNodes)
+            {
+                if (node == targetNode)
+                {
+                    queue.Add(node);
+                    break;
+                }
+
+                if (!node.CanSkip)
+                {
+                    queue.Add(node);
+                }
+            }
+
+            // Добавляем все ноды после целевой
+            bool addAfter = false;
+            foreach (var node in allNodes)
+            {
+                if (addAfter)
+                {
+                    queue.Add(node);
+                }
+
+                if (node == targetNode)
+                    addAfter = true;
+            }
+
+            // Создаем новую очередь
+            _queue = new NodeQueue(this, queue);
+
+            // Лог оставшихся нод
+            StringBuilder sb = new StringBuilder();
+            sb.AppendLine($"Jump queue for graph {name}:");
+            XNodeExtensionsDebug.Log(sb.ToString());
+
+            // Запускаем выполнение очереди
+            ExecuteProcess().Forget();
         }
+
 
         public BaseNode GetNodeByGuid (string guid)
         {

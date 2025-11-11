@@ -61,18 +61,6 @@ namespace SNEngine.BackgroundSystem
 
             transform.position = Vector3.zero;
         }
-
-        private void SetVisibleMaskTransition(bool visible)
-        {
-            if (!_maskTransition)
-            {
-                NovelGameDebug.LogError($"The Background Renderer {name} not have mask transition");
-
-                return;
-            }
-
-            _maskTransition.gameObject.SetActive(visible);
-        }
     }
 
 }

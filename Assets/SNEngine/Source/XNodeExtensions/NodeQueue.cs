@@ -16,25 +16,18 @@ namespace SiphoinUnityHelpers.XNodeExtensions
     public class NodeQueue
     {
         private int _index;
-
         private StartNode _startNode;
-
         private CancellationTokenSource _cancellationTokenSource;
 
         public event Action OnEnd;
 
         private List<BaseNodeInteraction> _nodes;
-
         private List<AsyncNode> _asyncNodes;
-
         private List<ExitNode> _exitNodes;
-
         private BaseGraph _graph;
 
         public int Count => _nodes.Count;
-
         public BaseNode Current => _nodes[_index];
-
         public bool IsEnding => _index == Count;
 
         public IEnumerable<AsyncNode> AsyncNodes => _asyncNodes;
@@ -42,47 +35,30 @@ namespace SiphoinUnityHelpers.XNodeExtensions
 
         public NodeQueue(BaseGraph parentGraph, IEnumerable<BaseNodeInteraction> nodes)
         {
-            if (parentGraph is null)
-            {
-                throw new ArgumentNullException("parent graph is null");
-            }
-
-            if (nodes is null)
-            {
-                throw new ArgumentNullException("nodes is null");
-            }
+            if (parentGraph == null) throw new ArgumentNullException("parent graph is null");
+            if (nodes == null) throw new ArgumentNullException("nodes is null");
 
             _nodes = new List<BaseNodeInteraction>();
-
             _asyncNodes = new List<AsyncNode>();
-
             _exitNodes = new List<ExitNode>();
-
             _cancellationTokenSource = new CancellationTokenSource();
-
             _graph = parentGraph;
 
             ValidateGraph(nodes);
-
             Build(nodes);
         }
-
 
         private void ValidateGraph(IEnumerable<BaseNodeInteraction> nodes)
         {
             Func<BaseNodeInteraction, bool> predicateFindStartNode = x => x is StartNode && x.Enabled && x.GetExitPort().Connection != null;
-
             Func<BaseNodeInteraction, bool> predicateFindExitNode = x => x is ExitNode && x.GetEnterPort().Connection != null;
 
             if (nodes.Count(predicateFindExitNode) == 0)
-            {
                 throw new NodeQueueException($"graph {_graph.name} not have Exit Nodes!");
-            }
 
             if (nodes.Count(predicateFindStartNode) > 1)
-            {
                 throw new NodeQueueException($"graph {_graph.name} has more 1 Start Node!");
-            }
+
             try
             {
                 _startNode = nodes.Single(predicateFindStartNode) as StartNode;
@@ -97,36 +73,27 @@ namespace SiphoinUnityHelpers.XNodeExtensions
         {
             foreach (var item in nodes)
             {
-                if (item is AsyncNode)
+                if (item is AsyncNode asyncNode)
+                    _asyncNodes.Add(asyncNode);
+
+                if (item is ExitNode exitNode)
                 {
-                    _asyncNodes.Add(item as AsyncNode);
-                }
-
-                if (item is ExitNode)
-                {
-                    ExitNode exitNode = item as ExitNode;
-
-                    _exitNodes.Add(item as ExitNode);
-
+                    _exitNodes.Add(exitNode);
                     exitNode.OnExit += OnExit;
-
                 }
             }
+
             _nodes.Add(_startNode);
 
             var currentNode = _startNode as BaseNodeInteraction;
-
             while (currentNode != null)
             {
                 var exitPort = currentNode.GetExitPort();
-
                 if (exitPort.Connection != null)
                 {
                     var nextNode = exitPort.Connection.node as BaseNodeInteraction;
                     if (nextNode.Enabled)
-                    {
                         _nodes.Add(nextNode);
-                    }
 
                     currentNode = nextNode;
                 }
@@ -136,72 +103,50 @@ namespace SiphoinUnityHelpers.XNodeExtensions
                 }
             }
 
+            // Лог последовательности нод
             StringBuilder stringBuilder = new StringBuilder();
-
             stringBuilder.AppendLine($"New Node Queue from node graph {_graph.name}:\n");
-
             foreach (var node in _nodes)
-            {
                 stringBuilder.AppendLine(node.name);
-            }
 
             XNodeExtensionsDebug.Log(stringBuilder.ToString());
         }
 
-        public async UniTask JumpToNode(string nodeGUID)
+        public async UniTask<BaseNode> Next()
         {
-            var targetNode = _nodes.FirstOrDefault(n => n.GUID == nodeGUID);
+            if (_index >= Count)
+                return null;
 
-            if (targetNode == null)
+            var node = _nodes[_index];
+
+            if (node.Enabled)
             {
-                throw new NodeQueueException($"Node with GUID '{nodeGUID}' not found in queue of graph {_graph.name}");
-            }
+                node.Execute();
 
-            int targetIndex = _nodes.IndexOf(targetNode);
-
-            if (_index > targetIndex)
-            {
-                _index = 0;
-            }
-
-            XNodeExtensionsDebug.Log($"Starting fast execution (skipping waits) from index {_index} to target node <b>{targetNode.name}</b> at index {targetIndex} in graph {_graph.name}");
-
-            while (_index < targetIndex)
-            {
-                var nodeToExecute = _nodes[_index];
-
-                if (nodeToExecute.Enabled)
+                if (node is IIncludeWaitingNode asyncNode)
                 {
-                    nodeToExecute.Execute();
-
-                    // Асинхронные ноды запускаются, но не ожидаются, обеспечивая пропуск
+                    XNodeExtensionsDebug.Log($"Wait node <b>{node.name}</b> GUID: <b>{node.GUID}</b>");
+                    await XNodeExtensionsUniTask.WaitAsyncNode(asyncNode, _cancellationTokenSource);
                 }
 
-                _index++;
+                _index = Mathf.Clamp(_index + 1, 0, _nodes.Count - 1);
             }
 
-            _index = targetIndex;
-
-            XNodeExtensionsDebug.Log($"Fast execution finished. Current index set to {_index}, node <b>{targetNode.name}</b>.");
+            return node;
         }
 
         private void OnExit(object sender, EventArgs e)
         {
             var node = sender as ExitNode;
-
             node.OnExit -= OnExit;
-
             Exit();
         }
 
         public void Exit()
         {
             _index = 0;
-
             StopAsyncNodes();
-
             _cancellationTokenSource?.Cancel();
-
             _cancellationTokenSource = null;
 
             XNodeExtensionsDebug.Log($"node queue from graph {_graph.name} finished");
@@ -209,47 +154,10 @@ namespace SiphoinUnityHelpers.XNodeExtensions
             OnEnd?.Invoke();
         }
 
-        public async UniTask<BaseNode> Next ()
-        {
-            int currentIndex = _index;
-
-            var node = _nodes[currentIndex];
-
-
-            if (node.Enabled)
-            {
-                node.Execute();
-
-                if (node is IIncludeWaitingNode)
-                {
-                    var asyncNode = node as IIncludeWaitingNode;
-
-                    XNodeExtensionsDebug.Log($"Wait node <b>{node.name}</b> GUID: <b>{node.GUID}</b>");
-
-                    await XNodeExtensionsUniTask.WaitAsyncNode(asyncNode, _cancellationTokenSource);
-                }
-
-                if (_index != Count)
-                {
-                    _index = Mathf.Clamp(_index + 1, 0, _nodes.Count - 1);
-                }
-
-                else
-                {
-                    return null;
-                }
-
-            }
-
-            return node;
-        }
-
         private void StopAsyncNodes()
         {
             foreach (var item in _asyncNodes)
-            {
                 item.StopTask();
-            }
         }
     }
 }
