@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace SNEngine.SaveSystem
+namespace SNEngine.SaveSystem.Models
 {
     [Serializable]
     public class SaveData

@@ -22,6 +22,8 @@ namespace SNEngine.Services
 
         private MonoBehaviour _frameDetector;
 
+        public IDialogue CurrentDialogue => _currentDialogue;
+
         public override void Initialize()
         {
             _oldRenderDialogueService = NovelGame.Instance.GetService<RenderOldDialogueService>();

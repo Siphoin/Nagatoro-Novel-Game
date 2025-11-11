@@ -3,6 +3,7 @@ using SNEngine.Debugging;
 using SNEngine.IO;
 using SNEngine.Polling;
 using SNEngine.Services;
+using SNEngine.Utils;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -34,7 +35,7 @@ namespace SNEngine.Localization.UI
 
             if (_pool is null)
             {
-                var prefab = Resources.Load<LanguageSelectView>("UI/selectLanguageView");
+                var prefab = ResourceLoader.LoadCustomOrVanilla<LanguageSelectView>("UI/selectLanguageView");
                 _pool = new(prefab, _containerLanguages, 9, true);
             }
             for (int i = 0; i < _containerLanguages.childCount; i++)
@@ -64,6 +65,21 @@ namespace SNEngine.Localization.UI
                 view.OnSelect -= OnLanguageSelected;
                 view.OnSelect += OnLanguageSelected;
             }
+        }
+
+        private void OnDisable()
+        {
+            foreach (var flag in _spritesFlags)
+            {
+                Destroy(flag);
+            }
+            _spritesFlags.Clear();
+
+            foreach (var texture in _texturesFlags)
+            {
+                Destroy(texture);
+            }
+            _texturesFlags.Clear();
         }
 
         private async UniTask<Sprite> LoadFlagTextureAsync(string absolutePath)
