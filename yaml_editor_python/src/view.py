@@ -16,6 +16,7 @@ from models import YamlTab, LanguageService
 from highlighter import YamlHighlighter
 from validator import StructureValidator
 from icons import SVG_FOLDER_ICON, SVG_YAML_FILE_ICON
+from session_manager import SessionManager # Добавьте это, если session_manager.py находится в src/
 
 # --- УТИЛИТА ДЛЯ СОЗДАНИЯ QIcon ИЗ SVG-строки ---
 def create_icon_from_svg(svg_content: str, size: QSize = QSize(16, 16)) -> QIcon:
@@ -81,6 +82,7 @@ class YAMLEditorWindow(QMainWindow):
         # --- Инициализация Иконок ---
         self.icon_folder = create_icon_from_svg(SVG_FOLDER_ICON)
         self.icon_yaml = create_icon_from_svg(SVG_YAML_FILE_ICON)
+        self._last_open_dir: str = os.path.expanduser("~")
         # self.icon_close = create_icon_from_svg(SVG_CLOSE_ICON) # Игнорируем SVG крестик
         
         # --- Модель/Сервисы ---
@@ -101,6 +103,41 @@ class YAMLEditorWindow(QMainWindow):
         
         self.init_ui()
         self.update_status_bar()
+
+        self.session_manager = SessionManager(self)
+        self.session_manager.restore_session() # Восстанавливаем сессию при старте
+
+    def closeEvent(self, event):
+        """
+        Перехватывает событие закрытия окна.
+        Сначала проверяет несохраненные изменения, затем сохраняет сессию.
+        """
+        
+        # Проверяем, есть ли вкладки с несохраненными изменениями
+        dirty_tab = next((t for t in self.open_tabs if t.is_dirty), None)
+
+        if dirty_tab:
+            reply = QMessageBox.question(self, 'Unsaved Changes', 
+                "You have unsaved changes. Do you want to save all files before quitting?",
+                QMessageBox.Save | QMessageBox.Discard | QMessageBox.Cancel, QMessageBox.Cancel)
+                
+            if reply == QMessageBox.Save:
+                # Пытаемся сохранить все несохраненные
+                for tab in [t for t in self.open_tabs if t.is_dirty]:
+                    self.save_file_action(tab)
+                
+                # Если после попытки сохранения все еще есть несохраненные (например, из-за ошибки синтаксиса YAML), отменяем закрытие.
+                if any(t.is_dirty for t in self.open_tabs):
+                    event.ignore()
+                    return
+                    
+            elif reply == QMessageBox.Cancel:
+                event.ignore() # Отмена закрытия
+                return 
+
+        # Если закрытие разрешено (нет несохраненных или пользователь нажал Discard/Save)
+        self.session_manager.save_session() # Сохраняем состояние сессии
+        event.accept()
 
     def _get_resource_path(self, relative_path: str) -> str:
         """
@@ -285,10 +322,11 @@ class YAMLEditorWindow(QMainWindow):
 
     def open_folder_dialog(self):
         """Открывает диалог для выбора корневой папки локализации."""
-        initial_dir = os.path.expanduser("~") 
+        initial_dir = self._last_open_dir if self._last_open_dir and os.path.isdir(self._last_open_dir) else os.path.expanduser("~")
         folder_path = QFileDialog.getExistingDirectory(self, "Select Language Root Folder", initial_dir)
         
         if folder_path:
+            self._last_open_dir = folder_path
             self.reload_language_structure(folder_path)
 
     
@@ -620,6 +658,7 @@ class YAMLEditorWindow(QMainWindow):
         
         self.validate_yaml(file_path, file_content) 
         self.text_edit.setText(self.current_tab.yaml_text)
+        self.text_edit.document().clearUndoRedoStacks()
         self.draw_tabs_placeholder()
         self.draw_file_tree()
         self.update_status_bar()
@@ -839,6 +878,7 @@ class YAMLEditorWindow(QMainWindow):
         self.current_tab = self.open_tabs[index]
         self.text_edit.setText(self.current_tab.yaml_text)
         
+        
         self.draw_tabs_placeholder()
         self.draw_file_tree() 
         self.update_status_bar()
@@ -915,7 +955,7 @@ class YAMLEditorWindow(QMainWindow):
             self.current_tab = None
             self.current_tab_index = -1
             self.text_edit.setText("") # <--- КЛЮЧЕВОЕ ИСПРАВЛЕНИЕ: Очистка редактора
-            self.text_edit.clearUndoRedoStacks()
+            self.text_edit.document().clearUndoRedoStacks()
 
         # --- 4. Обновление остальных элементов UI ---
         self.draw_tabs_placeholder() # Обновление списка вкладок в UI
