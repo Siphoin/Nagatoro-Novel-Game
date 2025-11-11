@@ -1,5 +1,6 @@
 ﻿using SNEngine.DialogSystem;
 using SNEngine.Localization.UI;
+using SNEngine.Utils;
 using UnityEngine;
 using Object = UnityEngine.Object;
 
@@ -15,7 +16,7 @@ namespace SNEngine.Services
         {
             var ui = NovelGame.Instance.GetService<UIService>();
 
-            var input = Resources.Load<LanguageListView>("UI/selectLanguageWindow");
+            var input =  ResourceLoader.LoadCustomOrVanilla<LanguageListView>("UI/selectLanguageWindow");
 
             var prefab = Object.Instantiate(input);
 

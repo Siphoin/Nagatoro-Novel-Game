@@ -1,6 +1,8 @@
 ﻿using SNEngine.DialogSystem;
 using SNEngine.MainMenuSystem;
+using SNEngine.Utils;
 using UnityEngine;
+using Object = UnityEngine.Object;
 
 namespace SNEngine.Services
 {
@@ -11,13 +13,20 @@ namespace SNEngine.Services
 
         private DialogueService _dialogueService;
 
+        private const string MAIN_MENU_VANILLA_PATH = "UI/MainMenu";
+
         public override void Initialize()
         {
             _dialogueService = NovelGame.Instance.GetService<DialogueService>();
 
             var ui = NovelGame.Instance.GetService<UIService>();
 
-            var input = Resources.Load<MainMenu>("UI/MainMenu");
+            var input = ResourceLoader.LoadCustomOrVanilla<MainMenu>(MAIN_MENU_VANILLA_PATH);
+
+            if (input == null)
+            {
+                return;
+            }
 
             var prefab = Object.Instantiate(input);
 

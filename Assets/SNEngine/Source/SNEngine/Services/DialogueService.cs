@@ -2,10 +2,9 @@
 using SNEngine.Debugging;
 using SNEngine.DialogSystem;
 using SNEngine.Graphs;
+using SNEngine.Utils;
 using System;
-using System.Threading.Tasks;
 using UnityEngine;
-using Object = UnityEngine.Object;
 
 namespace SNEngine.Services
 {
@@ -13,37 +12,40 @@ namespace SNEngine.Services
     internal class DialogueService : ServiceBase, IService
     {
         private const int TIME_OUT_WAIT_TO_NEW_RENDERER = 35;
+        private const string FRAME_DETECTOR_VANILLA_PATH = "System/Dialog_FrameDetector";
 
         private IDialogue _currentDialogue;
-
         private IDialogue _startDialogue;
-
         private IOldRenderDialogue _oldRenderDialogueService;
 
         public event Action<IDialogue> OnEndDialogue;
 
         private MonoBehaviour _frameDetector;
 
-        public override async void Initialize()
+        public override void Initialize()
         {
             _oldRenderDialogueService = NovelGame.Instance.GetService<RenderOldDialogueService>();
 
             _startDialogue = Resources.Load<DialogueGraph>($"Dialogues/{nameof(_startDialogue)}");
 
-            var frameDetector = Resources.Load<Dialog_FrameDetector>("System/Dialog_FrameDetector");
+            Dialog_FrameDetector frameDetectorToLoad =
+                ResourceLoader.LoadCustomOrVanilla<Dialog_FrameDetector>(FRAME_DETECTOR_VANILLA_PATH);
 
-            var prefabFrameDetector = Instantiate(frameDetector);
+            if (frameDetectorToLoad == null)
+            {
+                return;
+            }
 
-            prefabFrameDetector.name = frameDetector.name;
+            string prefabName = frameDetectorToLoad.name;
+
+            var prefabFrameDetector = Instantiate(frameDetectorToLoad);
+
+            prefabFrameDetector.name = prefabName;
 
             DontDestroyOnLoad(prefabFrameDetector);
 
             _frameDetector = prefabFrameDetector;
-            // test
 
-           // await UniTask.WaitForSeconds(3);
-            // JumpToStartDialogue();
-            
         }
 
         public void JumpToStartDialogue()

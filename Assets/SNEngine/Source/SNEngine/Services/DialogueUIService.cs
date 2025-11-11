@@ -1,4 +1,5 @@
 ﻿using SNEngine.DialogSystem;
+using SNEngine.Utils;
 using TMPro;
 using UnityEngine;
 using Object = UnityEngine.Object;
@@ -9,11 +10,17 @@ namespace SNEngine.Services
     public class DialogueUIService : ServiceBase, IResetable, IPrinterText, IPrinterTalkingCharacter
     {
         private IDialogWindow _dialogWindow;
+        private const string DIALOG_WINDOW_VANILLA_PATH = "UI/dialogue";
 
 
         public override void Initialize()
         {
-            var dialogWindow = Resources.Load<DialogWindow>("UI/dialogue");
+            var dialogWindow = ResourceLoader.LoadCustomOrVanilla<DialogWindow>(DIALOG_WINDOW_VANILLA_PATH);
+
+            if (dialogWindow == null)
+            {
+                return;
+            }
 
             var dialogWindowPrefab = Object.Instantiate(dialogWindow);
 
@@ -31,7 +38,7 @@ namespace SNEngine.Services
 
         }
 
-        public void ShowDialog (IDialogNode dialogNode)
+        public void ShowDialog(IDialogNode dialogNode)
         {
             _dialogWindow.SetData(dialogNode);
 
@@ -40,14 +47,14 @@ namespace SNEngine.Services
             _dialogWindow.StartOutputDialog();
         }
 
-        public void HideDialog ()
+        public void HideDialog()
         {
             _dialogWindow.Hide();
         }
 
         public override void ResetState()
         {
-           _dialogWindow.ResetState();
+            _dialogWindow.ResetState();
         }
 
         #region Font

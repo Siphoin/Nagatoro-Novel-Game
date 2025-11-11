@@ -28,6 +28,7 @@ namespace SNEngine.SelectVariantsSystem
         private Vector3 _defaultPositionScroll;
 
         [SerializeField, ReadOnly(ReadOnlyMode.OnEditor)] private VariantButton _buttonPrefab;
+        [SerializeField, ReadOnly(ReadOnlyMode.OnEditor)] private VariantButton _buttonCustomPrefab;
 
         [SerializeField, ReadOnly(ReadOnlyMode.OnEditor)] private ScrollRect _scrollRect;
 
@@ -58,7 +59,9 @@ namespace SNEngine.SelectVariantsSystem
                 throw new NullReferenceException("scroll rect rect transform component not found");
             }
 
-            _pool = new PoolMono<VariantButton>(_buttonPrefab, _container, _buttonsCreatedOnStart, true);
+            var prefab = _buttonCustomPrefab ?? _buttonPrefab;
+
+            _pool = new PoolMono<VariantButton>(prefab, _container, _buttonsCreatedOnStart, true);
 
             _defaultSizeDeltaScrool = _rectTransformScroll.sizeDelta;
 
