@@ -38,3 +38,5 @@ dist/
 
 # Temporary data folder created during development/testing
 temp_lang_data/
+
+src/session.json
