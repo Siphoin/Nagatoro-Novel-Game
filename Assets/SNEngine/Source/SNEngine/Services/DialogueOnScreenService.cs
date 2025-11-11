@@ -1,7 +1,9 @@
 ﻿using SNEngine.DialogOnScreenSystem;
 using SNEngine.DialogSystem;
+using SNEngine.Utils;
 using TMPro;
 using UnityEngine;
+using Object = UnityEngine.Object;
 
 namespace SNEngine.Services
 {
@@ -9,15 +11,24 @@ namespace SNEngine.Services
     public class DialogueOnScreenService : ServiceBase, IPrinterText, IResetable
     {
         private IDialogOnScreenWindow _window;
+        private const string WINDOW_VANILLA_PATH = "UI/DialogOnScreenWindow";
 
 
         public override void Initialize()
         {
-            var window = Resources.Load<DialogOnScreenWindow>("UI/DialogOnScreenWindow");
+            DialogOnScreenWindow windowToLoad =
+                ResourceLoader.LoadCustomOrVanilla<DialogOnScreenWindow>(WINDOW_VANILLA_PATH);
 
-            var prefab = Object.Instantiate(window);
+            if (windowToLoad == null)
+            {
+                return;
+            }
 
-            prefab.name = window.name;
+            string prefabName = windowToLoad.name;
+
+            var prefab = Object.Instantiate(windowToLoad);
+
+            prefab.name = prefabName;
 
             Object.DontDestroyOnLoad(prefab);
 
@@ -37,7 +48,7 @@ namespace SNEngine.Services
 
         public override void ResetState()
         {
-           _window.ResetState();
+            _window.ResetState();
         }
 
         public void SetFontDialog(TMP_FontAsset font)
@@ -45,7 +56,7 @@ namespace SNEngine.Services
             _window.SetFontDialog(font);
         }
 
-        public void ShowDialog (IDialogOnScreenNode dialog)
+        public void ShowDialog(IDialogOnScreenNode dialog)
         {
             _window.SetData(dialog);
 

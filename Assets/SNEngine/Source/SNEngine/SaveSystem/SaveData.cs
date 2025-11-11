@@ -1,0 +1,14 @@
+﻿using System;
+using System.Collections.Generic;
+
+namespace SNEngine.SaveSystem
+{
+    [Serializable]
+    public class SaveData
+    {
+        public Dictionary<string, object> Varitables { get; set; }
+        public Dictionary<string, object> GlobalVaritables { get; set; }
+        public string CurrentNode { get; set; }
+
+    }
+}

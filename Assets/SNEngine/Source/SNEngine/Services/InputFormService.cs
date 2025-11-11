@@ -4,6 +4,9 @@ using SNEngine.Debugging;
 using System.Linq;
 using UnityEngine.Events;
 using SharpYaml.Serialization;
+using SNEngine.Utils;
+using Object = UnityEngine.Object;
+
 namespace SNEngine.Services
 {
     [CreateAssetMenu(menuName = "SNEngine/Services/Input Form Service")]
@@ -13,17 +16,25 @@ namespace SNEngine.Services
 
         private IInputForm[] _forms;
         private IInputForm _activeForm;
+        private const string FORMS_VANILLA_PATH = "UI";
 
 
         public override void Initialize()
         {
-            var forms = Resources.LoadAll<InputForm>("UI");
+            var forms = ResourceLoader.LoadAllCustomizable<InputForm>(FORMS_VANILLA_PATH);
+
+            if (forms == null || forms.Length == 0)
+            {
+                NovelGameDebug.LogError("No Input Forms were loaded.");
+
+                return;
+            }
 
             var uiService = NovelGame.Instance.GetService<UIService>();
 
             _forms = new IInputForm[forms.Length];
 
-            for ( int i = 0; i < forms.Length; i++ )
+            for (int i = 0; i < forms.Length; i++)
             {
                 var form = Object.Instantiate(forms[i]);
 
@@ -40,7 +51,7 @@ namespace SNEngine.Services
 
         }
 
-        public void Show (InputFormType type, string label, bool isTriming)
+        public void Show(InputFormType type, string label, bool isTriming)
         {
             if (_activeForm != null)
             {
@@ -75,7 +86,7 @@ namespace SNEngine.Services
             OnSubmit?.Invoke(text);
         }
 
-        public void Hide ()
+        public void Hide()
         {
             _activeForm?.Hide();
             _activeForm = null;

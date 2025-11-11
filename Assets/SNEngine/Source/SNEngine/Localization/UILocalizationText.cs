@@ -22,6 +22,14 @@ namespace SNEngine.Localization
             {
                 OnLanguageLoaded(LanguageService.CurrentLanguageCode);
             }
+
+            else
+            {
+                if (_key.StartsWith("%") && !string.IsNullOrWhiteSpace(_key))
+                {
+                    _component.text = LocalizationConstants.GetValue(_key);
+                }
+            }
         }
 
         private void OnDisable()
