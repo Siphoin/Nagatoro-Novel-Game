@@ -6,6 +6,7 @@ namespace SiphoinUnityHelpers.XNodeExtensions
     [NodeTint("#5c2b2b")]
     public class ExitNode : BaseNodeInteraction
     {
+        public override bool CanSkip => false;
         public event EventHandler OnExit;
 
         public override void Execute()

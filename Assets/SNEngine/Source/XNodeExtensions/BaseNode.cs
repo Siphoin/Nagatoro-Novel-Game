@@ -18,6 +18,8 @@ namespace SiphoinUnityHelpers.XNodeExtensions
         [SerializeField, NodeGuid]
         private string _nodeGuid;
 
+        public virtual bool CanSkip => true;
+
         public string GUID
         {
             get
