@@ -53,12 +53,6 @@ namespace SNEngine.Services
 
         public void Show(InputFormType type, string label, bool isTriming)
         {
-            if (_activeForm != null)
-            {
-                NovelGameDebug.LogError("multiple calls show input form detected");
-
-                return;
-            }
 
             var form = _forms.SingleOrDefault(x => x.Type == type);
 

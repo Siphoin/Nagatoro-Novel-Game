@@ -18,8 +18,6 @@ namespace SiphoinUnityHelpers.XNodeExtensions
         [SerializeField, NodeGuid]
         private string _nodeGuid;
 
-        public virtual bool CanSkip => true;
-
         public string GUID
         {
             get
@@ -83,6 +81,11 @@ namespace SiphoinUnityHelpers.XNodeExtensions
         public override string ToString()
         {
             return $"{name} GUID: {GUID} Parent Graph: {graph.name} Is Async? {this is IIncludeWaitingNode}";
+        }
+
+        public virtual bool CanSkip()
+        {
+            return true;
         }
 
 #if UNITY_EDITOR

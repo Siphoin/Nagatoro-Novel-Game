@@ -1,8 +1,11 @@
 ﻿using Cysharp.Threading.Tasks;
+using SiphoinUnityHelpers.XNodeExtensions.AsyncNodes;
 using SiphoinUnityHelpers.XNodeExtensions.Attributes;
 using SiphoinUnityHelpers.XNodeExtensions.Debugging;
 using SiphoinUnityHelpers.XNodeExtensions.Exceptions;
+using SNEngine.AsyncNodes;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -80,17 +83,13 @@ namespace SiphoinUnityHelpers.XNodeExtensions
         public virtual void Execute ()
         {
             var queue = new List<BaseNodeInteraction>();
-
+            var normalizeNodes = TopologicalSortInteractionNodes();
             BuidVaritableNodes();
 
-            for (int i = 0; nodes.Count > i; i++)
+            for (int i = 0; normalizeNodes.Count > i; i++)
             {
-                var node = nodes[i];
-
-                if (node is BaseNodeInteraction)
-                {
-                    queue.Add(node as BaseNodeInteraction);
-                }
+                var node = normalizeNodes[i];
+                queue.Add(node);
             }
 
             _queue = new NodeQueue(this, queue);
@@ -154,64 +153,128 @@ namespace SiphoinUnityHelpers.XNodeExtensions
             _queue.Exit();       
         }
 
-        public virtual void JumptToNode(string targetGuid)
+        private List<BaseNodeInteraction> TopologicalSortInteractionNodes()
         {
-            BuidVaritableNodes();
+            List<BaseNodeInteraction> executableNodes = nodes
+                .OfType<BaseNodeInteraction>()
+                .ToList();
 
-            // Собираем все BaseNodeInteraction ноды графа
-            var allNodes = nodes.OfType<BaseNodeInteraction>().ToList();
+            var allInteractionNodes = executableNodes
+                .ToDictionary(node => node, node => 0);
 
-            // Ищем целевую ноду
-            var targetNode = allNodes.FirstOrDefault(n => n.GUID == targetGuid);
-            if (targetNode == null)
+            // 3. Вычисление степени входа: Итерация по ВСЕМ исходящим портам
+            foreach (var node in executableNodes)
             {
-                throw new NodeQueueException($"Node with GUID '{targetGuid}' not found in graph {name}");
-            }
-
-            var queue = new List<BaseNodeInteraction>();
-
-            // Добавляем все ноды до целевой, если CanSkip == false
-            foreach (var node in allNodes)
-            {
-                if (node == targetNode)
+                // Новый цикл: перебираем ВСЕ выходные порты узла
+                foreach (var outputPort in node.Ports.Where(p => p.IsOutput && p.IsConnected))
                 {
-                    queue.Add(node);
-                    break;
+                    // Для каждого соединения
+                    foreach (var connection in outputPort.GetConnections())
+                    {
+                        if (connection.node is BaseNodeInteraction nextNode)
+                        {
+                            if (allInteractionNodes.ContainsKey(nextNode))
+                            {
+                                // Увеличиваем In-degree следующего узла, независимо от того, какой порт (Exit, True, Diamond X) использовался
+                                allInteractionNodes[nextNode]++;
+                            }
+                        }
+                    }
                 }
 
-                if (!node.CanSkip)
-                {
-                    queue.Add(node);
-                }
+                // Старый код, который проверял только .Exit.Connection, удален.
+                // Порт .Exit будет обработан в цикле выше.
             }
 
-            // Добавляем все ноды после целевой
-            bool addAfter = false;
-            foreach (var node in allNodes)
+            // ... (Далее шаги 4 и 5 остаются без изменений)
+            var queue = new Queue<BaseNodeInteraction>(
+                allInteractionNodes.Where(pair => pair.Value == 0).Select(pair => pair.Key)
+            );
+
+            var sortedList = new List<BaseNodeInteraction>();
+
+            while (queue.Count > 0)
             {
-                if (addAfter)
-                {
-                    queue.Add(node);
-                }
+                var currentNode = queue.Dequeue();
+                sortedList.Add(currentNode);
 
-                if (node == targetNode)
-                    addAfter = true;
+                foreach (var outputPort in currentNode.Ports.Where(p => p.IsOutput && p.IsConnected))
+                {
+                    foreach (var connection in outputPort.GetConnections())
+                    {
+                        if (connection.node is BaseNodeInteraction nextNode)
+                        {
+                            if (allInteractionNodes.ContainsKey(nextNode))
+                            {
+                                allInteractionNodes[nextNode]--;
+
+                                if (allInteractionNodes[nextNode] == 0)
+                                {
+                                    queue.Enqueue(nextNode);
+                                }
+                            }
+                        }
+                    }
+                }
             }
 
-            // Создаем новую очередь
-            _queue = new NodeQueue(this, queue);
 
-            // Лог оставшихся нод
-            StringBuilder sb = new StringBuilder();
-            sb.AppendLine($"Jump queue for graph {name}:");
-            XNodeExtensionsDebug.Log(sb.ToString());
-
-            // Запускаем выполнение очереди
-            ExecuteProcess().Forget();
+            return sortedList;
         }
 
+        public virtual void JumptToNode(string targetGuid)
+    {
+        BuidVaritableNodes();
 
-        public BaseNode GetNodeByGuid (string guid)
+        var allInteractionNodes = nodes
+            .OfType<BaseNodeInteraction>()
+            .ToList();
+
+            allInteractionNodes = TopologicalSortInteractionNodes();
+
+        int targetIndex = allInteractionNodes.FindIndex(node => node.GUID == targetGuid);
+
+        List<BaseNodeInteraction> filteredNodes;
+
+        if (targetIndex != -1)
+        {
+
+            filteredNodes = allInteractionNodes
+                .Select((node, index) => new { Node = node, Index = index })
+                .Where(item =>
+                {
+                    if (item.Index < targetIndex)
+                    {
+                        if (item.Node is IIncludeWaitingNode waitNode)
+                        {
+                            waitNode.SkipWait();
+                        }
+
+                        return item.Node.CanSkip() == false;
+                    }
+                    else
+                    {
+                        return true;
+                    }
+                })
+                .Select(item => item.Node)
+                .ToList();
+        }
+        else
+        {
+            filteredNodes = new List<BaseNodeInteraction>();
+        }
+
+        _queue = new NodeQueue(this, filteredNodes);
+
+        ExecuteProcess().Forget();
+    }
+
+
+
+
+
+    public BaseNode GetNodeByGuid (string guid)
         {
             foreach (var node in from item in nodes
                                  let node = item as BaseNode
