@@ -12,7 +12,7 @@ namespace SiphoinUnityHelpers.XNodeExtensions.Loop
 
         [Input, SerializeField] private int _startValue;
 
-        [SerializeField] private CompareType _computeType = CompareType.Equals;
+        [SerializeField] private CompareType _computeType = CompareType.Lesser;
 
         [SerializeField] private ArifmeticType _arifmeticType = ArifmeticType.Increment;
 
@@ -118,7 +118,7 @@ namespace SiphoinUnityHelpers.XNodeExtensions.Loop
                     switch (_arifmeticType)
                     {
                         case ArifmeticType.Increment:
-                            for (_i = startValue; _i > n; _i++)
+                            for (_i = startValue; _i > n; _i--)
                             {
                                 ExecutesNodesInFor();
                             }
@@ -161,7 +161,7 @@ namespace SiphoinUnityHelpers.XNodeExtensions.Loop
                             }
                             break;
                         case ArifmeticType.Decrement:
-                            for (_i = startValue; _i < n; _i--)
+                            for (_i = startValue; _i < n; _i++)
                             {
                                 ExecutesNodesInFor();
                             }
@@ -196,7 +196,7 @@ namespace SiphoinUnityHelpers.XNodeExtensions.Loop
                             }
                             break;
                         case ArifmeticType.Decrement:
-                            for (_i = startValue; _i <= n; _i--)
+                            for (_i = startValue; _i <= n; _i++)
                             {
                                 ExecutesNodesInFor();
                             }
@@ -225,7 +225,7 @@ namespace SiphoinUnityHelpers.XNodeExtensions.Loop
                     switch (_arifmeticType)
                     {
                         case ArifmeticType.Increment:
-                            for (_i = startValue; _i >= n; _i++)
+                            for (_i = startValue; _i >= n; _i--)
                             {
                                 ExecutesNodesInFor();
                             }
@@ -270,4 +270,4 @@ namespace SiphoinUnityHelpers.XNodeExtensions.Loop
         }
     }
 
-    }
+}

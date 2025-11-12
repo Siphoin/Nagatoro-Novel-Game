@@ -1,5 +1,6 @@
 ﻿using SiphoinUnityHelpers.XNodeExtensions.Interfaces;
 using UnityEngine;
+using XNode;
 
 namespace SiphoinUnityHelpers.XNodeExtensions.Loop
 {
@@ -9,7 +10,7 @@ namespace SiphoinUnityHelpers.XNodeExtensions.Loop
         [Space]
         [Output, SerializeField] private LoopPort _loop;
 
-        protected void CallLoop ()
+        protected void CallLoop()
         {
             var port = GetOutputPort(nameof(_loop));
 
@@ -21,7 +22,10 @@ namespace SiphoinUnityHelpers.XNodeExtensions.Loop
                 {
                     var node = item.node as BaseNodeInteraction;
 
-                    node.Execute();
+                    if (node != null)
+                    {
+                        node.Execute();
+                    }
                 }
             }
         }
@@ -38,7 +42,6 @@ namespace SiphoinUnityHelpers.XNodeExtensions.Loop
             }
 
             return false;
-
         }
     }
 }
