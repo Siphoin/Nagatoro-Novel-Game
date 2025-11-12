@@ -7,6 +7,7 @@ using SNEngine.Debugging;
 using SNEngine.Localization;
 using SNEngine.SaveSystem;
 using SNEngine.Services;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -44,7 +45,7 @@ namespace SNEngine.SelectVariantsSystem
 
         [Output(ShowBackingValue.Never), SerializeField] private int _selectedIndex;
 
-        private int _index;
+        private int? _index;
         private bool _selected;
 
         public override void Execute()
@@ -72,7 +73,7 @@ namespace SNEngine.SelectVariantsSystem
                 StopTask();
                 return;
             }
-            _index = START_VALUE_INDEX;
+            _index = null;
 
             var sourceVariants = _currentVariants ?? _variants;
             var variants = sourceVariants.ToArray();
@@ -120,9 +121,9 @@ namespace SNEngine.SelectVariantsSystem
 
             serviceShowVariants.ShowVariants(variants, hideCharacters, hideDialogWindow, returnCharacterVisible, _typeAnimation);
 
-            while (_index == START_VALUE_INDEX)
+            while (_index == null)
             {
-                await UniTask.WaitUntil(() => _index != START_VALUE_INDEX, cancellationToken: TokenSource.Token);
+                await UniTask.WaitUntil(() => _index != null, cancellationToken: TokenSource.Token);
             }
         }
 
@@ -193,6 +194,10 @@ namespace SNEngine.SelectVariantsSystem
 
         public void SetDataFromSave(object data)
         {
+            if (data is null)
+            {
+                return;
+            }
             if (data is long integer)
             {
                 if (integer > -1)

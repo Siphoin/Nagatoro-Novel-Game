@@ -3,6 +3,7 @@ using SiphoinUnityHelpers.XNodeExtensions.Attributes;
 using SNEngine.AsyncNodes;
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 using XNode;
 #if UNITY_EDITOR
@@ -46,7 +47,7 @@ namespace SiphoinUnityHelpers.XNodeExtensions
 
         private void Awake()
         {
-            ResetGUID();
+            RegenerateGUID();
 
             UnityEditor.EditorUtility.SetDirty(this);
         }
@@ -106,6 +107,7 @@ namespace SiphoinUnityHelpers.XNodeExtensions
             _nodeGuid = Guid.NewGuid().ToString("N").Substring(0, 15);
             UnityEditor.EditorUtility.SetDirty(this);
         }
+
 #endif
 
     }

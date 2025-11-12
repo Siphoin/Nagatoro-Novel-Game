@@ -11,6 +11,7 @@ namespace SNEngine.SaveSystem.UI
     {
         [SerializeField] private RawImage _rawImage;
         [SerializeField] private TextMeshProUGUI _textNameSave;
+        [SerializeField] private TextMeshProUGUI _textDateSave;
         [SerializeField] private Button _button;
         private string _saveName;
 
@@ -36,6 +37,7 @@ namespace SNEngine.SaveSystem.UI
             _rawImage.texture = data.PreviewTexture;
             _saveName = data.SaveName;
             _textNameSave.text = data.SaveName;
+            _textDateSave.text = data.SaveData.DateSave.ToString("dd.mm:yyyy");
         }
     }
 }

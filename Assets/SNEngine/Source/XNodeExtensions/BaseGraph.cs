@@ -78,10 +78,30 @@ namespace SiphoinUnityHelpers.XNodeExtensions
         {
             RegenerateGUID();
         }
+
+        private void FixDuplicateGUIDs()
+        {
+            HashSet<string> guids = new HashSet<string>();
+            List<BaseNode> baseNodes = nodes.OfType<BaseNode>().ToList();
+
+            foreach (var node in baseNodes)
+            {
+                if (guids.Contains(node.GUID))
+                {
+                    typeof(BaseNode)
+                        .GetMethod("ResetGuid", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance)
+                        .Invoke(node, null);
+                }
+                guids.Add(node.GUID);
+            }
+        }
 #endif
 
         public virtual void Execute ()
         {
+#if UNITY_EDITOR
+            FixDuplicateGUIDs();
+#endif
             var queue = new List<BaseNodeInteraction>();
             var normalizeNodes = TopologicalSortInteractionNodes();
             BuidVaritableNodes();
@@ -218,7 +238,10 @@ namespace SiphoinUnityHelpers.XNodeExtensions
 
         public virtual void JumptToNode(string targetGuid)
     {
-        BuidVaritableNodes();
+#if UNITY_EDITOR
+            FixDuplicateGUIDs();
+#endif
+            BuidVaritableNodes();
 
         var allInteractionNodes = nodes
             .OfType<BaseNodeInteraction>()
