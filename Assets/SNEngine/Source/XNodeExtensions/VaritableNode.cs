@@ -2,6 +2,8 @@
 using XNode;
 using SiphoinUnityHelpers.XNodeExtensions.Attributes;
 using SiphoinUnityHelpers.XNodeExtensions.Extensions;
+using SiphoinUnityHelpers.XNodeExtensions.Debugging;
+
 #if UNITY_EDITOR
 using UnityEditor;
 #endif
@@ -26,6 +28,8 @@ namespace SiphoinUnityHelpers.XNodeExtensions
         public abstract void ResetValue();
 
         public abstract object GetCurrentValue();
+
+        public abstract void SetValue(object value);
 
 #if UNITY_EDITOR
 
@@ -89,6 +93,19 @@ namespace SiphoinUnityHelpers.XNodeExtensions
         public void SetValue (T value)
         {
             _value = value;
+        }
+
+        public override void SetValue(object value)
+        {
+            if (value is T targetValue)
+            {
+                SetValue(targetValue);
+            }
+
+            else
+            {
+                XNodeExtensionsDebug.LogError($"varitable node {GUID} not apply the value {value.GetType().Name}");
+            }
         }
 
         public override object GetCurrentValue()

@@ -6,6 +6,7 @@ using System.Linq;
 using System.Collections.Generic;
 using System.Collections;
 using Newtonsoft.Json.Linq;
+using SiphoinUnityHelpers.XNodeExtensions.Debugging;
 #if UNITY_EDITOR
 #endif
 
@@ -63,6 +64,19 @@ namespace SiphoinUnityHelpers.XNodeExtensions
         public override void ResetValue()
         {
             _elements = _startValue.ToArray();
+        }
+
+        public override void SetValue(object value)
+        {
+            if (value is IEnumerable<T> collection)
+            {
+                _elements = collection.ToArray();
+            }
+
+            else
+            {
+                XNodeExtensionsDebug.LogError($"Collection node {GUID} don`t apply the value {value.GetType().Name}");
+            }
         }
 #if UNITY_EDITOR
 

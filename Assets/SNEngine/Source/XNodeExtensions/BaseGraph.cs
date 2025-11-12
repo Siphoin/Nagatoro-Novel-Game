@@ -17,7 +17,7 @@ namespace SiphoinUnityHelpers.XNodeExtensions
     public abstract class BaseGraph : NodeGraph
     {
         [SerializeField]
-        private string _nodeGuid;
+        private string _guid;
 
         private NodeQueue _queue;
 
@@ -59,19 +59,19 @@ namespace SiphoinUnityHelpers.XNodeExtensions
 #if UNITY_EDITOR
                 RegenerateGUID();
 #endif
-                return _nodeGuid;
+                return _guid;
             }
         }
 #if UNITY_EDITOR
         private void RegenerateGUID()
         {
-            if (string.IsNullOrEmpty(_nodeGuid))
+            if (string.IsNullOrEmpty(_guid))
                 ResetGUID();
         }
 
         private void ResetGUID()
         {
-            _nodeGuid = Guid.NewGuid().ToString("N").Substring(0, 15);
+            _guid = Guid.NewGuid().ToString("N").Substring(0, 15);
         }
 
         private void Awake()

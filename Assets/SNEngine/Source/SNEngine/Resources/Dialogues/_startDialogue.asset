@@ -43,7 +43,7 @@ MonoBehaviour:
       _connectionType: 0
       _typeConstraint: 0
       _dynamic: 0
-  _nodeGuid: 570f6859f8d34dd
+  _nodeGuid: 14e3363c1ec8416
   _enabled: 0
   _enter:
     _fieldName: 
@@ -144,7 +144,7 @@ MonoBehaviour:
       _connectionType: 0
       _typeConstraint: 0
       _dynamic: 0
-  _nodeGuid: 06b175489a244d6
+  _nodeGuid: 921e1a24d58844a
   _enabled: 1
   _enter:
     _fieldName: 
@@ -236,7 +236,7 @@ MonoBehaviour:
       _connectionType: 0
       _typeConstraint: 0
       _dynamic: 0
-  _nodeGuid: 432ecb7b393549a
+  _nodeGuid: c7240056f71e416
   _enabled: 1
   _enter:
     _fieldName: 
@@ -300,7 +300,7 @@ MonoBehaviour:
       _connectionType: 0
       _typeConstraint: 0
       _dynamic: 0
-  _nodeGuid: f3b2c3551a8d44b
+  _nodeGuid: d60683a6536f4ab
   _enabled: 0
   _enter:
     _fieldName: 
@@ -362,7 +362,7 @@ MonoBehaviour:
       _connectionType: 0
       _typeConstraint: 0
       _dynamic: 0
-  _nodeGuid: 856d9eb16d0942a
+  _nodeGuid: f941a2aa0beb4b0
   _enabled: 1
   _enter:
     _fieldName: 
@@ -422,7 +422,7 @@ MonoBehaviour:
       _connectionType: 0
       _typeConstraint: 0
       _dynamic: 0
-  _nodeGuid: 203a66615bea441
+  _nodeGuid: 9c34d4ddd40849e
   _enabled: 1
   _enter:
     _fieldName: 
@@ -442,6 +442,39 @@ MonoBehaviour:
     _connectionType: 0
     _typeConstraint: 0
     _dynamic: 0
+--- !u!114 &-934316036766484581
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c7c9877b4be5d4d449c7f96418d77421, type: 3}
+  m_Name: <color=#FFFFFF>Int Varitable (Int)</color>
+  m_EditorClassIdentifier: 
+  graph: {fileID: 11400000}
+  position: {x: 184, y: 536}
+  ports:
+    keys:
+    - _value
+    values:
+    - _fieldName: _value
+      _node: {fileID: -934316036766484581}
+      _typeQualifiedName: System.Int32, mscorlib, Version=4.0.0.0, Culture=neutral,
+        PublicKeyToken=b77a5c561934e089
+      connections: []
+      _direction: 1
+      _connectionType: 0
+      _typeConstraint: 0
+      _dynamic: 0
+  _nodeGuid: 371cc21e31934a2
+  _name: Int Varitable
+  _color:
+    serializedVersion: 2
+    rgba: 4294967295
+  _value: 15
 --- !u!114 &11400000
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -464,7 +497,10 @@ MonoBehaviour:
   - {fileID: -6503840657281103144}
   - {fileID: -1069493154497878783}
   - {fileID: -1724826962846037446}
-  _nodeGuid: 8cf71a49041542a
+  - {fileID: -934316036766484581}
+  - {fileID: 8960630500748934730}
+  - {fileID: 3993275567479350928}
+  _guid: fd46cc3f5a74466
 --- !u!114 &103410744464918363
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -505,7 +541,7 @@ MonoBehaviour:
       _connectionType: 0
       _typeConstraint: 0
       _dynamic: 0
-  _nodeGuid: 086fe2ccd55640b
+  _nodeGuid: 4f8ac7364eb244b
   _enabled: 1
   _enter:
     _fieldName: 
@@ -578,7 +614,7 @@ MonoBehaviour:
       _connectionType: 0
       _typeConstraint: 0
       _dynamic: 0
-  _nodeGuid: 6756eda2efcc455
+  _nodeGuid: 5e4ec861847e424
   _result: 0
   _a: 0
   _b: 1
@@ -699,7 +735,7 @@ MonoBehaviour:
       _connectionType: 1
       _typeConstraint: 0
       _dynamic: 1
-  _nodeGuid: f5ff052a9f974b0
+  _nodeGuid: 17b755de9b3744c
   _enabled: 1
   _enter:
     _fieldName: 
@@ -727,3 +763,69 @@ MonoBehaviour:
   _returnCharacterVisible: 1
   _typeAnimation: 1
   _selectedIndex: 0
+--- !u!114 &3993275567479350928
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3cf6968cc24999c4b9ce7a4f801d3923, type: 3}
+  m_Name: <color=#FFFFFF>54345 (Float)</color>
+  m_EditorClassIdentifier: 
+  graph: {fileID: 11400000}
+  position: {x: 424, y: 984}
+  ports:
+    keys:
+    - _value
+    values:
+    - _fieldName: _value
+      _node: {fileID: 3993275567479350928}
+      _typeQualifiedName: System.Single, mscorlib, Version=4.0.0.0, Culture=neutral,
+        PublicKeyToken=b77a5c561934e089
+      connections: []
+      _direction: 1
+      _connectionType: 0
+      _typeConstraint: 0
+      _dynamic: 0
+  _nodeGuid: 4fa0b70cc516468
+  _name: 54345
+  _color:
+    serializedVersion: 2
+    rgba: 4294967295
+  _value: 0
+--- !u!114 &8960630500748934730
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d5c6695526aee6844951e3a9d092840b, type: 3}
+  m_Name: <color=#FFFFFF>4324 (Double)</color>
+  m_EditorClassIdentifier: 
+  graph: {fileID: 11400000}
+  position: {x: 326.01886, y: 750.74097}
+  ports:
+    keys:
+    - _value
+    values:
+    - _fieldName: _value
+      _node: {fileID: 8960630500748934730}
+      _typeQualifiedName: System.Double, mscorlib, Version=4.0.0.0, Culture=neutral,
+        PublicKeyToken=b77a5c561934e089
+      connections: []
+      _direction: 1
+      _connectionType: 0
+      _typeConstraint: 0
+      _dynamic: 0
+  _nodeGuid: b65f29177c0e43a
+  _name: 4324
+  _color:
+    serializedVersion: 2
+    rgba: 4294967295
+  _value: 0

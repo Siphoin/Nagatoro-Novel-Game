@@ -1,5 +1,6 @@
 ﻿using Cysharp.Threading.Tasks;
 using Newtonsoft.Json;
+using SiphoinUnityHelpers.XNodeExtensions;
 using SNEngine.Debugging;
 using SNEngine.Graphs;
 using SNEngine.IO;
@@ -23,6 +24,9 @@ namespace SNEngine.SaveSystem
         private const string SAVE_FILE_NAME = "progress.json";
         private const string PREVIEW_FILE_NAME = "preview.png";
         private const int PREVIEW_IMAGE_SIZE = 1512;
+
+        private Dictionary<string, object> _originalVaritableValues;
+        private DialogueGraph _currentGraph;
 
         public UniTask Save(string saveName, SaveData data)
         {
@@ -153,10 +157,17 @@ namespace SNEngine.SaveSystem
 
         public void LoadDataGraph(DialogueGraph graph, SaveData saveData)
         {
+            _currentGraph = graph;
+            _originalVaritableValues = new Dictionary<string, object>();
 
             IEnumerable<ISaveProgressNode> nodes = graph.AllNodes
                 .Select(x => x.Value)
                 .OfType<ISaveProgressNode>();
+
+            IEnumerable<VaritableNode> varitableNodes = graph.nodes
+                .OfType<VaritableNode>();
+
+            var globalVaritables = NovelGame.Instance.GetService<VaritablesContainerService>().GlobalVaritables;
 
             foreach (var node in nodes)
             {
@@ -172,6 +183,45 @@ namespace SNEngine.SaveSystem
                     NovelGameDebug.LogError($"save data for node {node.GUID} not founs");
                 }
             }
+
+            foreach (var node in varitableNodes)
+            {
+                _originalVaritableValues[node.GUID] = node.GetStartValue();
+
+                var data = saveData.Varitables;
+
+                if (data.TryGetValue(node.GUID, out var savedData))
+                {
+                    node.SetValue(savedData);
+                }
+
+                else
+                {
+                    NovelGameDebug.LogError($"save data for node {node.GUID} not found");
+                }
+            }
+
+            foreach (var node in globalVaritables.Values)
+            {
+                _originalVaritableValues[node.GUID] = node.GetStartValue();
+
+                var data = saveData.GlobalVaritables;
+
+                if (data.TryGetValue(node.GUID, out var savedData))
+                {
+                    node.SetValue(savedData);
+                }
+
+                else
+                {
+                    NovelGameDebug.LogError($"save data for node {node.GUID} not found");
+                }
+        }
+
+#if UNITY_EDITOR
+            graph.OnEndExecute -= RestoreOriginalVaritableValues;
+            graph.OnEndExecute += RestoreOriginalVaritableValues;
+#endif
 
         }
 
@@ -193,8 +243,8 @@ namespace SNEngine.SaveSystem
         {
             Dictionary<string, object> result = new();
             IEnumerable<ISaveProgressNode> nodes = graph.AllNodes
-    .Select(x => x.Value)
-    .OfType<ISaveProgressNode>();
+                .Select(x => x.Value)
+                .OfType<ISaveProgressNode>();
 
             foreach (var node in nodes)
             {
@@ -225,5 +275,28 @@ namespace SNEngine.SaveSystem
         {
             return Path.Combine(GetSaveFolderPath(saveName), PREVIEW_FILE_NAME);
         }
+
+#if UNITY_EDITOR
+        private void RestoreOriginalVaritableValues()
+        {
+            if (_originalVaritableValues == null || _currentGraph == null) return;
+
+            IEnumerable<VaritableNode> varitableNodes = _currentGraph.AllNodes
+                .Select(x => x.Value)
+                .OfType<VaritableNode>();
+
+            foreach (var node in varitableNodes)
+            {
+                if (_originalVaritableValues.TryGetValue(node.GUID, out var originalValue))
+                {
+                    node.SetValue(originalValue);
+                }
+            }
+
+            NovelGameDebug.Log("Restored original varitable values after graph execution from save.");
+            _originalVaritableValues.Clear();
+            _currentGraph = null;
+        }
+#endif
     }
 }

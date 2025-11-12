@@ -195,8 +195,11 @@ namespace SNEngine.SelectVariantsSystem
         {
             if (data is long integer)
             {
-                _index = (int)integer;
-                _selected = true;
+                if (integer > -1)
+                {
+                    _index = (int)integer;
+                    _selected = true;
+                }
             }
 
             else

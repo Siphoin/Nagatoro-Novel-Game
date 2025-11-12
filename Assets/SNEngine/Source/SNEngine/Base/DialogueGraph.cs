@@ -31,8 +31,8 @@ namespace SNEngine.Graphs
 
         public void LoadSave (string nodeGuid, SaveData saveData)
         {
-            NovelGame.Instance.GetService<LanguageService>().TransliteGraph(this);
             NovelGame.Instance.GetService<SaveLoadService>().LoadDataGraph(this, saveData);
+            NovelGame.Instance.GetService<LanguageService>().TransliteGraph(this);
             base.JumptToNode(nodeGuid);
         }
 
