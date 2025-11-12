@@ -40,10 +40,7 @@ MonoBehaviour:
         PublicKeyToken=null
       connections:
       - fieldName: _enter
-        node: {fileID: -5346264278290895431}
-        reroutePoints: []
-      - fieldName: _enter
-        node: {fileID: 6005449918243537037}
+        node: {fileID: 7355412790294518560}
         reroutePoints: []
       _direction: 1
       _connectionType: 0
@@ -55,7 +52,7 @@ MonoBehaviour:
         PublicKeyToken=null
       connections:
       - fieldName: _enter
-        node: {fileID: 6005449918243537037}
+        node: {fileID: -1249856556287045488}
         reroutePoints: []
       _direction: 1
       _connectionType: 0
@@ -208,7 +205,7 @@ MonoBehaviour:
   m_Name: Exit
   m_EditorClassIdentifier: 
   graph: {fileID: 11400000}
-  position: {x: 1288, y: -392}
+  position: {x: 1256, y: 8}
   ports:
     keys:
     - _enter
@@ -219,8 +216,8 @@ MonoBehaviour:
       _typeQualifiedName: XNode.NodePort, XNode, Version=0.0.0.0, Culture=neutral,
         PublicKeyToken=null
       connections:
-      - fieldName: _operations
-        node: {fileID: 6005449918243537037}
+      - fieldName: _exit
+        node: {fileID: -1249856556287045488}
         reroutePoints: []
       _direction: 0
       _connectionType: 0
@@ -236,7 +233,7 @@ MonoBehaviour:
       _typeConstraint: 0
       _dynamic: 0
   _nodeGuid: 59bf492ddeb247a
-  _enabled: 0
+  _enabled: 1
   _enter:
     _fieldName: 
     _node: {fileID: 0}
@@ -247,92 +244,6 @@ MonoBehaviour:
     _typeConstraint: 0
     _dynamic: 0
   _exit:
-    _fieldName: 
-    _node: {fileID: 0}
-    _typeQualifiedName: 
-    connections: []
-    _direction: 0
-    _connectionType: 0
-    _typeConstraint: 0
-    _dynamic: 0
---- !u!114 &-5346264278290895431
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: af1ad11522718894186552d867178f26, type: 3}
-  m_Name: True Variant (Group Calls)
-  m_EditorClassIdentifier: 
-  graph: {fileID: 11400000}
-  position: {x: 910.55676, y: 242.98718}
-  ports:
-    keys:
-    - _operations
-    - _enter
-    - _exit
-    values:
-    - _fieldName: _operations
-      _node: {fileID: -5346264278290895431}
-      _typeQualifiedName: XNode.NodePort, XNode, Version=0.0.0.0, Culture=neutral,
-        PublicKeyToken=null
-      connections:
-      - fieldName: _enter
-        node: {fileID: 7355412790294518560}
-        reroutePoints: []
-      - fieldName: _enter
-        node: {fileID: 2687146119695018632}
-        reroutePoints: []
-      _direction: 1
-      _connectionType: 0
-      _typeConstraint: 0
-      _dynamic: 0
-    - _fieldName: _enter
-      _node: {fileID: -5346264278290895431}
-      _typeQualifiedName: XNode.NodePort, XNode, Version=0.0.0.0, Culture=neutral,
-        PublicKeyToken=null
-      connections:
-      - fieldName: _true
-        node: {fileID: -7128270426181698581}
-        reroutePoints: []
-      _direction: 0
-      _connectionType: 0
-      _typeConstraint: 0
-      _dynamic: 0
-    - _fieldName: _exit
-      _node: {fileID: -5346264278290895431}
-      _typeQualifiedName: XNode.NodePort, XNode, Version=0.0.0.0, Culture=neutral,
-        PublicKeyToken=null
-      connections: []
-      _direction: 1
-      _connectionType: 0
-      _typeConstraint: 0
-      _dynamic: 0
-  _nodeGuid: a83d3969fc7d44a
-  _enabled: 0
-  _enter:
-    _fieldName: 
-    _node: {fileID: 0}
-    _typeQualifiedName: 
-    connections: []
-    _direction: 0
-    _connectionType: 0
-    _typeConstraint: 0
-    _dynamic: 0
-  _exit:
-    _fieldName: 
-    _node: {fileID: 0}
-    _typeQualifiedName: 
-    connections: []
-    _direction: 0
-    _connectionType: 0
-    _typeConstraint: 0
-    _dynamic: 0
-  _name: True Variant
-  _operations:
     _fieldName: 
     _node: {fileID: 0}
     _typeQualifiedName: 
@@ -354,7 +265,7 @@ MonoBehaviour:
   m_Name: Dialog
   m_EditorClassIdentifier: 
   graph: {fileID: 11400000}
-  position: {x: 1096, y: -184}
+  position: {x: 920, y: -136}
   ports:
     keys:
     - _enter
@@ -365,8 +276,8 @@ MonoBehaviour:
       _typeQualifiedName: XNode.NodePort, XNode, Version=0.0.0.0, Culture=neutral,
         PublicKeyToken=null
       connections:
-      - fieldName: _operations
-        node: {fileID: 6005449918243537037}
+      - fieldName: _false
+        node: {fileID: -7128270426181698581}
         reroutePoints: []
       _direction: 0
       _connectionType: 0
@@ -376,13 +287,16 @@ MonoBehaviour:
       _node: {fileID: -1249856556287045488}
       _typeQualifiedName: XNode.NodePort, XNode, Version=0.0.0.0, Culture=neutral,
         PublicKeyToken=null
-      connections: []
+      connections:
+      - fieldName: _enter
+        node: {fileID: -5633778128890176374}
+        reroutePoints: []
       _direction: 1
       _connectionType: 0
       _typeConstraint: 0
       _dynamic: 0
   _nodeGuid: 474df71054ad4f1
-  _enabled: 0
+  _enabled: 1
   _enter:
     _fieldName: 
     _node: {fileID: 0}
@@ -421,10 +335,8 @@ MonoBehaviour:
   - {fileID: 2274133468023807864}
   - {fileID: -7128270426181698581}
   - {fileID: 836418502886340907}
-  - {fileID: -5346264278290895431}
   - {fileID: 7355412790294518560}
   - {fileID: 2687146119695018632}
-  - {fileID: 6005449918243537037}
   - {fileID: -1249856556287045488}
   - {fileID: -5633778128890176374}
   _nodeGuid: 8cf71a49041542a
@@ -703,7 +615,7 @@ MonoBehaviour:
   m_Name: Exit
   m_EditorClassIdentifier: 
   graph: {fileID: 11400000}
-  position: {x: 1256, y: 264}
+  position: {x: 1304, y: 264}
   ports:
     keys:
     - _enter
@@ -731,7 +643,7 @@ MonoBehaviour:
       _typeConstraint: 0
       _dynamic: 0
   _nodeGuid: 59bf492ddeb247a
-  _enabled: 0
+  _enabled: 1
   _enter:
     _fieldName: 
     _node: {fileID: 0}
@@ -742,95 +654,6 @@ MonoBehaviour:
     _typeConstraint: 0
     _dynamic: 0
   _exit:
-    _fieldName: 
-    _node: {fileID: 0}
-    _typeQualifiedName: 
-    connections: []
-    _direction: 0
-    _connectionType: 0
-    _typeConstraint: 0
-    _dynamic: 0
---- !u!114 &6005449918243537037
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: af1ad11522718894186552d867178f26, type: 3}
-  m_Name: True Variant (Group Calls)
-  m_EditorClassIdentifier: 
-  graph: {fileID: 11400000}
-  position: {x: 776, y: -424}
-  ports:
-    keys:
-    - _operations
-    - _enter
-    - _exit
-    values:
-    - _fieldName: _operations
-      _node: {fileID: 6005449918243537037}
-      _typeQualifiedName: XNode.NodePort, XNode, Version=0.0.0.0, Culture=neutral,
-        PublicKeyToken=null
-      connections:
-      - fieldName: _enter
-        node: {fileID: -1249856556287045488}
-        reroutePoints: []
-      - fieldName: _enter
-        node: {fileID: -5633778128890176374}
-        reroutePoints: []
-      _direction: 1
-      _connectionType: 0
-      _typeConstraint: 0
-      _dynamic: 0
-    - _fieldName: _enter
-      _node: {fileID: 6005449918243537037}
-      _typeQualifiedName: XNode.NodePort, XNode, Version=0.0.0.0, Culture=neutral,
-        PublicKeyToken=null
-      connections:
-      - fieldName: _false
-        node: {fileID: -7128270426181698581}
-        reroutePoints: []
-      - fieldName: _false
-        node: {fileID: -7128270426181698581}
-        reroutePoints: []
-      _direction: 0
-      _connectionType: 0
-      _typeConstraint: 0
-      _dynamic: 0
-    - _fieldName: _exit
-      _node: {fileID: 6005449918243537037}
-      _typeQualifiedName: XNode.NodePort, XNode, Version=0.0.0.0, Culture=neutral,
-        PublicKeyToken=null
-      connections: []
-      _direction: 1
-      _connectionType: 0
-      _typeConstraint: 0
-      _dynamic: 0
-  _nodeGuid: a83d3969fc7d44a
-  _enabled: 0
-  _enter:
-    _fieldName: 
-    _node: {fileID: 0}
-    _typeQualifiedName: 
-    connections: []
-    _direction: 0
-    _connectionType: 0
-    _typeConstraint: 0
-    _dynamic: 0
-  _exit:
-    _fieldName: 
-    _node: {fileID: 0}
-    _typeQualifiedName: 
-    connections: []
-    _direction: 0
-    _connectionType: 0
-    _typeConstraint: 0
-    _dynamic: 0
-  _name: True Variant
-  _operations:
     _fieldName: 
     _node: {fileID: 0}
     _typeQualifiedName: 
@@ -852,7 +675,7 @@ MonoBehaviour:
   m_Name: Dialog
   m_EditorClassIdentifier: 
   graph: {fileID: 11400000}
-  position: {x: 1241.5568, y: 476.98718}
+  position: {x: 920, y: 248}
   ports:
     keys:
     - _enter
@@ -863,8 +686,8 @@ MonoBehaviour:
       _typeQualifiedName: XNode.NodePort, XNode, Version=0.0.0.0, Culture=neutral,
         PublicKeyToken=null
       connections:
-      - fieldName: _operations
-        node: {fileID: -5346264278290895431}
+      - fieldName: _true
+        node: {fileID: -7128270426181698581}
         reroutePoints: []
       _direction: 0
       _connectionType: 0
@@ -874,7 +697,10 @@ MonoBehaviour:
       _node: {fileID: 7355412790294518560}
       _typeQualifiedName: XNode.NodePort, XNode, Version=0.0.0.0, Culture=neutral,
         PublicKeyToken=null
-      connections: []
+      connections:
+      - fieldName: _enter
+        node: {fileID: 2687146119695018632}
+        reroutePoints: []
       _direction: 1
       _connectionType: 0
       _typeConstraint: 0

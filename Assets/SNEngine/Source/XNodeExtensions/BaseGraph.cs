@@ -162,31 +162,23 @@ namespace SiphoinUnityHelpers.XNodeExtensions
             var allInteractionNodes = executableNodes
                 .ToDictionary(node => node, node => 0);
 
-            // 3. Вычисление степени входа: Итерация по ВСЕМ исходящим портам
             foreach (var node in executableNodes)
             {
-                // Новый цикл: перебираем ВСЕ выходные порты узла
                 foreach (var outputPort in node.Ports.Where(p => p.IsOutput && p.IsConnected))
                 {
-                    // Для каждого соединения
                     foreach (var connection in outputPort.GetConnections())
                     {
                         if (connection.node is BaseNodeInteraction nextNode)
                         {
                             if (allInteractionNodes.ContainsKey(nextNode))
                             {
-                                // Увеличиваем In-degree следующего узла, независимо от того, какой порт (Exit, True, Diamond X) использовался
                                 allInteractionNodes[nextNode]++;
                             }
                         }
                     }
                 }
-
-                // Старый код, который проверял только .Exit.Connection, удален.
-                // Порт .Exit будет обработан в цикле выше.
             }
 
-            // ... (Далее шаги 4 и 5 остаются без изменений)
             var queue = new Queue<BaseNodeInteraction>(
                 allInteractionNodes.Where(pair => pair.Value == 0).Select(pair => pair.Key)
             );
@@ -196,8 +188,11 @@ namespace SiphoinUnityHelpers.XNodeExtensions
             while (queue.Count > 0)
             {
                 var currentNode = queue.Dequeue();
-                sortedList.Add(currentNode);
 
+                if (!currentNode.IsControlledAnotherNode)
+                {
+                    sortedList.Add(currentNode);
+                }
                 foreach (var outputPort in currentNode.Ports.Where(p => p.IsOutput && p.IsConnected))
                 {
                     foreach (var connection in outputPort.GetConnections())
@@ -217,7 +212,6 @@ namespace SiphoinUnityHelpers.XNodeExtensions
                     }
                 }
             }
-
 
             return sortedList;
         }

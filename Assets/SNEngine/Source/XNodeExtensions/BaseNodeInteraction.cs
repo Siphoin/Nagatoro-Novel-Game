@@ -1,5 +1,7 @@
 ﻿using SiphoinUnityHelpers.Attributes;
 using SiphoinUnityHelpers.XNodeExtensions.Attributes;
+using SiphoinUnityHelpers.XNodeExtensions.Interfaces;
+using SiphoinUnityHelpers.XNodeExtensions.NodesControlExecutes;
 using UnityEngine;
 using XNode;
 
@@ -18,6 +20,33 @@ namespace SiphoinUnityHelpers.XNodeExtensions
         public NodePort Enter => GetEnterPort();
 
         public NodePort Exit => GetExitPort();
+
+        public bool IsControlledAnotherNode
+        {
+            get
+            {
+                if (Enter.Connection == null) return false;
+
+                var connectedNode = Enter.Connection.node;
+
+                if (connectedNode is ILoopNode loopNode && loopNode.NodeContainsOnLoop(this))
+                {
+                    return true;
+                }
+
+                if (connectedNode is IfNode ifNode && ifNode.NodeContainsOnBranch(this))
+                {
+                    return true;
+                }
+
+                if (connectedNode is GroupCallsNode groupCallsNode && groupCallsNode.NodeContainsOnOperation(this))
+                {
+                    return true;
+                }
+
+                return false;
+            }
+        }
 
         public void SetEnable(bool enable)
         {

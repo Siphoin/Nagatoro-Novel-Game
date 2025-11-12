@@ -45,6 +45,23 @@ namespace SiphoinUnityHelpers.XNodeExtensions
 
                             await XNodeExtensionsUniTask.WaitAsyncNode(asyncNode, _cancellationTokenSource);
                         }
+
+                        foreach (var outputPort in node.Ports)
+                        {
+                            if (outputPort.IsOutput)
+                            {
+                                if (outputPort.Connection != null)
+                                {
+                                    foreach (var childConnection in outputPort.GetConnections())
+                                    {
+                                        if (childConnection.node is BaseNode nextNode)
+                                        {
+                                            nextNode.Execute();
+                                        }
+                                    }
+                                }
+                            }
+                        }
                     }
                 }
             }
@@ -53,6 +70,7 @@ namespace SiphoinUnityHelpers.XNodeExtensions
 
             _cancellationTokenSource = null;
         }
+        // ...
 
         public override bool CanSkip()
         {

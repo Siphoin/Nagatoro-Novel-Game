@@ -10,7 +10,7 @@ namespace SiphoinUnityHelpers.XNodeExtensions.Loop
 
         [Space(10)]
 
-        [Output(ShowBackingValue.Never), SerializeField] private Object  _outputElement;
+        [Output(ShowBackingValue.Never), SerializeField] private Object _outputElement;
 
         private object _currentElement;
 
@@ -22,6 +22,8 @@ namespace SiphoinUnityHelpers.XNodeExtensions.Loop
         public override void Execute()
         {
             var enumerable = GetDataFromPort<IEnumerable>(nameof(_enumerable));
+
+            if (enumerable == null) return;
 
             foreach (var item in enumerable)
             {

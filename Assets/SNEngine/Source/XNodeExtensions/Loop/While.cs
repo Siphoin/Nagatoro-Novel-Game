@@ -16,10 +16,8 @@ namespace SiphoinUnityHelpers.XNodeExtensions.Loop
             While().Forget();
         }
 
-        private async UniTask While ()
+        private async UniTask While()
         {
-            base.Execute();
-
             while (true)
             {
                 bool condition = GetDataFromPort<bool>(nameof(_condition));
@@ -32,11 +30,7 @@ namespace SiphoinUnityHelpers.XNodeExtensions.Loop
                 }
 
                 await UniTask.Delay(1, cancellationToken: TokenSource.Token);
-
-
             }
-
-            
         }
     }
 }
