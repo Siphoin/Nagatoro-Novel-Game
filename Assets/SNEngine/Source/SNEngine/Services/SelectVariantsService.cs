@@ -44,7 +44,7 @@ namespace SNEngine.Services
             _flagShowInvolvedCharacters = returnCharactersVisible;
         }
 
-        private void OnSelectVariant(int index)
+        public void OnSelectVariant(int index)
         {
             _window.OnSelect -= OnSelectVariant;
 
@@ -56,6 +56,8 @@ namespace SNEngine.Services
 
                 charactersService.ShowInvolvedCharacters();
             }
+
+            _window.Hide();
         }
     }
 }

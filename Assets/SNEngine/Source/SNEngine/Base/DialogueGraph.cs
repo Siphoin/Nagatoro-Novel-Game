@@ -1,9 +1,12 @@
 ﻿using SiphoinUnityHelpers.XNodeExtensions;
 using SNEngine.DialogSystem;
 using SNEngine.Extensions;
+using SNEngine.SaveSystem;
 using SNEngine.SaveSystem.Models;
 using SNEngine.Services;
+using UnityEditor.Overlays;
 using UnityEngine;
+using SaveData = SNEngine.SaveSystem.Models.SaveData;
 
 namespace SNEngine.Graphs
 {
@@ -17,6 +20,7 @@ namespace SNEngine.Graphs
         public override void Execute()
         {
             NovelGame.Instance.GetService<LanguageService>().TransliteGraph(this);
+            NovelGame.Instance.GetService<SaveLoadService>().ResetDataGraph(this);
             base.Execute();
         }
 
@@ -25,9 +29,10 @@ namespace SNEngine.Graphs
             return Queue.HasNextDialogueOnExit();
         }
 
-        public void LoadSave (string nodeGuid)
+        public void LoadSave (string nodeGuid, SaveData saveData)
         {
             NovelGame.Instance.GetService<LanguageService>().TransliteGraph(this);
+            NovelGame.Instance.GetService<SaveLoadService>().LoadDataGraph(this, saveData);
             base.JumptToNode(nodeGuid);
         }
 

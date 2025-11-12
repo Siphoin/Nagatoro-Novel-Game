@@ -11,5 +11,10 @@ namespace SNEngine.CharacterSystem
 
             serviceCharacters.SetFlipCharacter(target, flipType);
         }
+
+        public override bool CanSkip()
+        {
+            return false;
+        }
     }
 }

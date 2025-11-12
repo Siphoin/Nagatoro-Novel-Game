@@ -1,15 +1,18 @@
 ﻿using Cysharp.Threading.Tasks;
 using Newtonsoft.Json;
 using SNEngine.Debugging;
-using SNEngine.IO;
-using SNEngine.Services;
-using SNEngine.SaveSystem.Models;
-using System;
-using System.IO;
-using System.Collections.Generic;
-using System.Linq;
-using UnityEngine;
 using SNEngine.Graphs;
+using SNEngine.IO;
+using SNEngine.Localization;
+using SNEngine.SaveSystem.Models;
+using SNEngine.Services;
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using UnityEditor.Overlays;
+using UnityEngine;
+using SaveData = SNEngine.SaveSystem.Models.SaveData;
 
 namespace SNEngine.SaveSystem
 {
@@ -146,6 +149,61 @@ namespace SNEngine.SaveSystem
             texture.LoadImage(bytes);
 
             return texture;
+        }
+
+        public void LoadDataGraph(DialogueGraph graph, SaveData saveData)
+        {
+
+            IEnumerable<ISaveProgressNode> nodes = graph.AllNodes
+                .Select(x => x.Value)
+                .OfType<ISaveProgressNode>();
+
+            foreach (var node in nodes)
+            {
+                var data = saveData.NodesData;
+
+                if (data.TryGetValue(node.GUID, out var savedData))
+                {
+                    node.SetDataFromSave(savedData);
+                }
+
+                else
+                {
+                    NovelGameDebug.LogError($"save data for node {node.GUID} not founs");
+                }
+            }
+
+        }
+
+        public void ResetDataGraph(DialogueGraph graph)
+        {
+
+            IEnumerable<ISaveProgressNode> nodes = graph.AllNodes
+                .Select(x => x.Value)
+                .OfType<ISaveProgressNode>();
+
+            foreach (var node in nodes)
+            {
+                node.ResetSaveBehaviour();
+            }
+
+        }
+
+        public Dictionary<string, object> ExtractSaveDataFromGraph(DialogueGraph graph)
+        {
+            Dictionary<string, object> result = new();
+            IEnumerable<ISaveProgressNode> nodes = graph.AllNodes
+    .Select(x => x.Value)
+    .OfType<ISaveProgressNode>();
+
+            foreach (var node in nodes)
+            {
+                var key = node.GUID;
+                var value = node.GetDataForSave();
+                result.Add(key, value);
+            }
+
+            return result;
         }
 
         private string GetRootSaveFolderPath()

@@ -18,6 +18,7 @@ namespace Assets.SNEngine.Source.SNEngine.SaveSystem
             if (UnityEngine.Input.GetKeyDown(KeyCode.F2))
             {
                 var dialogueService = NovelGame.Instance.GetService<DialogueService>();
+                var saveLoadService = NovelGame.Instance.GetService<SaveLoadService>();
                 var globalVaritablesService = NovelGame.Instance.GetService<VaritablesContainerService>();
                 DialogueGraph dialogueGraph = dialogueService.CurrentDialogue as DialogueGraph;
                 var nodeGuid = dialogueGraph.CurrentExecuteNode.GUID;
@@ -39,15 +40,20 @@ namespace Assets.SNEngine.Source.SNEngine.SaveSystem
                     globalVaritablesData.Add(guid, valueNode);
                 }
 
+                var nodesData = saveLoadService.ExtractSaveDataFromGraph(dialogueGraph);
+
                 SaveData saveData = new()
                 {
                     CurrentNode = nodeGuid,
                     Varitables = varitablesData,
                     GlobalVaritables = globalVaritablesData,
                     DialogueGUID = dialogueGraph.GUID,
+                    DateSave = System.DateTime.Now,
+                    NodesData = nodesData,
+
                 };
 
-                NovelGame.Instance.GetService<SaveLoadService>().Save("autosave", saveData).Forget();
+                saveLoadService.Save("autosave", saveData).Forget();
             }
         }
     }

@@ -40,9 +40,15 @@ namespace SiphoinUnityHelpers.XNodeExtensions
             _nodeGuid = Guid.NewGuid().ToString("N").Substring(0, 15);
         }
 
+#endif
+
+#if UNITY_EDITOR
+
         private void Awake()
         {
-            RegenerateGUID();
+            ResetGUID();
+
+            UnityEditor.EditorUtility.SetDirty(this);
         }
 #endif
 
@@ -101,5 +107,6 @@ namespace SiphoinUnityHelpers.XNodeExtensions
             UnityEditor.EditorUtility.SetDirty(this);
         }
 #endif
+
     }
 }
