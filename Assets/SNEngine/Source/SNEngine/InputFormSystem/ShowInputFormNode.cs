@@ -1,13 +1,14 @@
 ﻿using SiphoinUnityHelpers.XNodeExtensions.AsyncNodes;
 using SNEngine.Debugging;
 using SNEngine.Localization;
+using SNEngine.SaveSystem;
 using SNEngine.Services;
 using UnityEngine;
 using XNode;
 
 namespace SNEngine.InputFormSystem
 {
-    public class ShowInputFormNode : AsyncNode, ILocalizationNode
+    public class ShowInputFormNode : AsyncNode, ILocalizationNode, ISaveProgressNode
     {
         [SerializeField] private string _label = "Input Value";
 
@@ -23,9 +24,14 @@ namespace SNEngine.InputFormSystem
 
         private InputFormService _service;
         private string _currentLabel;
+        private bool _edited;
 
         public override void Execute()
         {
+            if (_edited)
+            {
+                return;
+            }
             if (string.IsNullOrEmpty(_currentLabel))
             {
                 _currentLabel = _label;
@@ -83,5 +89,30 @@ namespace SNEngine.InputFormSystem
         {
             return _output;
         }
+        #region Save
+        public object GetDataForSave()
+        {
+            throw new System.NotImplementedException();
+        }
+
+        public void SetDataFromSave(object data)
+        {
+            if (data is string inputData)
+            {
+                _output = inputData;
+                _edited = true;
+            }
+
+            else
+            {
+                NovelGameDebug.LogError($"input fata for node {GUID} is invalid. Type: {data.GetType().Name}");
+            }
+        }
+
+        public void ResetSaveBehaviour()
+        {
+            _edited = false;
+        }
+        #endregion
     }
 }

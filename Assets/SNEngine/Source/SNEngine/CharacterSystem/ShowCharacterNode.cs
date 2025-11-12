@@ -12,8 +12,11 @@ namespace SNEngine.CharacterSystem
             var serviceCharacters = NovelGame.Instance.GetService<CharacterService>();
 
             serviceCharacters.ShowCharacter(character, _emotion);
+        }
 
-           
+        public override bool CanSkip()
+        {
+            return false;
         }
     }
 }

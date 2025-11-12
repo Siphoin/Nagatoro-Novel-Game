@@ -84,7 +84,7 @@ namespace SNEngine.Services
             {
                 _currentDialogue = targetDialogue;
                 _currentDialogue.OnEndExecute += OnEndExecute;
-                targetDialogue.LoadSave(saveData.CurrentNode);
+                targetDialogue.LoadSave(saveData.CurrentNode, saveData);
             }
 
         }

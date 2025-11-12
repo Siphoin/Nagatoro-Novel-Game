@@ -5,6 +5,7 @@ using SiphoinUnityHelpers.XNodeExtensions.Attributes;
 using SNEngine.Attributes;
 using SNEngine.Debugging;
 using SNEngine.Localization;
+using SNEngine.SaveSystem;
 using SNEngine.Services;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,7 +13,7 @@ using UnityEngine;
 using XNode;
 namespace SNEngine.SelectVariantsSystem
 {
-    public class ShowVariantsNode : AsyncNode, ILocalizationNode
+    public class ShowVariantsNode : AsyncNode, ILocalizationNode, ISaveProgressNode
     {
         private const int START_VALUE_INDEX = -1;
 
@@ -44,6 +45,7 @@ namespace SNEngine.SelectVariantsSystem
         [Output(ShowBackingValue.Never), SerializeField] private int _selectedIndex;
 
         private int _index;
+        private bool _selected;
 
         public override void Execute()
         {
@@ -65,6 +67,11 @@ namespace SNEngine.SelectVariantsSystem
 
         private async UniTask Show()
         {
+            if (_selected)
+            {
+                StopTask();
+                return;
+            }
             _index = START_VALUE_INDEX;
 
             var sourceVariants = _currentVariants ?? _variants;
@@ -135,6 +142,11 @@ namespace SNEngine.SelectVariantsSystem
         {
             base.StopTask();
         }
+
+        public override bool CanSkip()
+        {
+            return false;
+        }
         #region Localization
         public object GetOriginalValue()
         {
@@ -170,6 +182,32 @@ namespace SNEngine.SelectVariantsSystem
         public object GetValue()
         {
             return _variants.AsEnumerable();
+        }
+        #endregion
+
+        #region Save
+        public object GetDataForSave()
+        {
+            return _index;
+        }
+
+        public void SetDataFromSave(object data)
+        {
+            if (data is long integer)
+            {
+                _index = (int)integer;
+                _selected = true;
+            }
+
+            else
+            {
+                NovelGameDebug.LogError($"data for Show Variants Node is invalid: Type data: {data.GetType().Name}");
+            }
+        }
+
+        public void ResetSaveBehaviour()
+        {
+            _selected = false;
         }
         #endregion
     }

@@ -10,5 +10,10 @@ namespace SNEngine.CharacterSystem
 
             serviceCharacters.HideCharacter(character);
         }
+
+        public override bool CanSkip()
+        {
+            return false;
+        }
     }
 }
