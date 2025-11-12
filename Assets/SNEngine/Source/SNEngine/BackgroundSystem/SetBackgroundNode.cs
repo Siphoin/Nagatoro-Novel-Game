@@ -8,7 +8,6 @@ namespace SNEngine.BackgroundSystem
     public class SetBackgroundNode : BaseNodeInteraction
     {
         [Input(connectionType = ConnectionType.Override), SerializeField] private Sprite _sprite;
-        public override bool CanSkip => false;
 
         public Sprite Sprite => _sprite;
 
@@ -26,6 +25,11 @@ namespace SNEngine.BackgroundSystem
             var backgroundService = NovelGame.Instance.GetService<BackgroundService>();
 
             backgroundService.Set(sprite);
+        }
+
+        public override bool CanSkip()
+        {
+            return false;
         }
     }
 }

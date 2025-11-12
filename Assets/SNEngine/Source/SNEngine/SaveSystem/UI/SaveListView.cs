@@ -17,28 +17,32 @@ namespace SNEngine.SaveSystem.UI
         [SerializeField] private RectTransform _containerSaves;
         private PoolMono<SaveView> _pool;
         private List<PreloadSave> _cacheSaves = new();
+        private bool _isLoaded;
 
         private async void OnEnable()
         {
-            foreach (var save in _cacheSaves)
-            {
-                save.Dispose();
-            }
+            if (_isLoaded)
+                return;
 
+            _isLoaded = true;
+
+            // Очистка предыдущих кэшей
+            foreach (var save in _cacheSaves)
+                save.Dispose();
             _cacheSaves.Clear();
 
+            // Деактивация дочерних элементов
             for (int i = 0; i < _containerSaves.childCount; i++)
-            {
-                var child = _containerSaves.GetChild(i).gameObject;
-                child.gameObject.SetActive(false);
-            }
+                _containerSaves.GetChild(i).gameObject.SetActive(false);
 
-            if (_pool is null)
+            // Инициализация пула
+            if (_pool == null)
             {
                 var prefab = ResourceLoader.LoadCustomOrVanilla<SaveView>("UI/saveView");
                 _pool = new(prefab, _containerSaves, 9, true);
             }
 
+            // Загрузка сохранений
             var saveLoadService = NovelGame.Instance.GetService<SaveLoadService>();
             var savesDirectories = await saveLoadService.GetAllAvailableSaves();
             foreach (var saveName in savesDirectories)
@@ -49,18 +53,18 @@ namespace SNEngine.SaveSystem.UI
                     var view = _pool.GetFreeElement();
                     view.gameObject.SetActive(true);
                     view.SetData(save);
+
+                    // Подписка на событие один раз
                     view.OnSelect -= OnSaveSelected;
                     view.OnSelect += OnSaveSelected;
-                    _cacheSaves.Add(save);
-                    
 
+                    _cacheSaves.Add(save);
                 }
-                catch (System.Exception ex)
+                catch (Exception ex)
                 {
-                    NovelGameDebug.LogError($"Error getting save {saveName} Error: {ex.Message}");
+                    NovelGameDebug.LogError($"Error getting save {saveName}: {ex.Message}");
                     continue;
                 }
-
             }
         }
 
@@ -86,6 +90,7 @@ namespace SNEngine.SaveSystem.UI
             }
 
             _cacheSaves.Clear();
+            _isLoaded = false;
         }
 
         public void Hide()

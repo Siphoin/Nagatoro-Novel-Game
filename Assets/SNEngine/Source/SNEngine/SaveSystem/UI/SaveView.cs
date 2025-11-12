@@ -21,6 +21,11 @@ namespace SNEngine.SaveSystem.UI
             _button.onClick.AddListener(Select);
         }
 
+        private void OnDisable()
+        {
+            _button.onClick.RemoveListener(Select);
+        }
+
         private void Select()
         {
             OnSelect?.Invoke(_saveName);

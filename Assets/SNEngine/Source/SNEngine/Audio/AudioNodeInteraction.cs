@@ -23,5 +23,6 @@ namespace SNEngine.Audio
         }
 
         protected abstract void Interact(AudioObject input);
+
     }
 }

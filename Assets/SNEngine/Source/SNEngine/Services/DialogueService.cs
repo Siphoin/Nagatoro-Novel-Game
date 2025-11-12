@@ -82,10 +82,11 @@ namespace SNEngine.Services
 
             if (targetDialogue != null)
             {
+                _currentDialogue = targetDialogue;
+                _currentDialogue.OnEndExecute += OnEndExecute;
                 targetDialogue.LoadSave(saveData.CurrentNode);
             }
 
-            _currentDialogue = targetDialogue;
         }
 
         private void OnEndExecute()

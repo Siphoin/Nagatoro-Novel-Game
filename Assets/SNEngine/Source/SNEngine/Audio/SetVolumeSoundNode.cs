@@ -10,5 +10,6 @@ namespace SNEngine.Audio
             var value = GetInputValue(nameof(_volume), _volume);
             input.Volume = value;
         }
+
     }
 }

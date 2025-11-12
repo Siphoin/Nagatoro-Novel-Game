@@ -71,6 +71,8 @@ namespace SiphoinUnityHelpers.XNodeExtensions
 
         private void Build(IEnumerable<BaseNodeInteraction> nodes)
         {
+            _nodes.AddRange(nodes);
+
             foreach (var item in nodes)
             {
                 if (item is AsyncNode asyncNode)
@@ -83,27 +85,6 @@ namespace SiphoinUnityHelpers.XNodeExtensions
                 }
             }
 
-            _nodes.Add(_startNode);
-
-            var currentNode = _startNode as BaseNodeInteraction;
-            while (currentNode != null)
-            {
-                var exitPort = currentNode.GetExitPort();
-                if (exitPort.Connection != null)
-                {
-                    var nextNode = exitPort.Connection.node as BaseNodeInteraction;
-                    if (nextNode.Enabled)
-                        _nodes.Add(nextNode);
-
-                    currentNode = nextNode;
-                }
-                else
-                {
-                    currentNode = null;
-                }
-            }
-
-            // Лог последовательности нод
             StringBuilder stringBuilder = new StringBuilder();
             stringBuilder.AppendLine($"New Node Queue from node graph {_graph.name}:\n");
             foreach (var node in _nodes)
