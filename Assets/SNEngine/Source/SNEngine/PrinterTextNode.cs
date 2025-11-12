@@ -33,6 +33,7 @@ namespace SNEngine
 
         public void MarkIsEnd()
         {
+            _currentText = string.Empty;
             StopTask();
         }
 

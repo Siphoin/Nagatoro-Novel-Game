@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Dialog
   m_EditorClassIdentifier: 
   graph: {fileID: 11400000}
-  position: {x: 888, y: 392}
+  position: {x: 1048, y: 408}
   ports:
     keys:
     - _enter
@@ -63,7 +63,7 @@ MonoBehaviour:
     _connectionType: 0
     _typeConstraint: 0
     _dynamic: 0
-  _text: True
+  _text: You selected B
   _character: {fileID: 11400000, guid: 7f230ed60ee36b74cb6adb00a85d76f3, type: 2}
 --- !u!114 &-7128270426181698581
 MonoBehaviour:
@@ -78,7 +78,7 @@ MonoBehaviour:
   m_Name: If
   m_EditorClassIdentifier: 
   graph: {fileID: 11400000}
-  position: {x: 567.04285, y: 91.30643}
+  position: {x: 728, y: 104}
   ports:
     keys:
     - _condition
@@ -230,7 +230,7 @@ MonoBehaviour:
         PublicKeyToken=null
       connections:
       - fieldName: _enter
-        node: {fileID: 2274133468023807864}
+        node: {fileID: -5275507959167256195}
         reroutePoints: []
       _direction: 1
       _connectionType: 0
@@ -270,7 +270,7 @@ MonoBehaviour:
   m_Name: Dialog
   m_EditorClassIdentifier: 
   graph: {fileID: 11400000}
-  position: {x: 920, y: -8}
+  position: {x: 1080, y: 8}
   ports:
     keys:
     - _enter
@@ -320,7 +320,72 @@ MonoBehaviour:
     _connectionType: 0
     _typeConstraint: 0
     _dynamic: 0
-  _text: False
+  _text: You selected A
+  _character: {fileID: 11400000, guid: 7f230ed60ee36b74cb6adb00a85d76f3, type: 2}
+--- !u!114 &-5275507959167256195
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 83ef4c336caa2f84b80ce41d489c4f54, type: 3}
+  m_Name: Dialog
+  m_EditorClassIdentifier: 
+  graph: {fileID: 11400000}
+  position: {x: 168, y: 24}
+  ports:
+    keys:
+    - _enter
+    - _exit
+    values:
+    - _fieldName: _enter
+      _node: {fileID: -5275507959167256195}
+      _typeQualifiedName: XNode.NodePort, XNode, Version=0.0.0.0, Culture=neutral,
+        PublicKeyToken=null
+      connections:
+      - fieldName: _exit
+        node: {fileID: -6822581182933436620}
+        reroutePoints: []
+      _direction: 0
+      _connectionType: 0
+      _typeConstraint: 0
+      _dynamic: 0
+    - _fieldName: _exit
+      _node: {fileID: -5275507959167256195}
+      _typeQualifiedName: XNode.NodePort, XNode, Version=0.0.0.0, Culture=neutral,
+        PublicKeyToken=null
+      connections:
+      - fieldName: _enter
+        node: {fileID: 2274133468023807864}
+        reroutePoints: []
+      _direction: 1
+      _connectionType: 0
+      _typeConstraint: 0
+      _dynamic: 0
+  _nodeGuid: ceb96707d59149b
+  _enabled: 1
+  _enter:
+    _fieldName: 
+    _node: {fileID: 0}
+    _typeQualifiedName: 
+    connections: []
+    _direction: 0
+    _connectionType: 0
+    _typeConstraint: 0
+    _dynamic: 0
+  _exit:
+    _fieldName: 
+    _node: {fileID: 0}
+    _typeQualifiedName: 
+    connections: []
+    _direction: 0
+    _connectionType: 0
+    _typeConstraint: 0
+    _dynamic: 0
+  _text: Hello Senpai
   _character: {fileID: 11400000, guid: 7f230ed60ee36b74cb6adb00a85d76f3, type: 2}
 --- !u!114 &-1724826962846037446
 MonoBehaviour:
@@ -335,7 +400,7 @@ MonoBehaviour:
   m_Name: Exit
   m_EditorClassIdentifier: 
   graph: {fileID: 11400000}
-  position: {x: 1256, y: 424}
+  position: {x: 1416, y: 440}
   ports:
     keys:
     - _enter
@@ -395,7 +460,7 @@ MonoBehaviour:
   m_Name: Exit
   m_EditorClassIdentifier: 
   graph: {fileID: 11400000}
-  position: {x: 1266.1875, y: 88.19372}
+  position: {x: 1432, y: 104}
   ports:
     keys:
     - _enter
@@ -442,39 +507,6 @@ MonoBehaviour:
     _connectionType: 0
     _typeConstraint: 0
     _dynamic: 0
---- !u!114 &-934316036766484581
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c7c9877b4be5d4d449c7f96418d77421, type: 3}
-  m_Name: <color=#FFFFFF>Int Varitable (Int)</color>
-  m_EditorClassIdentifier: 
-  graph: {fileID: 11400000}
-  position: {x: 184, y: 536}
-  ports:
-    keys:
-    - _value
-    values:
-    - _fieldName: _value
-      _node: {fileID: -934316036766484581}
-      _typeQualifiedName: System.Int32, mscorlib, Version=4.0.0.0, Culture=neutral,
-        PublicKeyToken=b77a5c561934e089
-      connections: []
-      _direction: 1
-      _connectionType: 0
-      _typeConstraint: 0
-      _dynamic: 0
-  _nodeGuid: 371cc21e31934a2
-  _name: Int Varitable
-  _color:
-    serializedVersion: 2
-    rgba: 4294967295
-  _value: 15
 --- !u!114 &11400000
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -497,9 +529,7 @@ MonoBehaviour:
   - {fileID: -6503840657281103144}
   - {fileID: -1069493154497878783}
   - {fileID: -1724826962846037446}
-  - {fileID: -934316036766484581}
-  - {fileID: 8960630500748934730}
-  - {fileID: 3993275567479350928}
+  - {fileID: -5275507959167256195}
   _guid: fd46cc3f5a74466
 --- !u!114 &103410744464918363
 MonoBehaviour:
@@ -574,7 +604,7 @@ MonoBehaviour:
   m_Name: Compare Integers
   m_EditorClassIdentifier: 
   graph: {fileID: 11400000}
-  position: {x: 536, y: 392}
+  position: {x: 696, y: 408}
   ports:
     keys:
     - _a
@@ -632,7 +662,7 @@ MonoBehaviour:
   m_Name: Show Variants
   m_EditorClassIdentifier: 
   graph: {fileID: 11400000}
-  position: {x: 230.94289, y: 12.306404}
+  position: {x: 440, y: 40}
   ports:
     keys:
     - _variants
@@ -699,7 +729,7 @@ MonoBehaviour:
         PublicKeyToken=null
       connections:
       - fieldName: _exit
-        node: {fileID: -6822581182933436620}
+        node: {fileID: -5275507959167256195}
         reroutePoints: []
       _direction: 0
       _connectionType: 0
@@ -763,69 +793,3 @@ MonoBehaviour:
   _returnCharacterVisible: 1
   _typeAnimation: 1
   _selectedIndex: 0
---- !u!114 &3993275567479350928
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3cf6968cc24999c4b9ce7a4f801d3923, type: 3}
-  m_Name: <color=#FFFFFF>54345 (Float)</color>
-  m_EditorClassIdentifier: 
-  graph: {fileID: 11400000}
-  position: {x: 424, y: 984}
-  ports:
-    keys:
-    - _value
-    values:
-    - _fieldName: _value
-      _node: {fileID: 3993275567479350928}
-      _typeQualifiedName: System.Single, mscorlib, Version=4.0.0.0, Culture=neutral,
-        PublicKeyToken=b77a5c561934e089
-      connections: []
-      _direction: 1
-      _connectionType: 0
-      _typeConstraint: 0
-      _dynamic: 0
-  _nodeGuid: 4fa0b70cc516468
-  _name: 54345
-  _color:
-    serializedVersion: 2
-    rgba: 4294967295
-  _value: 0
---- !u!114 &8960630500748934730
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d5c6695526aee6844951e3a9d092840b, type: 3}
-  m_Name: <color=#FFFFFF>4324 (Double)</color>
-  m_EditorClassIdentifier: 
-  graph: {fileID: 11400000}
-  position: {x: 326.01886, y: 750.74097}
-  ports:
-    keys:
-    - _value
-    values:
-    - _fieldName: _value
-      _node: {fileID: 8960630500748934730}
-      _typeQualifiedName: System.Double, mscorlib, Version=4.0.0.0, Culture=neutral,
-        PublicKeyToken=b77a5c561934e089
-      connections: []
-      _direction: 1
-      _connectionType: 0
-      _typeConstraint: 0
-      _dynamic: 0
-  _nodeGuid: b65f29177c0e43a
-  _name: 4324
-  _color:
-    serializedVersion: 2
-    rgba: 4294967295
-  _value: 0
