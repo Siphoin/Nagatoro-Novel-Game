@@ -37,7 +37,7 @@ namespace SNEngine.Services
                 return _metaData != null;
             }
         }
-        public string CurrentLanguageCode { get; private set; }
+        public string CurrentLanguageCode { get; private set; } = "None";
         public LanguageMetaData MetaData => _metaData;
 
         public Texture2D Flag => _flag;

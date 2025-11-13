@@ -16,7 +16,6 @@ namespace SNEngine.SelectVariantsSystem
 {
     public class ShowVariantsNode : AsyncNode, ILocalizationNode, ISaveProgressNode
     {
-        private const int START_VALUE_INDEX = -1;
 
         [SerializeField, Input(dynamicPortList = true, connectionType = ConnectionType.Override), ReadOnly(ReadOnlyMode.OnEditor)] private string[] _variants = new string[]
         {
