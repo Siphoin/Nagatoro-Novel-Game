@@ -13,10 +13,14 @@ namespace SNEngine.Localization.UI
         [SerializeField] private Image _imageLanguage;
         [SerializeField] private TextMeshProUGUI _textNameLanguage;
         [SerializeField] private Button _button;
-        [SerializeField] private UIEventRelay _imageClickRelay;
-        [SerializeField] private UIEventRelay _textClickRelay;
+        [SerializeField] private UIClickEventRelay _imageClickRelay;
+        [SerializeField] private UIClickEventRelay _textClickRelay;
+        [SerializeField] private UIPointerEventRelay _imagePointerRelay;
+        [SerializeField] private UIPointerEventRelay _textPointerRelay;
         private string _codeLanguage;
         public event Action<string> OnSelect;
+        public event Action<string> OnHover;
+        public event Action<string> OnExitPointer;
 
         private void OnEnable()
         {
@@ -28,6 +32,17 @@ namespace SNEngine.Localization.UI
             if (_textClickRelay != null)
             {
                 _textClickRelay.OnClick += Select;
+            }
+
+            if (_imagePointerRelay != null)
+            {
+                _imagePointerRelay.OnEnter += Hover;
+                _imagePointerRelay.OnExit += HoverExit;
+            }
+            if (_textPointerRelay != null)
+            {
+                _textPointerRelay.OnEnter += Hover;
+                _textPointerRelay.OnExit += HoverExit;
             }
         }
 
@@ -42,6 +57,17 @@ namespace SNEngine.Localization.UI
             {
                 _textClickRelay.OnClick -= Select;
             }
+
+            if (_imagePointerRelay != null)
+            {
+                _imagePointerRelay.OnEnter -= Hover;
+                _imagePointerRelay.OnExit -= HoverExit;
+            }
+            if (_textPointerRelay != null)
+            {
+                _textPointerRelay.OnEnter -= Hover;
+                _textPointerRelay.OnExit -= HoverExit;
+            }
         }
 
         private void Select()
@@ -50,6 +76,16 @@ namespace SNEngine.Localization.UI
             {
                 OnSelect?.Invoke(_codeLanguage);
             }
+        }
+
+        private void HoverExit()
+        {
+            OnExitPointer?.Invoke(_codeLanguage);
+        }
+
+        private void Hover()
+        {
+            OnHover?.Invoke(_codeLanguage);
         }
 
         public void SetData(LanguageMetaData languageMetaData, Sprite icon, string code)

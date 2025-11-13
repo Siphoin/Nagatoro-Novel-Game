@@ -8,6 +8,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using UnityEngine;
 
 namespace SNEngine.Localization.UI
@@ -15,17 +16,18 @@ namespace SNEngine.Localization.UI
     public class LanguageListView : MonoBehaviour, ILanguageListView
     {
         [SerializeField] private RectTransform _containerLanguages;
+        [SerializeField] private LanguageTooltipView _tooltip;
         private PoolMono<LanguageSelectView> _pool;
-        private List<Sprite> _spritesFlags = new();
+        private Dictionary<string, Sprite> _cachedFlagSprites = new();
         private List<Texture2D> _texturesFlags = new();
 
         private async void OnEnable()
         {
-            foreach (var flag in _spritesFlags)
+            foreach (var flag in _cachedFlagSprites.Values)
             {
                 Destroy(flag);
             }
-            _spritesFlags.Clear();
+            _cachedFlagSprites.Clear();
 
             foreach (var texture in _texturesFlags)
             {
@@ -52,28 +54,59 @@ namespace SNEngine.Localization.UI
                 var languageCode = languageData.Key;
                 var langData = languageData.Value;
 
-                var flagSprite = await LoadFlagTextureAsync(langData.PathFlag);
+                if (!_cachedFlagSprites.TryGetValue(languageCode, out var flagSprite))
+                {
+                    flagSprite = await LoadFlagTextureAsync(langData.PathFlag);
+
+                    if (flagSprite != null)
+                    {
+                        _cachedFlagSprites.Add(languageCode, flagSprite);
+                    }
+                }
 
                 if (flagSprite == null) continue;
 
                 var view = _pool.GetFreeElement();
                 view.gameObject.SetActive(true);
 
-                _spritesFlags.Add(flagSprite);
-
                 view.SetData(langData.MetaData, flagSprite, languageCode);
+                view.OnHover -= OnHoverLanguage;
                 view.OnSelect -= OnLanguageSelected;
+                view.OnExitPointer -= OnExitHoverLanguage;
                 view.OnSelect += OnLanguageSelected;
+                view.OnHover += OnHoverLanguage;
+                view.OnExitPointer += OnExitHoverLanguage;
+            }
+        }
+
+        private void OnExitHoverLanguage(string code)
+        {
+            _tooltip.gameObject.SetActive(false);
+        }
+
+        private async void OnHoverLanguage(string code)
+        {
+            var languageService = NovelGame.Instance.GetService<LanguageService>();
+            var languages = await languageService.GetAvailableLanguagesAsync();
+            var targetLanguage = languages.FirstOrDefault(x => x.Key == code);
+
+            if (targetLanguage.Value != null)
+            {
+                if (_cachedFlagSprites.TryGetValue(code, out var flagSprite))
+                {
+                    _tooltip.SetData(targetLanguage.Value, flagSprite);
+                    _tooltip.gameObject.SetActive(true);
+                }
             }
         }
 
         private void OnDisable()
         {
-            foreach (var flag in _spritesFlags)
+            foreach (var flag in _cachedFlagSprites.Values)
             {
                 Destroy(flag);
             }
-            _spritesFlags.Clear();
+            _cachedFlagSprites.Clear();
 
             foreach (var texture in _texturesFlags)
             {
@@ -126,11 +159,13 @@ namespace SNEngine.Localization.UI
 
         public void Hide()
         {
+            _tooltip.gameObject.SetActive(false);
             gameObject.SetActive(false);
         }
 
         public void Show()
         {
+            _tooltip.gameObject.SetActive(false);
             gameObject.SetActive(true);
         }
     }

@@ -4,3 +4,6 @@ continue: Continue
 exit: Exit
 select_language: Select Language
 input_placeholder: Enter text...
+saves: Saves
+author: Author
+version: Version

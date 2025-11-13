@@ -4,7 +4,7 @@ using UnityEngine.EventSystems;
 
 namespace SNEngine.UI
 {
-    public class UIEventRelay : MonoBehaviour, IPointerClickHandler
+    public class UIClickEventRelay : MonoBehaviour, IPointerClickHandler
     {
         public event Action OnClick;
 
