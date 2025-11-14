@@ -108,3 +108,5 @@ auto-generated files
 /[Aa]ssets/[Ii]nit[Tt]est[Ss]cene*.unity*
 Assets/SNEngine/Source/SNEngine/Editor/Utils/session.json
 Assets/SNEngine/Source/SNEngine/Editor/Utils/session.json.meta
+/Assets/SNEngine/Source/SNEngine/Editor/Cache
+Assets/SNEngine/Source/SNEngine/Editor/Cache.meta
