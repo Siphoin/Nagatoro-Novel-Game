@@ -9,7 +9,7 @@ namespace SNEngine.Editor
     [CustomEditor(typeof(Character))]
     public class CharacterEditor : UnityEditor.Editor
     {
-        private const int PREVIEW_SIZE = 200;
+        private const int PREVIEW_SIZE = 450;
         private const int NAME_HEIGHT = 24;
         private const string GRID_CACHE_PATH = "Assets/SNEngine/Source/SNEngine/Editor/Cache/GridTexture.asset";
         private int _selectedEmotionIndex = 0;
@@ -63,19 +63,30 @@ namespace SNEngine.Editor
 
         public override void OnInspectorGUI()
         {
-            DrawDefaultInspector();
+            serializedObject.Update();
 
-            Character character = (Character)target;
+            EditorGUILayout.PropertyField(serializedObject.FindProperty("_name"));
+            EditorGUILayout.PropertyField(serializedObject.FindProperty("_description"));
+            EditorGUILayout.PropertyField(serializedObject.FindProperty("_colorName"));
 
-            EditorGUILayout.Space(10);
-            EditorGUILayout.LabelField("Emotion Preview", EditorStyles.boldLabel);
+            EditorGUILayout.Space();
 
             SerializedProperty emotionsProp = serializedObject.FindProperty("_emotions");
+            EditorGUILayout.PropertyField(emotionsProp, true);
+
+            EditorGUILayout.Space();
+            EditorGUILayout.LabelField("Character Preview", EditorStyles.boldLabel);
 
             if (emotionsProp.arraySize > 0)
             {
-                string[] emotionNames = character.Emotions.Select(e => e.Name).ToArray();
-                _selectedEmotionIndex = EditorGUILayout.Popup("Select emotion", _selectedEmotionIndex, emotionNames);
+                string[] emotionNames = new string[emotionsProp.arraySize];
+                for (int i = 0; i < emotionsProp.arraySize; i++)
+                {
+                    SerializedProperty element = emotionsProp.GetArrayElementAtIndex(i);
+                    SerializedProperty nameProp = element.FindPropertyRelative("_name");
+                    emotionNames[i] = nameProp.stringValue;
+                }
+                _selectedEmotionIndex = EditorGUILayout.Popup("Select Emotion", _selectedEmotionIndex, emotionNames, GUILayout.ExpandWidth(true));
 
                 if (_selectedEmotionIndex >= emotionsProp.arraySize)
                 {
@@ -85,9 +96,9 @@ namespace SNEngine.Editor
                 SerializedProperty emotionElement = emotionsProp.GetArrayElementAtIndex(_selectedEmotionIndex);
                 SerializedProperty spriteProp = emotionElement.FindPropertyRelative("_sprite");
 
-                EditorGUILayout.Space(5);
+                Character characterTarget = (Character)target;
 
-                Rect previewAreaRect = GUILayoutUtility.GetRect(PREVIEW_SIZE, PREVIEW_SIZE, GUILayout.ExpandWidth(true), GUILayout.ExpandHeight(false));
+                Rect previewAreaRect = GUILayoutUtility.GetRect(PREVIEW_SIZE, PREVIEW_SIZE, GUILayout.ExpandWidth(true));
 
                 if (_gridTexture != null)
                 {
@@ -98,13 +109,13 @@ namespace SNEngine.Editor
                     EditorGUI.DrawRect(previewAreaRect, new Color(0.15f, 0.15f, 0.15f, 1f));
                 }
 
-                string hexColor = ColorUtility.ToHtmlStringRGB(character.ColorName);
-                string coloredName = $"<color=#{hexColor}>{character.OriginalName}</color>";
+                string hexColor = ColorUtility.ToHtmlStringRGB(characterTarget.ColorName);
+                string coloredName = $"<color=#{hexColor}>{characterTarget.OriginalName}</color>";
 
                 GUIStyle nameStyle = new GUIStyle(EditorStyles.boldLabel)
                 {
                     richText = true,
-                    fontSize = 16,
+                    fontSize = 18,
                     alignment = TextAnchor.MiddleCenter,
                     normal = { textColor = Color.white }
                 };
@@ -118,7 +129,7 @@ namespace SNEngine.Editor
                 EditorGUI.LabelField(nameRect, coloredName, nameStyle);
 
                 float padding = 8f;
-                Rect spriteRect = new Rect(
+                Rect availableSpriteRect = new Rect(
                     previewAreaRect.x + padding,
                     previewAreaRect.y + padding,
                     previewAreaRect.width - 2 * padding,
@@ -128,18 +139,48 @@ namespace SNEngine.Editor
                 if (spriteProp.objectReferenceValue != null)
                 {
                     Sprite sprite = (Sprite)spriteProp.objectReferenceValue;
-                    Texture2D texture = AssetPreview.GetAssetPreview(sprite.texture);
+                    Texture2D texture = sprite.texture;
 
                     if (texture != null)
                     {
-                        GUI.DrawTexture(spriteRect, texture, ScaleMode.ScaleToFit);
+                        Rect r = sprite.rect;
+                        Rect uv = new Rect(
+                            r.x / texture.width,
+                            r.y / texture.height,
+                            r.width / texture.width,
+                            r.height / texture.height
+                        );
+
+                        // 1. Вычисляем соотношение сторон (Aspect Ratio)
+                        float spriteRatio = r.width / r.height;
+
+                        // 2. Вычисляем размеры, сохраняющие пропорции, внутри доступной области
+                        float finalWidth = availableSpriteRect.height * spriteRatio;
+                        float finalHeight = availableSpriteRect.height;
+
+                        if (finalWidth > availableSpriteRect.width)
+                        {
+                            finalWidth = availableSpriteRect.width;
+                            finalHeight = finalWidth / spriteRatio;
+                        }
+
+                        // 3. Центрируем спрайт
+                        Rect centeredSpriteRect = new Rect(
+                            availableSpriteRect.x + (availableSpriteRect.width - finalWidth) / 2,
+                            availableSpriteRect.y + (availableSpriteRect.height - finalHeight) / 2,
+                            finalWidth,
+                            finalHeight
+                        );
+
+                        // 4. Отрисовываем
+                        GUI.DrawTextureWithTexCoords(centeredSpriteRect, texture, uv);
                     }
                 }
                 else
                 {
                     Rect nullSpriteRect = new Rect(previewAreaRect.x, previewAreaRect.y, previewAreaRect.width, previewAreaRect.height - NAME_HEIGHT);
                     GUIStyle labelStyle = new GUIStyle(EditorStyles.boldLabel) { alignment = TextAnchor.MiddleCenter, normal = { textColor = Color.gray } };
-                    EditorGUI.LabelField(nullSpriteRect, "Нет спрайта", labelStyle);
+                    EditorGUI.LabelField(nullSpriteRect, "No Sprite", labelStyle);
                 }
             }
             else

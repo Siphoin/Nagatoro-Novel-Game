@@ -66,5 +66,22 @@ namespace SNEngine.CharacterSystem
         {
             return _colorName.ToColorTag(GetName());
         }
+
+#if UNITY_EDITOR
+        public void Editor_SetName(string newName)
+        {
+            _name = newName;
+        }
+
+        public void Editor_SetDescription(string newDescription)
+        {
+            _description = newDescription;
+        }
+
+        public void Editor_SetColorName(Color newColor)
+        {
+            _colorName = newColor;
+        }
+#endif
     }
 }
