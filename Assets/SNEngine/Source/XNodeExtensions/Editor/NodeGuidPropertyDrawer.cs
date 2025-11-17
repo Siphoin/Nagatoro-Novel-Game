@@ -1,4 +1,5 @@
 ﻿using SiphoinUnityHelpers.XNodeExtensions.Attributes;
+using SNEngine.Editor;
 using System;
 using UnityEditor;
 using UnityEngine;
@@ -10,6 +11,12 @@ namespace SiphoinUnityHelpers.XNodeExtensions.Editor
     {
         public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
         {
+#if SNEENGINE_SUPPORT
+            if (!SNEngineEditorSettings.ShowNodeGuidInInspector)
+            {
+                return;
+            }
+#endif
             string value = property.stringValue;
 
             GUIStyle style = EditorStyles.whiteLabel;
