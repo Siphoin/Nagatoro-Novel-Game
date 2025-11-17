@@ -16,6 +16,11 @@ namespace SNEngine.DialogSystem
 
         public override void Execute()
         {
+            if (!_character)
+            {
+                NovelGameDebug.LogError($"dialog node {GUID} not has character and skipped. You must set character for dialog works");
+                return;
+            }
             base.Execute();
 
             var serviceDialogs = NovelGame.Instance.GetService<DialogueUIService>();

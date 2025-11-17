@@ -4,14 +4,12 @@ using SiphoinUnityHelpers.XNodeExtensions;
 using SNEngine.Debugging;
 using SNEngine.Graphs;
 using SNEngine.IO;
-using SNEngine.Localization;
 using SNEngine.SaveSystem.Models;
 using SNEngine.Services;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using UnityEditor.Overlays;
 using UnityEngine;
 using SaveData = SNEngine.SaveSystem.Models.SaveData;
 
