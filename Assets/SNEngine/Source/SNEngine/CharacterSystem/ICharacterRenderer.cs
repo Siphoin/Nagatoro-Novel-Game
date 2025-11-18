@@ -1,6 +1,7 @@
 ﻿using Cysharp.Threading.Tasks;
 using DG.Tweening;
 using SNEngine.Animations;
+using UnityEngine;
 
 namespace SNEngine.CharacterSystem
 {
@@ -9,5 +10,6 @@ namespace SNEngine.CharacterSystem
         void ShowWithEmotion(string emotionName);
 
         UniTask Move(CharacterDirection direction, float time, Ease ease);
+        T AddComponent<T>() where T : Component;
     }
 }

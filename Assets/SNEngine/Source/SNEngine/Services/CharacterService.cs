@@ -47,6 +47,16 @@ namespace SNEngine.Services
             _charactersInvolved = new List<ICharacterRenderer>();
         }
 
+        public ICharacterRenderer GetWorldCharacter (Character character)
+        {
+            if (_characters.TryGetValue(character.OriginalName, out var characterObject))
+            {
+                return characterObject;
+            }
+
+            return null;
+        }
+
         public void ShowCharacter (Character character, string emotionName = "Default")
         {
             if (LogErrorNullReferenceCharacter(character))

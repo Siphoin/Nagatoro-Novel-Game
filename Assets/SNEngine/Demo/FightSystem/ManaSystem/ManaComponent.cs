@@ -1,14 +1,18 @@
 ﻿using CoreGame.FightSystem.ManaSystem.Models;
+using System;
 using UnityEngine;
 
 namespace CoreGame.FightSystem.ManaSystem
 {
-    public class ManaComponent : MonoBehaviour
+    public class ManaComponent : MonoBehaviour, IManaComponent
     {
 
         private Mana _manaModel;
 
-        public Mana ManaModel => _manaModel;
+        public float CurrentMana => _manaModel.CurrentMana;
+        public float MaxMana => _manaModel.MaxMana;
+
+        public event Action<float, float> OnManaChanged;
 
         public void SetData (float initialMaxMana)
         {
@@ -19,7 +23,18 @@ namespace CoreGame.FightSystem.ManaSystem
 
         private void OnDisable()
         {
-            _manaModel.OnManaChanged -= HandleManaChanged;
+            if (_manaModel != null)
+            {
+                _manaModel.OnManaChanged -= HandleManaChanged;
+            }
+        }
+
+        private void OnDestroy()
+        {
+            if (_manaModel != null)
+            {
+                _manaModel.OnManaChanged -= HandleManaChanged;
+            }
         }
 
         public bool TrySpend(float cost)
@@ -35,6 +50,7 @@ namespace CoreGame.FightSystem.ManaSystem
         private void HandleManaChanged(float current, float max)
         {
             Debug.Log($"{gameObject.name} Mana: {current} / {max}");
+            OnManaChanged?.Invoke(current, max);
         }
     }
 }

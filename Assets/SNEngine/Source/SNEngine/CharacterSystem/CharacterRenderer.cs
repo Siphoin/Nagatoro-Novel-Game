@@ -102,6 +102,11 @@ namespace SNEngine.CharacterSystem
             Hide();
         }
 
+        public T AddComponent<T> () where T : Component
+        {
+            return gameObject.AddComponent<T>();
+        }
+
         #region Animations
         public async UniTask Move(float x, float time, Ease ease)
         {

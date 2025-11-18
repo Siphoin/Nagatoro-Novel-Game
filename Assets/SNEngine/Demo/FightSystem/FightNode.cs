@@ -2,6 +2,8 @@
 using Cysharp.Threading.Tasks;
 using UnityEngine;
 using SNEngine.SaveSystem;
+using SNEngine;
+using CoreGame.Services;
 namespace CoreGame.FightSystem
 {
     public class FightNode : AsyncNode, ISaveProgressNode
@@ -23,6 +25,9 @@ namespace CoreGame.FightSystem
                 return;
             }
             base.Execute();
+
+            var fightService = NovelGame.Instance.GetService<FightService>();
+            fightService.TurnFight(_playerCharacter, _enemyCharacter);
         }
 
         public override bool CanSkip()

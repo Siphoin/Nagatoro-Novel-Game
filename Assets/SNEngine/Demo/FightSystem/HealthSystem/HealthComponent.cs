@@ -1,14 +1,20 @@
 ﻿using UnityEngine;
 using System.Collections;
+using System;
 using CoreGame.FightSystem.HealthSystem.Models;
+
 namespace CoreGame.FightSystem.HealthSystem
 {
-    public class HealthComponent : MonoBehaviour
+    public class HealthComponent : MonoBehaviour, IHealthComponent
     {
 
         private Health _healthModel;
 
-        public Health HealthModel => _healthModel;
+        public float CurrentHealth => _healthModel.CurrentHealth;
+        public float MaxHealth => _healthModel.MaxHealth;
+
+        public event Action<float, float> OnHealthChanged;
+        public event Action OnDied;
 
 
         public void SetData(float initialMaxHealth)
@@ -21,8 +27,20 @@ namespace CoreGame.FightSystem.HealthSystem
 
         private void OnDisable()
         {
-            _healthModel.OnHealthChanged -= HandleHealthChanged;
-            _healthModel.OnDied -= HandleDied;
+            if (_healthModel != null)
+            {
+                _healthModel.OnHealthChanged -= HandleHealthChanged;
+                _healthModel.OnDied -= HandleDied;
+            }
+        }
+
+        private void OnDestroy()
+        {
+            if (_healthModel != null)
+            {
+                _healthModel.OnHealthChanged -= HandleHealthChanged;
+                _healthModel.OnDied -= HandleDied;
+            }
         }
 
 
@@ -39,8 +57,8 @@ namespace CoreGame.FightSystem.HealthSystem
 
         private void HandleHealthChanged(float current, float max)
         {
-
             Debug.Log($"{gameObject.name} Health: {current} / {max}");
+            OnHealthChanged?.Invoke(current, max);
         }
 
         private void HandleDied()
@@ -48,6 +66,7 @@ namespace CoreGame.FightSystem.HealthSystem
             _healthModel.OnHealthChanged -= HandleHealthChanged;
             _healthModel.OnDied -= HandleDied;
             Debug.Log($"{gameObject.name} has died!");
+            OnDied?.Invoke();
         }
 
     }
