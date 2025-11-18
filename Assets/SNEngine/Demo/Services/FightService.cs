@@ -29,6 +29,7 @@ namespace CoreGame.Services
         private const string FIGHT_WINDOW_VANILLA_PATH = "UI/FightWindow";
         private const string HEAL_TEXT_VANILLA_PATH = "UI/HealText";
         private const string DAMAGE_TEXT_VANILLA_PATH = "UI/DamageText";
+        private const string CRITICAL_DAMAGE_TEXT_VANILLA_PATH = "UI/CriticalDamageText";
         private const float ENEMY_TURN_DELAY = 0.5f;
         private FightTurnOwner _fightTurnOwner = FightTurnOwner.Player;
 
@@ -37,6 +38,7 @@ namespace CoreGame.Services
         private AIFighter _aiFighter;
         private PoolMono<HealText> _poolHealText;
         private PoolMono<DamageText> _poolDamageText;
+        private PoolMono<CriticalDamageText> _poolCriticalDamageText;
 
         private bool _isPlayerGuarding;
         private bool _isEnemyGuarding;
@@ -60,6 +62,7 @@ namespace CoreGame.Services
             var input = ResourceLoader.LoadCustomOrVanilla<FightWindow>(FIGHT_WINDOW_VANILLA_PATH);
             var healTextPrefab = ResourceLoader.LoadCustomOrVanilla<HealText>(HEAL_TEXT_VANILLA_PATH);
             var damageTextPrefab = ResourceLoader.LoadCustomOrVanilla<DamageText>(DAMAGE_TEXT_VANILLA_PATH);
+            var criticalDamageTextPrefab = ResourceLoader.LoadCustomOrVanilla<CriticalDamageText>(CRITICAL_DAMAGE_TEXT_VANILLA_PATH);
             var containerTexts = new GameObject("Floating Texts");
             containerTexts.AddComponent<RectTransform>();
 
@@ -80,6 +83,7 @@ namespace CoreGame.Services
             containerTexts.transform.SetParent(prefab.transform, false);
             _poolHealText = new(healTextPrefab, containerTexts.transform, 9, true);
             _poolDamageText = new(damageTextPrefab, containerTexts.transform, 9, true);
+            _poolCriticalDamageText = new(criticalDamageTextPrefab, containerTexts.transform, 3, true);
 
 
         }
@@ -158,7 +162,7 @@ namespace CoreGame.Services
             switch (action)
             {
                 case PlayerAction.Attack:
-                    await HandleAttackAction(enemyComp, playerDamage, _enemyCharacter);
+                    await HandleAttackAction(enemyComp, playerDamage, _enemyCharacter, _playerCharacter);
                     break;
                 case PlayerAction.Guard:
                     _isPlayerGuarding = true;
@@ -182,7 +186,7 @@ namespace CoreGame.Services
             switch (action)
             {
                 case PlayerAction.Attack:
-                    await HandleAttackAction(playerComp, enemyDamage, _playerCharacter);
+                    await HandleAttackAction(playerComp, enemyDamage, _playerCharacter, _enemyCharacter);
                     break;
                 case PlayerAction.Guard:
                     _isEnemyGuarding = true;
@@ -196,9 +200,16 @@ namespace CoreGame.Services
             }
         }
 
-        private async UniTask HandleAttackAction(IFightComponent targetComponent, float baseDamage, FightCharacter targetCharacter)
+        private async UniTask HandleAttackAction(IFightComponent targetComponent, float baseDamage, FightCharacter targetCharacter, FightCharacter attackerCharacter)
         {
             float finalDamage = baseDamage;
+            bool isCritical = false;
+
+            if (UnityEngine.Random.Range(0f, 1f) < attackerCharacter.CriticalHitChance)
+            {
+                finalDamage *= attackerCharacter.CriticalHitMultiplier;
+                isCritical = true;
+            }
 
             bool isTargetGuarding = targetCharacter == _playerCharacter ? _isPlayerGuarding : _isEnemyGuarding;
 
@@ -219,12 +230,19 @@ namespace CoreGame.Services
 
             targetComponent.HealthComponent.TakeDamage(finalDamage);
 
-            DamageText damageText = _poolDamageText.GetFreeElement();
             Vector3 worldPosition = _characterService.GetCharacterWorldPosition(targetCharacter.ReferenceCharacter);
-
             Vector3 screenPosition = Camera.main.WorldToScreenPoint(worldPosition);
 
-            damageText.Show(finalDamage, screenPosition).Forget();
+            if (isCritical)
+            {
+                CriticalDamageText criticalDamageText = _poolCriticalDamageText.GetFreeElement();
+                criticalDamageText.Show(finalDamage, screenPosition).Forget();
+            }
+            else
+            {
+                DamageText damageText = _poolDamageText.GetFreeElement();
+                damageText.Show(finalDamage, screenPosition).Forget();
+            }
 
             if (targetComponent.HealthComponent.CurrentHealth > 0)
             {

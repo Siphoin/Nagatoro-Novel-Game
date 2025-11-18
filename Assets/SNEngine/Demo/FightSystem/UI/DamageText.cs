@@ -16,7 +16,7 @@ namespace CoreGame.FightSystem.UI
 
         public override UniTask Show(float value, Vector3 startPosition)
         {
-            return Animate(value, _damageColor, _duration, _moveY, _moveEase, _fadeDuration, _fadeEase, startPosition, _scaleUp);
+            return Animate(value, _damageColor, _duration, _moveY, _moveEase, _fadeDuration, _fadeEase, startPosition, _scaleUp, "");
         }
     }
 }

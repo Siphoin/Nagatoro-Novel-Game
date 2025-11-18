@@ -13,11 +13,15 @@ namespace CoreGame.FightSystem.UI
         protected TextMeshProUGUI Component => _component;
 
         public abstract UniTask Show(float value, Vector3 startPosition);
+        public virtual UniTask Show(float value, Vector3 startPosition, string textSuffix)
+        {
+            return Animate(value, Component.color, 1f, 1.5f, Ease.OutQuad, 0.5f, Ease.InQuad, startPosition, 1f, textSuffix);
+        }
 
-        protected async UniTask Animate(float value, Color startColor, float duration, float moveY, Ease moveEase, float fadeDuration, Ease fadeEase, Vector3 startPosition, float scaleUp = 1f)
+        protected async UniTask Animate(float value, Color startColor, float duration, float moveY, Ease moveEase, float fadeDuration, Ease fadeEase, Vector3 startPosition, float scaleUp = 1f, string textSuffix = "")
         {
             transform.position = startPosition;
-            _component.text = Mathf.RoundToInt(value).ToString();
+            _component.text = Mathf.RoundToInt(value).ToString() + textSuffix;
             _component.color = startColor;
             transform.localScale = Vector3.one * 0.1f;
             gameObject.SetActive(true);

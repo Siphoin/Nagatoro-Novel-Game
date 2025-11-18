@@ -72,9 +72,9 @@ namespace CoreGame.FightSystem.UI
 
         public void Show()
         {
+            _panelAction.gameObject.SetActive(true);
             gameObject.SetActive(true);
 
-            // Анимация панели действий (снизу -> вверх)
             RectTransform panelRT = _panelAction.GetComponent<RectTransform>();
 
             panelRT.anchoredPosition = _initialPanelActionPosition + new Vector2(0, _panelActionOffsetY);
