@@ -14,6 +14,7 @@ namespace CoreGame.FightSystem
         [SerializeField, Range(0, 1)] private float _guardReductionPercentage = 0.5f;
         [SerializeField, Range(0, 1)] private float _criticalHitChance = 0.1f;
         [SerializeField, Min(1)] private float _criticalHitMultiplier = 1.5f;
+        [SerializeField, Min(1)] private int _energyPoint = 5;
 
         public Character ReferenceCharacter => _referenceCharacter;
         public float Damage => _damage;
@@ -22,5 +23,7 @@ namespace CoreGame.FightSystem
         public float GuardReductionPercentage => _guardReductionPercentage;
         public float CriticalHitChance => _criticalHitChance;
         public float CriticalHitMultiplier => _criticalHitMultiplier;
+
+        public int EnergyPoint => _energyPoint;
     }
 }

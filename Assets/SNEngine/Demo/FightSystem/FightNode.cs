@@ -5,10 +5,12 @@ using SNEngine.SaveSystem;
 using SNEngine;
 using CoreGame.Services;
 using XNode;
+using CoreGame.FightSystem.UI;
 namespace CoreGame.FightSystem
 {
     public class FightNode : AsyncNode, ISaveProgressNode
     {
+        private const float DELAY_FINISH_FIGHT = 0.2f;
         [SerializeField] private FightCharacter _playerCharacter;
         [SerializeField] private FightCharacter _enemyCharacter;
         [Output(ShowBackingValue.Never), SerializeField, Header("Victory - 0 Defeat - 1 Tie - 2")] private int _result;
@@ -33,11 +35,12 @@ namespace CoreGame.FightSystem
             fightService.TurnFight(_playerCharacter, _enemyCharacter);
         }
 
-        private void OnFightEnded(FightResult result)
+        private async void OnFightEnded(FightResult result)
         {
             var fightService = NovelGame.Instance.GetService<FightService>();
             fightService.OnFightEnded -= OnFightEnded;
             _result = (int)result;
+            await UniTask.WaitForSeconds(FightWindow.ANIMATION_DURATION_HIDE + DELAY_FINISH_FIGHT);
             StopTask();
         }
 
