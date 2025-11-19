@@ -25,6 +25,7 @@ namespace SNEngine.DialogSystem
         public void SetData(IDialogNode data)
         {
             _dialogNode = data;
+            _textNameCharacter.text = _dialogNode.Character.GetNameWithColor();
         }
 
         public void StartOutputDialog()
@@ -52,8 +53,6 @@ namespace SNEngine.DialogSystem
 
         protected override async UniTask Writing(string message)
         {
-            _textNameCharacter.text = _dialogNode.Character.GetNameWithColor();
-
             await base.Writing(message);
         }
 

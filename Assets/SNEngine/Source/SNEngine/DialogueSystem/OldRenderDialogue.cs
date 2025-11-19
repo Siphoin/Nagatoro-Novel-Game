@@ -45,6 +45,7 @@ namespace SNEngine.DialogSystem
 
         public void DisplayFrame(Texture2D frameTexture)
         {
+            gameObject.SetActive(true);
             Sprite newSprite = Sprite.Create(
                 frameTexture,
                 new Rect(0, 0, frameTexture.width, frameTexture.height),
@@ -88,6 +89,8 @@ namespace SNEngine.DialogSystem
                 Destroy(_spriteRenderer.sprite);
                 _spriteRenderer.sprite = null;
             }
+
+            gameObject.SetActive(false);
         }
     }
 }

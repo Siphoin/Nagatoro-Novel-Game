@@ -167,7 +167,7 @@ PrefabInstance:
     - target: {fileID: 7525962058931678262, guid: 18551c649af2ef24499510fc3cf44bdd, type: 3}
       propertyPath: m_sharedMaterial
       value: 
-      objectReference: {fileID: 2100000, guid: 7c105983dad93224caf4a119c3dfb421, type: 2}
+      objectReference: {fileID: 2100000, guid: edd1909a5574d4e4c9e43aab33fb06c5, type: 2}
     - target: {fileID: 7525962058931678262, guid: 18551c649af2ef24499510fc3cf44bdd, type: 3}
       propertyPath: m_characterSpacing
       value: 6
@@ -187,5 +187,39 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 1455241874284280007, guid: 18551c649af2ef24499510fc3cf44bdd, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 8538124421437838682}
   m_SourcePrefab: {fileID: 100100000, guid: 18551c649af2ef24499510fc3cf44bdd, type: 3}
+--- !u!114 &2400236330731585266 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 7457294338300421972, guid: 18551c649af2ef24499510fc3cf44bdd, type: 3}
+  m_PrefabInstance: {fileID: 5058381899430599078}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 09305fa5cdd72094e9ce3340a02dab0a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!1 &5908992431821381985 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 1455241874284280007, guid: 18551c649af2ef24499510fc3cf44bdd, type: 3}
+  m_PrefabInstance: {fileID: 5058381899430599078}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &8538124421437838682
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5908992431821381985}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ea557c6d334bff84eba2e41ab414dc3d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _printerText: {fileID: 2400236330731585266}
+  _fadeDuration: 0.85
+  _delayBetweenChars: 0.05

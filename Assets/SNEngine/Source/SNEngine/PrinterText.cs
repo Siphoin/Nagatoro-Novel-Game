@@ -1,4 +1,5 @@
 ﻿using Cysharp.Threading.Tasks;
+using SNEngine.Animations.TextEffects;
 using SNEngine.Debugging;
 using SNEngine.DialogSystem;
 using SNEngine.InputSystem;
@@ -16,42 +17,31 @@ namespace SNEngine
         private CancellationTokenSource _cancellationTokenSource;
 
         public event Action OnWriteSymbol;
+        public event Action OnTextForceCompleted;
 
         private string _currentText;
 
         [SerializeField, Min(0)] private float _speedWriting = 0.3f;
-
-        [Space]
-
         [SerializeField] private TextMeshProUGUI _textMessage;
+   
 
         private TMP_FontAsset _defaultFontTextDialog;
-
         private IInputSystem _inputSystem;
+        private bool _hasTextEffects;
 
         public bool AllTextWrited => _textMessage.text == _currentText;
-
         public string CurrentText => _currentText;
-
         public float SpeedWriting => _speedWriting;
 
         protected virtual void Awake()
         {
             _defaultFontTextDialog = _textMessage.font;
-
             _inputSystem = NovelGame.Instance.GetService<InputService>();
+            _hasTextEffects = GetComponentInChildren<TextEffect>() != null;
         }
 
-        public void Hide()
-        {
-            gameObject.SetActive(false);
-
-        }
-
-        public void Show()
-        {
-            gameObject.SetActive(true);
-        }
+        public void Hide() => gameObject.SetActive(false);
+        public void Show() => gameObject.SetActive(true);
 
 #if UNITY_STANDALONE
         protected virtual void OnPress(KeyCode key)
@@ -59,9 +49,7 @@ namespace SNEngine
             if (_cancellationTokenSource != null)
             {
                 if (key == KeyCode.Space || key == KeyCode.Mouse0)
-                {
                     EndWrite();
-                }
             }
         }
 #endif
@@ -76,17 +64,17 @@ namespace SNEngine
             _inputSystem.AddListener(OnTapScreen, MobileInputEventType.TouchBegan);
 #endif
 
-            Writing(message).Forget();
-
-
+            if (_hasTextEffects)
+                WriteInstantWithEffects(message).Forget();
+            else
+                Writing(message).Forget();
         }
+
 #if UNITY_ANDROID || UNITY_IOS
         protected virtual void OnTapScreen(Touch touch)
         {
             if (_cancellationTokenSource != null)
-            {
                 EndWrite();
-            }
         }
 #endif
 
@@ -95,19 +83,16 @@ namespace SNEngine
             if (AllTextWrited)
             {
                 End();
-
                 return;
             }
 
             _cancellationTokenSource?.Cancel();
-
             _textMessage.text = _currentText;
-
+            OnTextForceCompleted?.Invoke();
         }
 
         protected virtual void End()
         {
-
             _cancellationTokenSource = null;
 
 #if UNITY_STANDALONE
@@ -119,30 +104,26 @@ namespace SNEngine
 #endif
 
             Hide();
-
-
         }
 
         protected virtual async UniTask Writing(string message)
         {
             _cancellationTokenSource = new CancellationTokenSource();
-
             var token = _cancellationTokenSource.Token;
 
             _currentText = message;
-
-            var stringBuilder = new StringBuilder();
+            var sb = new StringBuilder();
 
             for (int i = 0; i < message.Length; i++)
             {
                 if (token.IsCancellationRequested)
-                {
                     break;
-                }
 
-                stringBuilder.Append(message[i]);
+                sb.Append(message[i]);
+                _textMessage.text = sb.ToString();
 
-                _textMessage.text = stringBuilder.ToString();
+                _textMessage.ForceMeshUpdate();
+                await UniTask.Yield(PlayerLoopTiming.LastPostLateUpdate);
 
                 OnWriteSymbol?.Invoke();
 
@@ -150,35 +131,48 @@ namespace SNEngine
             }
         }
 
+        private async UniTask WriteInstantWithEffects(string message)
+        {
+            _cancellationTokenSource = new CancellationTokenSource();
+            var token = _cancellationTokenSource.Token;
+
+            _currentText = message;
+
+            _textMessage.text = message;
+            _textMessage.ForceMeshUpdate();
+
+            for (int i = 0; i < message.Length; i++)
+            {
+                if (token.IsCancellationRequested)
+                    break;
+
+                OnWriteSymbol?.Invoke();
+                await UniTask.Yield(PlayerLoopTiming.LastPostLateUpdate);
+            }
+
+            OnTextForceCompleted?.Invoke();
+        }
+
         public void SetFontDialog(TMP_FontAsset font)
         {
-            if (font is null)
+            if (font == null)
             {
                 NovelGameDebug.LogError($"font for text dialog is null");
-
                 return;
             }
 
             _textMessage.font = font;
         }
 
-        public virtual void ResetFont()
-        {
-            _textMessage.font = _defaultFontTextDialog;
-        }
+        public virtual void ResetFont() => _textMessage.font = _defaultFontTextDialog;
 
         public virtual void ResetState()
         {
             _cancellationTokenSource?.Cancel();
-
             _cancellationTokenSource = null;
-
             _textMessage.text = string.Empty;
-
             _currentText = string.Empty;
-
             ResetFont();
-
             Hide();
         }
     }

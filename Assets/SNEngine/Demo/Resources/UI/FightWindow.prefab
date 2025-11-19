@@ -164,10 +164,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ef779b65e58c1fd40ba0942585ae922c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _isInteractable: 1
   _normalColor: {r: 1, g: 1, b: 1, a: 1}
   _hoverColor: {r: 1, g: 0.015686274, b: 0.9894658, a: 1}
+  _pressedColor: {r: 0.7830189, g: 0.033241354, b: 0.77405727, a: 1}
+  _disabledColor: {r: 0.6415094, g: 0.63243145, b: 0.63243145, a: 1}
   _transitionDuration: 0.1
   _hoverScale: 1.05
+  _pressedScale: 0.95
   _textComponent: {fileID: 2140852855586076983}
 --- !u!1 &1286034100134451003
 GameObject:
@@ -318,7 +322,6 @@ MonoBehaviour:
   _enemyEnergyContainer: {fileID: 8379598388268109903}
   _durationChangeHealth: 0.3
   _easeHealthAnimation: 5
-  _durationShow: 0.6
   _easeShowAnimation: 22
   _panelActionOffsetY: -500
   _healthBarOffsetY: 300
@@ -690,10 +693,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ef779b65e58c1fd40ba0942585ae922c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _isInteractable: 1
   _normalColor: {r: 1, g: 1, b: 1, a: 1}
   _hoverColor: {r: 1, g: 0.015686274, b: 0.9894658, a: 1}
+  _pressedColor: {r: 0.7830189, g: 0.033241354, b: 0.77405727, a: 1}
+  _disabledColor: {r: 0.6415094, g: 0.63243145, b: 0.63243145, a: 1}
   _transitionDuration: 0.1
   _hoverScale: 1.05
+  _pressedScale: 0.95
   _textComponent: {fileID: 3537548454291799238}
 --- !u!1 &5042519437289400701
 GameObject:
@@ -1012,10 +1019,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ef779b65e58c1fd40ba0942585ae922c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _isInteractable: 1
   _normalColor: {r: 1, g: 1, b: 1, a: 1}
   _hoverColor: {r: 1, g: 0.015686274, b: 0.9894658, a: 1}
+  _pressedColor: {r: 0.7830189, g: 0.033241354, b: 0.77405727, a: 1}
+  _disabledColor: {r: 0.6415094, g: 0.63243145, b: 0.63243145, a: 1}
   _transitionDuration: 0.1
   _hoverScale: 1.05
+  _pressedScale: 0.95
   _textComponent: {fileID: 6345823620520672722}
 --- !u!1 &7037754512418038386
 GameObject:
@@ -1425,8 +1436,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ef779b65e58c1fd40ba0942585ae922c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _isInteractable: 1
   _normalColor: {r: 1, g: 1, b: 1, a: 1}
   _hoverColor: {r: 1, g: 0.015686274, b: 0.9894658, a: 1}
+  _pressedColor: {r: 0.7830189, g: 0.033241354, b: 0.77405727, a: 1}
+  _disabledColor: {r: 0.6415094, g: 0.63243145, b: 0.63243145, a: 1}
   _transitionDuration: 0.1
   _hoverScale: 1.05
+  _pressedScale: 0.95
   _textComponent: {fileID: 697550479458273362}

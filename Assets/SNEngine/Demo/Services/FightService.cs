@@ -138,11 +138,14 @@ namespace CoreGame.Services
 
         private void ClearupFightComponents()
         {
-            foreach (var component in _fightComponents.Values)
+            if (_fightComponents != null)
             {
-                if (component is FightComponent fightComponent)
+                foreach (var component in _fightComponents.Values)
                 {
-                    Object.Destroy(fightComponent);
+                    if (component is FightComponent fightComponent)
+                    {
+                        Object.Destroy(fightComponent);
+                    }
                 }
             }
             _fightComponents.Clear();
@@ -150,9 +153,12 @@ namespace CoreGame.Services
 
         private void HideCharacters()
         {
-            foreach (var character in _fightComponents.Keys)
+            if (_fightComponents != null)
             {
-                _characterService.HideCharacter(character);
+                foreach (var character in _fightComponents.Keys)
+                {
+                    _characterService.HideCharacter(character);
+                }
             }
         }
         #endregion
