@@ -17,5 +17,5 @@ MonoBehaviour:
   _duration: 0
   _cooldown: 0
   _nameAbility: Heal
-  _descriptionAbility: 
+  _descriptionAbility: Heals Naoto Health by 10.
   _healAmount: 10
