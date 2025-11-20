@@ -24,21 +24,17 @@ public class CharsFadeIn : TextEffect
     [SerializeField] private float _waveHeight = 10f;
     [SerializeField] private float _jumpHeight = 20f;
     [SerializeField] private FadeStyle _fadeStyle;
+    [SerializeField] private float _animationDelay = 0f;
 
-    #region Buffers
     private NativeArray<Color32> _colorsFlat;
     private NativeArray<int> _meshStartIndices;
     private NativeArray<int> _meshVertexCounts;
     private NativeArray<float3> _verticesFlat;
     private NativeArray<float3> _baseVerticesFlat;
-    #endregion
 
-    #region State
     private bool _loopRunning;
     private bool _forceCompleted;
-    #endregion
 
-    #region Unmanaged
     private struct CharInfoUnmanaged
     {
         public int isVisible;
@@ -77,21 +73,21 @@ public class CharsFadeIn : TextEffect
             byte alpha = 0;
             float offsetY = 0f;
 
-            if (style == 0) // Linear
+            if (style == 0)
             {
                 alpha = (byte)(t * 255f);
             }
-            else if (style == 1) // Wave
+            else if (style == 1)
             {
                 alpha = (byte)(t * 255f);
                 offsetY = math.sin(t * math.PI) * waveHeight;
             }
-            else if (style == 2) // Jump
+            else if (style == 2)
             {
                 alpha = (byte)(t * 255f);
                 offsetY = math.sin(t * math.PI * 2f) * jumpHeight;
             }
-            else if (style == 3) // Rainbow
+            else if (style == 3)
             {
                 float hue = math.frac((index * 0.1f) + currentTime * 0.6f);
                 float3 rgb = HSVToRGB(hue, 1f, 1f);
@@ -110,11 +106,11 @@ public class CharsFadeIn : TextEffect
                 }
                 return;
             }
-            else if (style == 4) // JumpLinear
+            else if (style == 4)
             {
                 float jumpT = math.clamp((currentTime - charStart) / duration, 0f, 1f);
-                alpha = (byte)(jumpT * 255f);              // Linear по прозрачности
-                offsetY = math.sin(jumpT * math.PI) * jumpHeight; // подпрыгивание
+                alpha = (byte)(jumpT * 255f);
+                offsetY = math.sin(jumpT * math.PI) * jumpHeight;
             }
 
             int meshIdx = ci.materialReferenceIndex;
@@ -155,9 +151,7 @@ public class CharsFadeIn : TextEffect
             }
         }
     }
-    #endregion
 
-    #region UnityCallbacks
     protected override void OnEnable()
     {
         base.OnEnable();
@@ -180,7 +174,6 @@ public class CharsFadeIn : TextEffect
         _forceCompleted = true;
         if (_loopRunning)
         {
-            // Восстанавливаем исходные вершины
             if (_verticesFlat.IsCreated && _baseVerticesFlat.IsCreated)
             {
                 for (int i = 0; i < _verticesFlat.Length; i++)
@@ -188,25 +181,17 @@ public class CharsFadeIn : TextEffect
                     _verticesFlat[i] = _baseVerticesFlat[i];
                 }
             }
-
-            // Альфа 255
             SetAllAlphaImmediate(255);
-
             ApplyToMesh();
         }
     }
 
-    #endregion
-
-    #region AsyncFlow
     private async UniTaskVoid StartAsync()
     {
         Component.color = Color.clear;
         await UniTask.Yield();
-
         Component.ForceMeshUpdate(true, true);
         Component.color = Color.white;
-
         StartFadeIn();
     }
 
@@ -217,22 +202,18 @@ public class CharsFadeIn : TextEffect
         BuildFlatBuffers();
         SetAllAlphaImmediate(0);
         ApplyToMesh();
-
         if (!_loopRunning)
         {
             _loopRunning = true;
             FadeInText().Forget();
         }
     }
-    #endregion
 
-    #region Buffers
     private void BuildFlatBuffers()
     {
         DisposeFlatBuffersIfCreated();
         var meshInfo = Component.textInfo.meshInfo;
         int chunks = meshInfo.Length;
-
         int totalVertices = 0;
         int[] vertexCounts = new int[chunks];
         for (int i = 0; i < chunks; i++)
@@ -277,43 +258,33 @@ public class CharsFadeIn : TextEffect
         if (_meshStartIndices.IsCreated) _meshStartIndices.Dispose();
         if (_meshVertexCounts.IsCreated) _meshVertexCounts.Dispose();
     }
-    #endregion
 
-    #region MeshUpdates
     private void ApplyToMesh()
     {
         if (Component == null || !_verticesFlat.IsCreated || !_colorsFlat.IsCreated) return;
-
         var meshInfo = Component.textInfo.meshInfo;
         int chunks = meshInfo.Length;
-
         for (int i = 0; i < chunks; i++)
         {
             int start = _meshStartIndices[i];
             int len = _meshVertexCounts[i];
-
             if (len == 0)
             {
                 meshInfo[i].colors32 = null;
                 continue;
             }
-
             Color32[] arr = new Color32[len];
             Vector3[] verts = new Vector3[len];
-
             for (int v = 0; v < len; v++)
             {
                 arr[v] = _colorsFlat[start + v];
                 verts[v] = _verticesFlat[start + v];
             }
-
             meshInfo[i].colors32 = arr;
             meshInfo[i].vertices = verts;
         }
-
         Component.UpdateVertexData(TMP_VertexDataUpdateFlags.Colors32 | TMP_VertexDataUpdateFlags.Vertices);
     }
-
 
     private void SetAllAlphaImmediate(byte alpha)
     {
@@ -324,11 +295,12 @@ public class CharsFadeIn : TextEffect
             _colorsFlat[i] = new Color32(c.r, c.g, c.b, alpha);
         }
     }
-    #endregion
 
-    #region Animation
     private async UniTask FadeInText()
     {
+        if (_animationDelay > 0f)
+            await UniTask.Delay(System.TimeSpan.FromSeconds(_animationDelay));
+
         var info = Component.textInfo;
         int totalChars = info.characterCount;
         if (totalChars == 0)
@@ -418,5 +390,4 @@ public class CharsFadeIn : TextEffect
         }
         return expectedTotal == _colorsFlat.Length;
     }
-    #endregion
 }

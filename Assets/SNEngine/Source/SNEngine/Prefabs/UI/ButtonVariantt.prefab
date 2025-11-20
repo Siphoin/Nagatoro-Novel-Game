@@ -92,6 +92,18 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 4996855191831595555, guid: 8579afecf775a0e4bad37d6583009078, type: 3}
+      propertyPath: m_Enabled
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4996855191831595555, guid: 8579afecf775a0e4bad37d6583009078, type: 3}
+      propertyPath: _easeAnimation
+      value: 19
+      objectReference: {fileID: 0}
+    - target: {fileID: 4996855191831595555, guid: 8579afecf775a0e4bad37d6583009078, type: 3}
+      propertyPath: _speedAnimation
+      value: 0.58
+      objectReference: {fileID: 0}
     - target: {fileID: 5134306609054506862, guid: 8579afecf775a0e4bad37d6583009078, type: 3}
       propertyPath: m_fontSize
       value: 40.9
@@ -131,5 +143,32 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 7394168344967269264, guid: 8579afecf775a0e4bad37d6583009078, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 7629136304359114020}
   m_SourcePrefab: {fileID: 100100000, guid: 8579afecf775a0e4bad37d6583009078, type: 3}
+--- !u!1 &8382658983037994935 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 7394168344967269264, guid: 8579afecf775a0e4bad37d6583009078, type: 3}
+  m_PrefabInstance: {fileID: 1353458138405260327}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &7629136304359114020
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8382658983037994935}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ea557c6d334bff84eba2e41ab414dc3d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _printerText: {fileID: 0}
+  _fadeDuration: 0.28
+  _delayBetweenChars: 0.05
+  _waveHeight: 10
+  _jumpHeight: 20
+  _fadeStyle: 0
+  _animationDelay: 0.71

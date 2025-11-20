@@ -32,6 +32,6 @@ namespace SNEngine.Animations.TextEffects
 
         private void HandleComplete() => TextForceCompleted(textMesh);
         protected abstract void TextForceCompleted(TextMeshProUGUI textMesh);
-        protected void ResetFlagAnimation() => _printerText.ResetFlagAnimation();
+        protected void ResetFlagAnimation() => _printerText?.ResetFlagAnimation();
     }
 }

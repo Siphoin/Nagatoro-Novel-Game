@@ -2692,7 +2692,7 @@ MonoBehaviour:
   _hideCharacters: 1
   _hideDialogWindow: 1
   _returnCharacterVisible: 1
-  _typeAnimation: 1
+  _typeAnimation: 2
   _selectedIndex: 0
 --- !u!114 &8724444242969452445
 MonoBehaviour:
