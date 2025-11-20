@@ -5,6 +5,7 @@ using SNEngine.Services;
 using UnityEngine.Events;
 using TMPro;
 using SNEngine.SaveSystem;
+using SNEngine.InputSystem;
 
 namespace SNEngine.MainMenuSystem
 {
@@ -16,6 +17,7 @@ namespace SNEngine.MainMenuSystem
         [SerializeField] private Button _buttonQuit;
 
         private DialogueService _dialogueService;
+        private IInputSystem _inputSystem;
 
         private void Awake()
         {
@@ -42,6 +44,7 @@ namespace SNEngine.MainMenuSystem
 #endif
 
             _dialogueService = NovelGame.Instance.GetService<DialogueService>();
+            _inputSystem = NovelGame.Instance.GetService<InputService>();
 
             Initialize();
         }
@@ -78,39 +81,68 @@ namespace SNEngine.MainMenuSystem
 #endif
         }
 
+        protected virtual void OnButtonPress(KeyCode key)
+        {
+            if (!gameObject.activeSelf) return;
+
+            switch (key)
+            {
+                case KeyCode.JoystickButton0:
+                    NewGame();
+                    break;
+                case KeyCode.JoystickButton1:
+                    Continue();
+                    break;
+                case KeyCode.JoystickButton7:
+                    OpenSettings();
+                    break;
+#if UNITY_STANDALONE
+                case KeyCode.JoystickButton6:
+                    Exit();
+                    break;
+#endif
+            }
+        }
+
         public void Hide()
         {
             gameObject.SetActive(false);
+#if UNITY_STANDALONE || UNITY_ANDROID || UNITY_IOS
+            _inputSystem.RemoveListener(OnButtonPress, GamepadButtonEventType.ButtonDown);
+#endif
         }
 
         public void Show()
         {
             gameObject.SetActive(true);
+#if UNITY_STANDALONE || UNITY_ANDROID || UNITY_IOS
+            _inputSystem.AddListener(OnButtonPress, GamepadButtonEventType.ButtonDown);
+#endif
         }
 
-        private void AddListenerToButton (Button button, UnityAction action)
+        private void AddListenerToButton(Button button, UnityAction action)
         {
             button.onClick.AddListener(action);
         }
 
-        private void NewGame ()
+        private void NewGame()
         {
             _dialogueService.JumpToStartDialogue();
 
             Hide();
         }
 
-        private void Continue ()
+        private void Continue()
         {
             NovelGame.Instance.GetService<SaveListViewService>().Show();
         }
 
-        private void OpenSettings ()
+        private void OpenSettings()
         {
             throw new NotImplementedException();
         }
 
-        private void Exit ()
+        private void Exit()
         {
             Application.Quit();
         }
