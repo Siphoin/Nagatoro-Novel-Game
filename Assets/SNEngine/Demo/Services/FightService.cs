@@ -54,6 +54,10 @@ namespace CoreGame.Services
         #region Properties
         public IFightComponent Player => _player;
         public IFightComponent Enemy => _enemy;
+
+        public FightCharacter PlayerData { get; private set; }
+        public FightCharacter EnemyData { get; private set; }
+
         public event Action<FightResult> OnFightEnded;
         #endregion
 
@@ -92,6 +96,8 @@ namespace CoreGame.Services
             _aiFighter = null;
             _player = null;
             _enemy = null;
+            PlayerData = null;
+            EnemyData = null;
             _isPlayerGuarding = false;
             _isEnemyGuarding = false;
             _healthBeforeLastAction = null;
@@ -115,6 +121,8 @@ namespace CoreGame.Services
             SetupCharacterForFight(enemyCharacter);
             _player = _fightComponents[playerCharacter.ReferenceCharacter];
             _enemy = _fightComponents[enemyCharacter.ReferenceCharacter];
+            EnemyData = enemyCharacter;
+            PlayerData = playerCharacter;
             _fightWindow.SetData(_player, _enemy, playerCharacter, enemyCharacter);
             _aiFighter = new AIFighter(_enemyCharacter, _enemy, _playerCharacter, _player);
             _isPlayerGuarding = false;

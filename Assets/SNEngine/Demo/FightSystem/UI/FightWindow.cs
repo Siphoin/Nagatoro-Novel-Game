@@ -21,6 +21,8 @@ namespace CoreGame.FightSystem.UI
         [SerializeField] private EnergyFill _energyFillPrefab;
         [SerializeField] private RectTransform _playerEnergyContainer;
         [SerializeField] private RectTransform _enemyEnergyContainer;
+        [SerializeField] private RectTransform _panelListActions;
+        [SerializeField] private AbilityWindow _abilityWindow;
 
         [Header("Health Bar Animation Settings")]
         [SerializeField, Min(0)] private float _durationChangeHealth = 0.3f;
@@ -89,7 +91,8 @@ namespace CoreGame.FightSystem.UI
 
         private void OnClickSkillButton()
         {
-
+            _panelListActions.gameObject.SetActive(false);
+            _abilityWindow.gameObject.SetActive(true);
         }
 
         public void ResetState()
@@ -124,6 +127,8 @@ namespace CoreGame.FightSystem.UI
             showSequence.Join(AnimateUIElement(_enemyHealthParentRT, _initialHealthEnemyPosition));
             showSequence.Join(AnimateUIElement(_playerEnergyContainer, _initialPlayerEnergyPosition));
             showSequence.Join(AnimateUIElement(_enemyEnergyContainer, _initialEnemyEnergyPosition));
+
+            _abilityWindow.gameObject.SetActive(false);
         }
 
         public void Hide()

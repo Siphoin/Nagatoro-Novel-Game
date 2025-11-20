@@ -45,6 +45,8 @@ namespace CoreGame.FightSystem.UI
             }
         }
 
+        protected TextMeshProUGUI Component => _textComponent;
+
         private void Awake()
         {
             _originalScale = transform.localScale;
@@ -109,7 +111,7 @@ namespace CoreGame.FightSystem.UI
             OnClick -= action;
         }
 
-        private void OnDisable()
+        protected virtual void OnDisable()
         {
             if (Application.isPlaying)
             {
@@ -120,7 +122,7 @@ namespace CoreGame.FightSystem.UI
             _textComponent.color = _isInteractable ? _normalColor : _disabledColor;
         }
 
-        private void OnValidate()
+        protected virtual void OnValidate()
         {
             if (!_textComponent)
             {
