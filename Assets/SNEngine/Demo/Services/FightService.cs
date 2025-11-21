@@ -139,7 +139,11 @@ namespace CoreGame.Services
             EnemyData = enemyCharacter;
             PlayerData = playerCharacter;
             _fightWindow.SetData(_player, _enemy, playerCharacter, enemyCharacter);
-            _aiFighter = new AIFighter(_enemyCharacter, _enemy, _playerCharacter, _player);
+
+            ScriptableAI enemyAI = _enemyCharacter.ReferenceAI;
+
+            _aiFighter = new AIFighter(_enemyCharacter, _enemy, _player, enemyCharacter.ReferenceAI);
+
             _isPlayerGuarding = false;
             _isEnemyGuarding = false;
             _fightWindow.OnTurnExecuted += OnPlayerTurnExecuted;

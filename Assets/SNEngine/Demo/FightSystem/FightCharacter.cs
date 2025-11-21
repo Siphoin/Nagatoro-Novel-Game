@@ -1,4 +1,5 @@
 ﻿using CoreGame.FightSystem.Abilities;
+using CoreGame.FightSystem.AI;
 using SNEngine;
 using SNEngine.CharacterSystem;
 using System.Collections.Generic;
@@ -17,6 +18,7 @@ namespace CoreGame.FightSystem
         [SerializeField, Min(1)] private float _criticalHitMultiplier = 1.5f;
         [SerializeField, Min(1)] private int _energyPoint = 5;
         [SerializeField] private ScriptableAbility[] _abilities;
+        [SerializeField] private ScriptableAI _referenceAI;
 
         public Character ReferenceCharacter => _referenceCharacter;
         public float Damage => _damage;
@@ -28,5 +30,7 @@ namespace CoreGame.FightSystem
         public int EnergyPoint => _energyPoint;
 
         public IEnumerable<ScriptableAbility> Abilities => _abilities;
+
+        public ScriptableAI ReferenceAI => _referenceAI;
     }
 }
