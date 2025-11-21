@@ -1,0 +1,21 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0cd4a25e3e045de48ac289292e803bc3, type: 3}
+  m_Name: NagatotoSuccubusDamageAbility
+  m_EditorClassIdentifier: 
+  _guidSO: 83fa2e9c-84c2-4e85-8502-47b46c43f582
+  _cost: 4
+  _duration: 0.5
+  _cooldown: 0
+  _nameAbility: Whip
+  _descriptionAbility: Nagatoro strikes with his whip, total damage 25.
+  _damageAmount: 25

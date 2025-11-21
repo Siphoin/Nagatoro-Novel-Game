@@ -22,4 +22,5 @@ MonoBehaviour:
   _energyPoint: 5
   _abilities:
   - {fileID: 11400000, guid: 92d84ff5df0bd8c42b5ff5141ebdba6d, type: 2}
+  - {fileID: 11400000, guid: 9235de924d2d1744498aa5a2ca0a3c59, type: 2}
   _referenceAI: {fileID: 0}

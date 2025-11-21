@@ -1,0 +1,21 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a75dd4c9e3ad2dd44b0fb7c8906f01de, type: 3}
+  m_Name: NagatoroSuccubusHealAbility
+  m_EditorClassIdentifier: 
+  _guidSO: e2cc7da2-2da1-4929-9b5f-e042417f0099
+  _cost: 1
+  _duration: 0.34
+  _cooldown: 0
+  _nameAbility: Succubus Blood
+  _descriptionAbility: Heals Succubus Nagatoro Health by 12.
+  _healAmount: 12

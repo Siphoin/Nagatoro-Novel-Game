@@ -17,13 +17,13 @@ using DG.Tweening;
 using SNEngine.Polling;
 using CoreGame.FightSystem.Abilities;
 using System.Linq;
+using CoreGame.FightSystem.Utils;
 
 namespace CoreGame.Services
 {
     [CreateAssetMenu(menuName = "SNEngine/Service/New FightService")]
     public class FightService : ServiceBase
     {
-        #region Fields
         private CharacterService _characterService;
         private BackgroundService _backgroundService;
         private Dictionary<Character, IFightComponent> _fightComponents;
@@ -39,14 +39,10 @@ namespace CoreGame.Services
         private PoolMono<HealText> _poolHealText;
         private PoolMono<DamageText> _poolDamageText;
         private PoolMono<CriticalDamageText> _poolCriticalDamageText;
-
         private Dictionary<Character, bool> _wasLastHitCritical;
-
         private const string FIGHT_WINDOW_VANILLA_PATH = "UI/FightWindow";
         private const float ENEMY_TURN_DELAY = 0.5f;
         private FightTurnOwner _fightTurnOwner = FightTurnOwner.Player;
-        private bool _isPlayerGuarding;
-        private bool _isEnemyGuarding;
         [SerializeField] private float _hitShakeDuration = 0.3f;
         [SerializeField] private float _hitShakeStrength = 10f;
         [SerializeField] private int _hitShakeVibrato = 10;
@@ -56,20 +52,15 @@ namespace CoreGame.Services
         [SerializeField, Range(1, 10)] private int _defaultEnergyRestoreCooldown = 3;
         private Dictionary<FightCharacter, int> _energyRestoreCounters;
         private const float ENERGY_RESTORE_AMOUNT = 1f;
-        #endregion
 
-        #region Properties
         public IFightComponent Player => _player;
         public IFightComponent Enemy => _enemy;
-
         public FightCharacter PlayerData { get; private set; }
         public FightCharacter EnemyData { get; private set; }
-
         public event Action<FightResult> OnFightEnded;
         public event Action<FightCharacter, ScriptableAbility, float> OnAbilityUsed;
-        #endregion
+        public event Action<FightCharacter, float> OnPlayerHealed;
 
-        #region Service Lifecycle
         public override void Initialize()
         {
             _characterService = NovelGame.Instance.GetService<CharacterService>();
@@ -81,7 +72,6 @@ namespace CoreGame.Services
             var criticalDamageTextPrefab = ResourceLoader.LoadCustomOrVanilla<CriticalDamageText>("UI/CriticalDamageText");
             var containerTexts = new GameObject("Floating Texts");
             containerTexts.AddComponent<RectTransform>();
-
             if (input == null) return;
             var prefab = Object.Instantiate(input);
             prefab.name = input.name;
@@ -106,17 +96,13 @@ namespace CoreGame.Services
             _enemy = null;
             PlayerData = null;
             EnemyData = null;
-            _isPlayerGuarding = false;
-            _isEnemyGuarding = false;
             _healthBeforeLastAction = null;
             _wasLastHitCritical = null;
             _currentEnergyData = null;
             _currentAbilitesData = null;
             _energyRestoreCounters = null;
         }
-        #endregion
 
-        #region Fight Setup
         public void TurnFight(FightCharacter playerCharacter, FightCharacter enemyCharacter)
         {
             _playerCharacter = playerCharacter;
@@ -140,17 +126,12 @@ namespace CoreGame.Services
             EnemyData = enemyCharacter;
             PlayerData = playerCharacter;
             _fightWindow.SetData(_player, _enemy, playerCharacter, enemyCharacter);
-
             ScriptableAI enemyAI = _enemyCharacter.ReferenceAI;
-
             _aiFighter = new AIFighter(_enemyCharacter, _enemy, _player, enemyAI);
-
-            _isPlayerGuarding = false;
-            _isEnemyGuarding = false;
             _fightWindow.OnTurnExecuted += OnPlayerTurnExecuted;
             SubscribeToHealthEvents();
             _fightWindow.Show();
-            _fightTurnOwner = FightTurnOwner.Player;
+            StartNewTurn(FightTurnOwner.Player);
         }
 
         private void SetupCharacterForFight(FightCharacter character)
@@ -161,9 +142,8 @@ namespace CoreGame.Services
             fightComponent.AddComponents();
             fightComponent.HealthComponent.SetData(character.Health);
             fightComponent.ManaComponent.SetData(character.EnergyPoint);
+            fightComponent.SetFightCharacter(character);
             _fightComponents.Add(character.ReferenceCharacter, fightComponent);
-
-
         }
 
         private void SetupAbilitesCharacterForFight(FightCharacter fightCharacter)
@@ -172,10 +152,7 @@ namespace CoreGame.Services
             _energyRestoreCounters.Add(fightCharacter, _defaultEnergyRestoreCooldown);
             _currentAbilitesData.Add(fightCharacter, new List<AbilityEntity>());
             foreach (var ability in fightCharacter.Abilities)
-            {
-                var entity = new AbilityEntity(ability);
-                _currentAbilitesData[fightCharacter].Add(entity);
-            }
+                _currentAbilitesData[fightCharacter].Add(new AbilityEntity(ability));
         }
 
         private void ClearupFightComponents()
@@ -183,72 +160,58 @@ namespace CoreGame.Services
             if (_fightComponents != null)
             {
                 foreach (var component in _fightComponents.Values)
-                {
-                    if (component is FightComponent fightComponent)
-                    {
-                        Object.Destroy(fightComponent);
-                    }
-                }
+                    if (component is FightComponent fightComponent) Object.Destroy(fightComponent);
                 _fightComponents.Clear();
             }
-
         }
 
         private void HideCharacters()
         {
             if (_fightComponents != null)
-            {
                 foreach (var character in _fightComponents.Keys)
-                {
                     _characterService.HideCharacter(character);
-                }
-            }
         }
-        #endregion
-
-        #region Turn Execution
 
         private void ProgressCooldowns()
         {
             var characters = new List<FightCharacter> { PlayerData, EnemyData };
-
             foreach (var fightCharacter in characters)
             {
                 if (_energyRestoreCounters.ContainsKey(fightCharacter))
                 {
-                    if (_energyRestoreCounters[fightCharacter] > 0)
-                    {
-                        _energyRestoreCounters[fightCharacter]--;
-                    }
-
+                    if (_energyRestoreCounters[fightCharacter] > 0) _energyRestoreCounters[fightCharacter]--;
                     if (_energyRestoreCounters[fightCharacter] == 0)
                     {
                         float currentEnergy = _currentEnergyData[fightCharacter];
                         float maxEnergy = fightCharacter.EnergyPoint;
-
                         if (currentEnergy < maxEnergy)
                         {
-                            float newEnergy = Mathf.Min(currentEnergy + ENERGY_RESTORE_AMOUNT, maxEnergy);
-                            _currentEnergyData[fightCharacter] = newEnergy;
-
-                            OnAbilityUsed?.Invoke(fightCharacter, null, newEnergy);
-
+                            _currentEnergyData[fightCharacter] = Mathf.Min(currentEnergy + ENERGY_RESTORE_AMOUNT, maxEnergy);
+                            OnAbilityUsed?.Invoke(fightCharacter, null, _currentEnergyData[fightCharacter]);
                             _energyRestoreCounters[fightCharacter] = _defaultEnergyRestoreCooldown;
                         }
                     }
                 }
             }
-
             foreach (var abilityList in _currentAbilitesData.Values)
-            {
                 foreach (var abilityEntity in abilityList)
-                {
-                    if (abilityEntity.CurrentCooldown > 0)
-                    {
-                        abilityEntity.CurrentCooldown--;
-                    }
-                }
-            }
+                    if (abilityEntity.CurrentCooldown > 0) abilityEntity.CurrentCooldown--;
+        }
+
+        private void StartNewTurn(FightTurnOwner newOwner)
+        {
+            _fightTurnOwner = newOwner;
+
+            // Сброс Guard в начале нового хода
+            if (_fightTurnOwner == FightTurnOwner.Player)
+                _player.StopGuard();
+            else
+                _enemy.StopGuard();
+
+            if (_fightTurnOwner == FightTurnOwner.Player)
+                _fightWindow.ShowPanelAction();
+            else
+                ExecuteEnemyTurn().Forget();
         }
 
         private async void OnPlayerTurnExecuted(PlayerAction action)
@@ -259,20 +222,18 @@ namespace CoreGame.Services
             await HandlePlayerAction(action);
             ProgressCooldowns();
             if (CheckFightEndConditions()) return;
-            _fightTurnOwner = FightTurnOwner.Enemy;
-            ExecuteEnemyTurn().Forget();
+            StartNewTurn(FightTurnOwner.Enemy);
         }
 
         private async UniTask HandlePlayerAction(PlayerAction action)
         {
-            _isPlayerGuarding = false;
             switch (action)
             {
                 case PlayerAction.Attack:
                     await HandleAttackAction(_enemy, _playerCharacter.Damage, _enemyCharacter, _playerCharacter);
                     break;
                 case PlayerAction.Guard:
-                    _isPlayerGuarding = true;
+                    _player.StartGuard();
                     break;
             }
         }
@@ -281,38 +242,30 @@ namespace CoreGame.Services
         {
             await UniTask.Delay(TimeSpan.FromSeconds(ENEMY_TURN_DELAY), DelayType.DeltaTime, PlayerLoopTiming.Update, CancellationToken.None);
             SaveHealthBeforeAction();
-
             IReadOnlyList<AbilityEntity> enemyAbilities = _currentAbilitesData.GetValueOrDefault(_enemyCharacter);
             float enemyEnergy = _currentEnergyData.GetValueOrDefault(_enemyCharacter);
-
             AIDecision enemyDecision = _aiFighter.DecideAction(enemyAbilities, enemyEnergy);
-
             await HandleEnemyAction(enemyDecision);
             ProgressCooldowns();
             if (CheckFightEndConditions()) return;
             await UniTask.Delay(TimeSpan.FromSeconds(ENEMY_TURN_DELAY), DelayType.DeltaTime, PlayerLoopTiming.Update, CancellationToken.None);
-            _fightTurnOwner = FightTurnOwner.Player;
-            _fightWindow.ShowPanelAction();
+            StartNewTurn(FightTurnOwner.Player);
         }
 
         private async UniTask HandleEnemyAction(AIDecision decision)
         {
-            _isEnemyGuarding = false;
             switch (decision.Action)
             {
                 case PlayerAction.Attack:
                     await HandleAttackAction(_player, _enemyCharacter.Damage, _playerCharacter, _enemyCharacter);
                     break;
                 case PlayerAction.Guard:
-                    _isEnemyGuarding = true;
+                    _enemy.StartGuard();
                     break;
                 case PlayerAction.Wait:
                     break;
                 case PlayerAction.UseSkill:
-                    if (decision.Ability != null)
-                    {
-                        await UseAbility(_enemyCharacter, decision.Ability);
-                    }
+                    if (decision.Ability != null) await UseAbility(_enemyCharacter, decision.Ability);
                     break;
             }
         }
@@ -328,43 +281,28 @@ namespace CoreGame.Services
                 isCritical = true;
             }
 
-            bool isTargetGuarding = targetCharacter == _playerCharacter ? _isPlayerGuarding : _isEnemyGuarding;
-            if (isTargetGuarding)
+            // Сбрасываем Guard при получении урона
+            if (targetComponent.IsGuarding)
             {
-                float reduction = targetCharacter.GuardReductionPercentage;
-                finalDamage *= (1f - reduction);
-                if (targetCharacter == _playerCharacter) _isPlayerGuarding = false;
-                else _isEnemyGuarding = false;
+                finalDamage = DamageUtils.ApplyGuardReduction(targetCharacter, finalDamage);
+                targetComponent.StopGuard();
             }
 
             _wasLastHitCritical[targetCharacter.ReferenceCharacter] = isCritical;
-
             targetComponent.HealthComponent.TakeDamage(finalDamage);
 
-
-            if (targetComponent.HealthComponent.CurrentHealth > 0)
+            if (targetComponent.HealthComponent.CurrentHealth > 0 && targetCharacter == _enemyCharacter)
             {
-                if (targetCharacter == _playerCharacter)
-                {
-                    await UniTask.WhenAll(
-                        _backgroundService.ShakePosition(_hitShakeDuration, _hitShakeStrength, _hitShakeVibrato, true),
-                        AnimateBackgroundHit()
-                    );
-                }
-                else
-                {
-                    await UniTask.WhenAll(
-                        _characterService.ShakePosition(_enemyCharacter.ReferenceCharacter, _hitShakeDuration, _hitShakeStrength, _hitShakeVibrato, true),
-                        AnimateCharacterHit(_enemyCharacter.ReferenceCharacter)
-                    );
-                }
+                await UniTask.WhenAll(
+                    _characterService.ShakePosition(_enemyCharacter.ReferenceCharacter, _hitShakeDuration, _hitShakeStrength, _hitShakeVibrato, true),
+                    AnimateCharacterHit(_enemyCharacter.ReferenceCharacter)
+                );
             }
         }
 
         public async UniTask UseAbility(FightCharacter fightCharacter, ScriptableAbility ability)
         {
             if (fightCharacter != _playerCharacter && fightCharacter != _enemyCharacter) return;
-
             var currentEnergyCharacter = _currentEnergyData.GetValueOrDefault(fightCharacter, 0f);
             var abilityList = _currentAbilitesData.GetValueOrDefault(fightCharacter);
             var abilityEntity = abilityList.FirstOrDefault(e => e.ReferenceAbility == ability);
@@ -373,14 +311,10 @@ namespace CoreGame.Services
             {
                 _currentEnergyData[fightCharacter] = currentEnergyCharacter - ability.Cost;
                 abilityEntity.CurrentCooldown = ability.Cooldown;
-
                 _energyRestoreCounters[fightCharacter] = _defaultEnergyRestoreCooldown;
-
                 IFightComponent userComponent = fightCharacter == _playerCharacter ? _player : _enemy;
                 IFightComponent targetComponent = fightCharacter == _playerCharacter ? _enemy : _player;
-
                 ability.ExecuteEffect(userComponent, targetComponent);
-
                 OnAbilityUsed?.Invoke(fightCharacter, ability, _currentEnergyData[fightCharacter]);
                 await HandleAbilityUsage(fightCharacter, ability);
             }
@@ -395,19 +329,11 @@ namespace CoreGame.Services
             if (CheckFightEndConditions()) return;
 
             if (fightCharacter == _playerCharacter && _fightTurnOwner == FightTurnOwner.Player)
-            {
-                _fightTurnOwner = FightTurnOwner.Enemy;
-                ExecuteEnemyTurn().Forget();
-            }
+                StartNewTurn(FightTurnOwner.Enemy);
             else if (fightCharacter == _enemyCharacter && _fightTurnOwner == FightTurnOwner.Enemy)
-            {
-                _fightTurnOwner = FightTurnOwner.Player;
-                _fightWindow.ShowPanelAction();
-            }
+                StartNewTurn(FightTurnOwner.Player);
         }
-        #endregion
 
-        #region Health Events & UI
         private void SaveHealthBeforeAction()
         {
             _healthBeforeLastAction[_playerCharacter.ReferenceCharacter] = _player.HealthComponent.CurrentHealth;
@@ -427,22 +353,20 @@ namespace CoreGame.Services
         }
 
         private void OnPlayerHealthChanged(float currentHealth, float maxHealth) => HandleHealthChange(_playerCharacter.ReferenceCharacter, currentHealth);
-
         private void OnEnemyHealthChanged(float currentHealth, float maxHealth) => HandleHealthChange(_enemyCharacter.ReferenceCharacter, currentHealth);
 
-        private void HandleHealthChange(Character character, float currentHealth)
+        private async void HandleHealthChange(Character character, float currentHealth)
         {
             float healthBefore = _healthBeforeLastAction.GetValueOrDefault(character, currentHealth);
             float delta = currentHealth - healthBefore;
-
             if (Mathf.Abs(delta) < 0.01f) return;
-
             Vector3 worldPosition = _characterService.GetCharacterWorldPosition(character);
             Vector3 screenPosition = Camera.main.WorldToScreenPoint(worldPosition);
 
             if (delta > 0)
             {
                 _poolHealText.GetFreeElement().Show(delta, screenPosition).Forget();
+                if (character == _playerCharacter.ReferenceCharacter) OnPlayerHealed?.Invoke(_playerCharacter, delta);
             }
             else
             {
@@ -452,9 +376,14 @@ namespace CoreGame.Services
                     _poolCriticalDamageText.GetFreeElement().Show(damage, screenPosition).Forget();
                     _wasLastHitCritical[character] = false;
                 }
-                else
+                else _poolDamageText.GetFreeElement().Show(damage, screenPosition).Forget();
+
+                if (character == _playerCharacter.ReferenceCharacter && currentHealth > 0)
                 {
-                    _poolDamageText.GetFreeElement().Show(damage, screenPosition).Forget();
+                    await UniTask.WhenAll(
+                        _backgroundService.ShakePosition(_hitShakeDuration, _hitShakeStrength, _hitShakeVibrato, true),
+                        AnimateBackgroundHit()
+                    );
                 }
             }
 
@@ -472,9 +401,7 @@ namespace CoreGame.Services
             await _backgroundService.SetColor(_hitColor, _hitColorDuration, _hitColorEase);
             await _backgroundService.SetColor(Color.white, _hitColorDuration, _hitColorEase);
         }
-        #endregion
 
-        #region Fight End
         private bool CheckFightEndConditions()
         {
             bool playerDead = _player.HealthComponent.CurrentHealth <= 0;
@@ -483,7 +410,6 @@ namespace CoreGame.Services
             if (playerDead && enemyDead) { EndFight(FightResult.Tie); return true; }
             if (playerDead) { EndFight(FightResult.Defeat); return true; }
             if (enemyDead) { EndFight(FightResult.Victory); return true; }
-
             return false;
         }
 
@@ -496,6 +422,5 @@ namespace CoreGame.Services
             ClearupFightComponents();
             OnFightEnded?.Invoke(result);
         }
-        #endregion
     }
 }

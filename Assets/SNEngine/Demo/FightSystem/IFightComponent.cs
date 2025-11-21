@@ -7,7 +7,12 @@ namespace CoreGame.FightSystem
     {
         IHealthComponent HealthComponent { get; }
         IManaComponent ManaComponent { get; }
-        void AddComponents();
+        bool IsGuarding { get; }
+        FightCharacter FightCharacter { get; }
 
+        void AddComponents();
+        void SetFightCharacter(FightCharacter character);
+        void StartGuard();
+        void StopGuard();
     }
 }
