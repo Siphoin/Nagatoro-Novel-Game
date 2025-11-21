@@ -9,7 +9,6 @@ namespace CoreGame.FightSystem.Abilities
         public ScriptableAbility ReferenceAbility { get; private set; }
         public int CurrentCooldown { get; set; }
 
-        public void Turn () => ReferenceAbility?.Turn();
 
         public AbilityEntity(ScriptableAbility referenceAbility)
         {

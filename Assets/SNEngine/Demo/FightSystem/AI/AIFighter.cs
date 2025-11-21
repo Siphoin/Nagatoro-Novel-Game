@@ -1,8 +1,8 @@
 ﻿using CoreGame.FightSystem;
+using CoreGame.FightSystem.Abilities;
 using CoreGame.FightSystem.AI;
 using CoreGame.FightSystem.Models;
 using System.Collections.Generic;
-using UnityEngine;
 
 namespace CoreGame.FightSystem.AI
 {
@@ -27,9 +27,9 @@ namespace CoreGame.FightSystem.AI
         public IFightComponent TargetComponent => _targetComponent;
         public AIEntity AIEntity => _aiEntity;
 
-        public PlayerAction DecideAction()
+        public AIDecision DecideAction(IReadOnlyList<AbilityEntity> availableAbilities, float currentEnergy)
         {
-            return _aiEntity.DecideAction(_selfComponent, _targetComponent, _self);
+            return _aiEntity.DecideAction(_selfComponent, _targetComponent, _self, availableAbilities, currentEnergy);
         }
     }
 }

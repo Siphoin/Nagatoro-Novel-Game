@@ -6,5 +6,6 @@
         Guard,
         Wait,
         Skill,
+        UseSkill,
     }
 }

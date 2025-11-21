@@ -13,3 +13,44 @@ MonoBehaviour:
   m_Name: NagatoroSuccubusAI
   m_EditorClassIdentifier: 
   _guidSO: 741a534b-19d8-4912-9994-4825cf5da9be
+  _phases:
+  - _phaseName: Start
+    _healthThreshold: 1
+    _damageMultiplier: 1
+    _urgentHealThreshold: 0.4
+    _manaBurnThreshold: 3
+    _energyWaitCostMin: 5
+    _preferredSkillType: 1
+    _secondarySkillType: 0
+    _weights:
+      _attackWeight: 40
+      _guardWeight: 20
+      _waitWeight: 30
+      _skillWeight: 10
+  - _phaseName: Wa
+    _healthThreshold: 0.75
+    _damageMultiplier: 1.2
+    _urgentHealThreshold: 0.3
+    _manaBurnThreshold: 5
+    _energyWaitCostMin: 2
+    _preferredSkillType: 0
+    _secondarySkillType: 1
+    _weights:
+      _attackWeight: 50
+      _guardWeight: 10
+      _waitWeight: 0
+      _skillWeight: 40
+  - _phaseName: Final
+    _healthThreshold: 0.3
+    _damageMultiplier: 1.5
+    _urgentHealThreshold: 0.5
+    _manaBurnThreshold: 1
+    _energyWaitCostMin: 7
+    _preferredSkillType: 1
+    _secondarySkillType: 0
+    _weights:
+      _attackWeight: 15
+      _guardWeight: 45
+      _waitWeight: 3
+      _skillWeight: 30
+  _executeDamageMultiplier: 1.5

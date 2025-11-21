@@ -1,4 +1,7 @@
-﻿using System;
+﻿using CoreGame.FightSystem.Abilities;
+using CoreGame.FightSystem.Models;
+using System;
+using System.Collections.Generic;
 
 namespace CoreGame.FightSystem.AI
 {
@@ -12,12 +15,14 @@ namespace CoreGame.FightSystem.AI
             ReferenceAI = referenceAI;
         }
 
-        public PlayerAction DecideAction(
+        public AIDecision DecideAction(
             IFightComponent selfComponent,
             IFightComponent targetComponent,
-            FightCharacter selfCharacter)
+            FightCharacter selfCharacter,
+            IReadOnlyList<AbilityEntity> availableAbilities,
+            float currentEnergy)
         {
-            return ReferenceAI?.DecideAction(selfComponent, targetComponent, selfCharacter) ?? PlayerAction.Wait;
+            return ReferenceAI?.DecideAction(selfComponent, targetComponent, selfCharacter, availableAbilities, currentEnergy) ?? AIDecision.Simple(PlayerAction.Wait);
         }
     }
 }

@@ -16,3 +16,10 @@ MonoBehaviour:
   _referenceCharacter: {fileID: 11400000, guid: 9147b1aec3db7c14caae7d9a8f27a2a9, type: 2}
   _damage: 15
   _health: 300
+  _guardReductionPercentage: 0.5
+  _criticalHitChance: 0.1
+  _criticalHitMultiplier: 1.5
+  _energyPoint: 5
+  _abilities:
+  - {fileID: 11400000, guid: 92d84ff5df0bd8c42b5ff5141ebdba6d, type: 2}
+  _referenceAI: {fileID: 11400000, guid: a20f2def7104a5d47a1e26e7751fbccd, type: 2}

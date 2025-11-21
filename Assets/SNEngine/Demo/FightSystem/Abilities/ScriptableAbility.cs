@@ -1,5 +1,4 @@
-﻿using CoreGame.Services;
-using FightSystem.Abilities;
+﻿using FightSystem.Abilities;
 using SNEngine;
 using UnityEngine;
 
@@ -19,13 +18,12 @@ namespace CoreGame.FightSystem.Abilities
         public string NameAbility => _nameAbility;
         public string DescriptionAbility => _descriptionAbility;
 
-        public void Turn ()
+        public void ExecuteEffect(IFightComponent user, IFightComponent target)
         {
-            var fightService = NovelGame.Instance.GetService<FightService>();
-            Execute(fightService.Player, fightService.Enemy);
+            Execute(user, target);
         }
 
-        protected abstract void Execute(IFightComponent player, IFightComponent enemy);
+        protected abstract void Execute(IFightComponent user, IFightComponent target);
 
         public abstract AbilityType GetAbilityType();
     }
