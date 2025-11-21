@@ -18,6 +18,7 @@ namespace CoreGame.FightSystem.Abilities
         public string NameAbility => _nameAbility;
         public string DescriptionAbility => _descriptionAbility;
 
+
         public void ExecuteEffect(IFightComponent user, IFightComponent target)
         {
             Execute(user, target);

@@ -14,12 +14,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _guidSO: 5fa429c7-2d95-46f8-8165-4ac588c665c4
   _referenceCharacter: {fileID: 11400000, guid: 8d73a64e566645f478cfa130a3ba078f, type: 2}
-  _damage: 16
+  _damage: 10
   _health: 100
-  _mana: 100
   _guardReductionPercentage: 0.5
   _criticalHitChance: 0.1
   _criticalHitMultiplier: 1.5
   _energyPoint: 5
   _abilities:
   - {fileID: 11400000, guid: 92d84ff5df0bd8c42b5ff5141ebdba6d, type: 2}
+  _referenceAI: {fileID: 0}
