@@ -326,7 +326,7 @@ namespace CoreGame.FightSystem.UI
             {
                 var languageService = NovelGame.Instance.GetService<LanguageService>();
                 string usesPrefix = languageService.LanguageIsLoaded ? languageService.TransliteUI(USES_LOCALIZE_KEY) : "uses";
-                string abilityLocalizeKey = $"{ABILITY_DESC_KEY_PREFIX}_{ability.GUID}_{ABILITY_DESC_KEY_SUFFIX}";
+                string abilityLocalizeKey = $"{ABILITY_DESC_KEY_PREFIX}{ability.GUID}{ABILITY_DESC_KEY_SUFFIX}";
                 string abilityName = languageService.LanguageIsLoaded ? languageService.TransliteUI(abilityLocalizeKey) : ability.NameAbility;
                 string characterName = fightCharacter.ReferenceCharacter.GetName();
                 string hintMessage = $"{characterName} {usesPrefix}: {abilityName}";
