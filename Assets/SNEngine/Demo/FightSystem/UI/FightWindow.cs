@@ -86,8 +86,8 @@ namespace CoreGame.FightSystem.UI
             _playerHealthParentRT = _healthPlayer.transform.parent.GetComponent<RectTransform>();
             _enemyHealthParentRT = _healthEnemy.transform.parent.GetComponent<RectTransform>();
 
-            _playerAvatarRT = _playerAvatar.GetComponent<RectTransform>();
-            _enemyAvatarRT = _enemyAvatar.GetComponent<RectTransform>();
+            _playerAvatarRT = _playerAvatar.transform.parent.GetComponent<RectTransform>();
+            _enemyAvatarRT = _enemyAvatar.transform.parent.GetComponent<RectTransform>();
 
             _initialPanelActionPosition = _panelAction.anchoredPosition;
             _initialHealthPlayerPosition = _playerHealthParentRT.anchoredPosition;
