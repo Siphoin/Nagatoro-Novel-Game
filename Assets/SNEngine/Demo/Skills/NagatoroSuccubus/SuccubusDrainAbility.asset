@@ -13,12 +13,12 @@ MonoBehaviour:
   m_Name: SuccubusDrainAbility
   m_EditorClassIdentifier: 
   _guidSO: 9a9c8178-e113-44b2-a3cb-a4b6825842ad
-  _cost: 3
+  _cost: 5
   _duration: 1
-  _cooldown: 0
+  _cooldown: 3
   _nameAbility: Succubus Drain
   _descriptionAbility: Drains a percentage of the target's current Health Points
     (HP) and heals the user by the same amount at the start of the user's turn. This
     effect repeats for a set number of turns.
   _turnsToTick: 3
-  _drainPercent: 0.01
+  _drainPercent: 0.085

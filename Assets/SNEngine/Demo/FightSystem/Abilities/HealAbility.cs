@@ -16,7 +16,7 @@ namespace CoreGame.FightSystem.Abilities.NaotoAbilites
 
         public override AbilityType GetAbilityType()
         {
-            return AbilityType.Heal;
+            return AbilityType.Skill;
         }
     }
 }

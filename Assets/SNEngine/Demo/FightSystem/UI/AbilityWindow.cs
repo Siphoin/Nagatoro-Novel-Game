@@ -66,8 +66,14 @@ namespace CoreGame.FightSystem.UI
                 abilityView.OnHover += OnAbilityHover;
                 abilityView.OnExitHover += OnAbilityExitHover;
                 abilityView.OnClickAbility += OnAbilityClick;
-
+                abilityView.Interactable = true;
                 _activeAbilities.Add(abilityView);
+
+                if (ability.Cost > fightService.GetCurrentEnergyCharacter(fightService.PlayerData) || fightService.IsAbilityOnCooldown(fightService.PlayerData, ability))
+                {
+                    abilityView.OnClickAbility -= OnAbilityClick;
+                    abilityView.Interactable = false;
+                }
             }
         }
 

@@ -21,7 +21,7 @@ namespace CoreGame.FightSystem.Abilities.NaotoAbilites
 
         public override AbilityType GetAbilityType()
         {
-            return AbilityType.Attack;
+            return AbilityType.Skill;
         }
     }
 }

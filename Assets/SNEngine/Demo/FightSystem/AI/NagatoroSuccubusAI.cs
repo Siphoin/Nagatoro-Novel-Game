@@ -8,7 +8,6 @@ using UnityEngine;
 
 namespace CoreGame.FightSystem.AI
 {
-
     [CreateAssetMenu(menuName = "CoreGame/Fight System/AI/NagatoroSuccubus")]
     public class NagatoroSuccubusAI : ScriptableAI
     {
@@ -84,6 +83,7 @@ namespace CoreGame.FightSystem.AI
 
         private bool CheckEnergyWait(AIPatternPhase phase, IReadOnlyList<AbilityEntity> availableAbilities, float currentEnergy)
         {
+
             var highCostSkill = availableAbilities.FirstOrDefault(e =>
                 (e.ReferenceAbility.GetAbilityType() == phase.PreferredSkillType || e.ReferenceAbility.GetAbilityType() == phase.SecondarySkillType) &&
                 e.CurrentCooldown == 0 &&
@@ -96,37 +96,50 @@ namespace CoreGame.FightSystem.AI
         private AIDecision WeightedDecision(AIPatternPhase phase, IReadOnlyList<AbilityEntity> availableAbilities, float currentEnergy)
         {
             var weights = phase.Weights;
-            float totalWeight = weights.AttackWeight + weights.GuardWeight + weights.WaitWeight;
-            float skillWeight = 0;
+            float attackW = weights.AttackWeight;
+            float guardW = weights.GuardWeight;
+            float waitW = weights.WaitWeight;
+            float skillW = weights.SkillWeight;
 
-            var preferredSkill = availableAbilities.FirstOrDefault(e =>
-                e.ReferenceAbility.GetAbilityType() == phase.PreferredSkillType &&
-                e.CurrentCooldown == 0 &&
-                e.ReferenceAbility.Cost <= currentEnergy);
+            var availableSkills = availableAbilities
+                .Where(e => (e.ReferenceAbility.GetAbilityType() == phase.PreferredSkillType || e.ReferenceAbility.GetAbilityType() == phase.SecondarySkillType) &&
+                            e.CurrentCooldown == 0 &&
+                            e.ReferenceAbility.Cost <= currentEnergy)
+                .ToList();
 
-            if (preferredSkill != null)
-            {
-                skillWeight = weights.SkillWeight;
-                totalWeight += skillWeight;
-            }
+            AbilityEntity chosenSkill = null;
 
-            float roll = Random.Range(0f, totalWeight);
-
-            if (roll < weights.AttackWeight)
+            if (availableSkills.Count > 0)
             {
-                return AIDecision.Simple(PlayerAction.Attack);
-            }
-            else if (roll < weights.AttackWeight + weights.GuardWeight)
-            {
-                return AIDecision.Simple(PlayerAction.Guard);
-            }
-            else if (preferredSkill != null && roll < weights.AttackWeight + weights.GuardWeight + skillWeight)
-            {
-                return new AIDecision(PlayerAction.UseSkill, preferredSkill.ReferenceAbility);
+                int randomIndex = Random.Range(0, availableSkills.Count);
+                chosenSkill = availableSkills[randomIndex];
             }
             else
             {
-                return AIDecision.Simple(PlayerAction.Wait);
+                attackW += skillW;
+                skillW = 0f;
+            }
+
+            float totalWeight = attackW + guardW + waitW + skillW;
+            if (totalWeight <= 0f) return AIDecision.Simple(PlayerAction.Attack);
+
+            float roll = Random.Range(0f, totalWeight);
+
+            if (roll < attackW)
+            {
+                return AIDecision.Simple(PlayerAction.Attack);
+            }
+            else if (roll < attackW + guardW)
+            {
+                return AIDecision.Simple(PlayerAction.Guard);
+            }
+            else if (chosenSkill != null && roll < attackW + guardW + skillW)
+            {
+                return new AIDecision(PlayerAction.UseSkill, chosenSkill.ReferenceAbility);
+            }
+            else
+            {
+                return AIDecision.Simple(PlayerAction.Attack);
             }
         }
     }

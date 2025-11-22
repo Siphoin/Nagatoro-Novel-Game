@@ -13,11 +13,12 @@ namespace CoreGame.FightSystem.AI
     {
         [SerializeField, Range(0f, 1f)] private float _lowHPThreshold = 0.5f;
         [SerializeField, Range(0f, 1f)] private float _healThresholdLowHP = 0.3f;
-        [SerializeField] private int _signatureSkillCost = 3;
         [SerializeField] private AbilityType _signatureSkillType = AbilityType.Attack;
         [SerializeField] private float _attackWeightHighHP = 70f;
         [SerializeField] private float _attackWeightLowHP = 40f;
         [SerializeField] private float _guardWeightLowHP = 40f;
+        [SerializeField] private float _skillWeightHighHP = 30f;
+        [SerializeField] private float _skillWeightLowHP = 30f;
 
         public override AIDecision DecideAction(
             IFightComponent selfComponent,
@@ -30,79 +31,86 @@ namespace CoreGame.FightSystem.AI
             float targetHealth = targetComponent.HealthComponent.CurrentHealth;
             float selfDamage = selfCharacter.Damage;
 
+            // Проверка добивания
             if (targetHealth <= selfDamage)
             {
                 return AIDecision.Simple(PlayerAction.Attack);
             }
 
+            // Проверка хила на критическом HP
+            if (selfHealthRatio <= _healThresholdLowHP)
+            {
+                var healDecision = ChooseSkill(availableAbilities, currentEnergy, AbilityType.Heal);
+            }
+
+            // Попытка использовать сигнатурный скилл
+            var signatureDecision = ChooseSkill(availableAbilities, currentEnergy, _signatureSkillType);
+
+            // Решение по весам в зависимости от HP
             if (selfHealthRatio <= _lowHPThreshold)
             {
-                if (selfHealthRatio <= _healThresholdLowHP)
-                {
-                    var healAbility = availableAbilities.FirstOrDefault(e =>
-                        e.ReferenceAbility.GetAbilityType() == AbilityType.Heal &&
-                        e.CurrentCooldown == 0 &&
-                        e.ReferenceAbility.Cost <= currentEnergy);
-
-                    if (healAbility != null)
-                    {
-                        return new AIDecision(PlayerAction.UseSkill, healAbility.ReferenceAbility);
-                    }
-                }
-
-                return LowHPDecision(availableAbilities, currentEnergy);
+                return WeightedDecision(
+                    availableAbilities,
+                    currentEnergy,
+                    _attackWeightLowHP,
+                    _guardWeightLowHP,
+                    _skillWeightLowHP);
             }
             else
             {
-                var signatureSkill = availableAbilities.FirstOrDefault(e =>
-                    e.ReferenceAbility.GetAbilityType() == _signatureSkillType &&
-                    e.ReferenceAbility.Cost == _signatureSkillCost &&
-                    e.CurrentCooldown == 0 &&
-                    e.ReferenceAbility.Cost <= currentEnergy);
-
-                if (signatureSkill != null)
-                {
-                    return new AIDecision(PlayerAction.UseSkill, signatureSkill.ReferenceAbility);
-                }
-
-                return HighHPDecision(availableAbilities, currentEnergy);
+                return WeightedDecision(
+                    availableAbilities,
+                    currentEnergy,
+                    _attackWeightHighHP,
+                    0f,
+                    _skillWeightHighHP);
             }
         }
 
-        private AIDecision HighHPDecision(IReadOnlyList<AbilityEntity> availableAbilities, float currentEnergy)
+        private AIDecision ChooseSkill(IReadOnlyList<AbilityEntity> availableAbilities, float currentEnergy, AbilityType type)
         {
-            float totalWeight = _attackWeightHighHP + 10f;
+            var skills = availableAbilities
+                .Where(a => a.CurrentCooldown == 0 &&
+                            a.ReferenceAbility.Cost <= currentEnergy &&
+                            a.ReferenceAbility.GetAbilityType() == type)
+                .ToList();
 
-            float roll = Random.Range(0f, totalWeight);
-
-            if (roll < _attackWeightHighHP)
-            {
+            if (skills.Count == 0)
                 return AIDecision.Simple(PlayerAction.Attack);
-            }
-            else
-            {
-                return AIDecision.Simple(PlayerAction.Wait);
-            }
+
+            int idx = Random.Range(0, skills.Count);
+            return new AIDecision(PlayerAction.UseSkill, skills[idx].ReferenceAbility);
         }
 
-        private AIDecision LowHPDecision(IReadOnlyList<AbilityEntity> availableAbilities, float currentEnergy)
+        private AIDecision WeightedDecision(IReadOnlyList<AbilityEntity> availableAbilities, float currentEnergy,
+            float attackWeight, float guardWeight, float skillWeight)
         {
-            float totalWeight = _attackWeightLowHP + _guardWeightLowHP + 10f;
+            var skills = availableAbilities
+                .Where(a => a.CurrentCooldown == 0 && a.ReferenceAbility.Cost <= currentEnergy)
+                .ToList();
 
-            float roll = Random.Range(0f, totalWeight);
-
-            if (roll < _attackWeightLowHP)
+            AbilityEntity chosenSkill = null;
+            if (skills.Count > 0)
             {
-                return AIDecision.Simple(PlayerAction.Attack);
-            }
-            else if (roll < _attackWeightLowHP + _guardWeightLowHP)
-            {
-                return AIDecision.Simple(PlayerAction.Guard);
+                chosenSkill = skills[Random.Range(0, skills.Count)];
             }
             else
             {
-                return AIDecision.Simple(PlayerAction.Wait);
+                attackWeight += skillWeight;
+                skillWeight = 0f;
             }
+
+            float total = attackWeight + guardWeight + skillWeight;
+            if (total <= 0f) return AIDecision.Simple(PlayerAction.Attack);
+
+            float roll = Random.Range(0f, total);
+
+            if (roll < attackWeight) return AIDecision.Simple(PlayerAction.Attack);
+            if (roll < attackWeight + guardWeight) return AIDecision.Simple(PlayerAction.Guard);
+            if (chosenSkill != null && roll < attackWeight + guardWeight + skillWeight)
+                return new AIDecision(PlayerAction.UseSkill, chosenSkill.ReferenceAbility);
+
+            return AIDecision.Simple(PlayerAction.Attack);
         }
     }
 }

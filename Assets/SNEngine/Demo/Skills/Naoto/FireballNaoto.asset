@@ -15,7 +15,7 @@ MonoBehaviour:
   _guidSO: 3cc91cdb-8af8-48be-b768-cfdd37b72496
   _cost: 3
   _duration: 0
-  _cooldown: 0
+  _cooldown: 5
   _nameAbility: Fireball
-  _descriptionAbility: Summons a fireball and deals 20 damage to the enemy.
-  _damageAmount: 20
+  _descriptionAbility: Summons a fireball and deals 50 damage to the enemy.
+  _damageAmount: 50

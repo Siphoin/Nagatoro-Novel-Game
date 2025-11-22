@@ -23,10 +23,10 @@ MonoBehaviour:
     _preferredSkillType: 2
     _secondarySkillType: 0
     _weights:
-      _attackWeight: 40
-      _guardWeight: 20
-      _waitWeight: 30
-      _skillWeight: 10
+      _attackWeight: 50
+      _guardWeight: 5
+      _waitWeight: 0
+      _skillWeight: 45
   - _phaseName: Wa
     _healthThreshold: 0.75
     _damageMultiplier: 1.2
@@ -36,10 +36,10 @@ MonoBehaviour:
     _preferredSkillType: 0
     _secondarySkillType: 1
     _weights:
-      _attackWeight: 50
-      _guardWeight: 10
+      _attackWeight: 45
+      _guardWeight: 5
       _waitWeight: 0
-      _skillWeight: 40
+      _skillWeight: 50
   - _phaseName: Final
     _healthThreshold: 0.3
     _damageMultiplier: 1.5
@@ -49,8 +49,8 @@ MonoBehaviour:
     _preferredSkillType: 1
     _secondarySkillType: 0
     _weights:
-      _attackWeight: 15
-      _guardWeight: 45
-      _waitWeight: 3
-      _skillWeight: 30
+      _attackWeight: 40
+      _guardWeight: 20
+      _waitWeight: 0
+      _skillWeight: 55
   _executeDamageMultiplier: 1.5

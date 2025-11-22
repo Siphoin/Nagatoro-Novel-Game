@@ -9,13 +9,10 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: a75dd4c9e3ad2dd44b0fb7c8906f01de, type: 3}
-  m_Name: NaotoHealAbility
+  m_Script: {fileID: 11500000, guid: b69b5cde76f615349b3852f4eb8272d7, type: 3}
+  m_Name: SimpleMobAI
   m_EditorClassIdentifier: 
-  _guidSO: 9aea0641-7a3e-4ac2-9600-25422a15e297
-  _cost: 1
-  _duration: 0.34
-  _cooldown: 3
-  _nameAbility: Heal
-  _descriptionAbility: Heals Naoto Health by 7.
-  _healAmount: 7
+  _guidSO: a5442d34-263a-4227-bc97-62a0ffe640ae
+  _guardChance: 0.1
+  _skillChance: 0.05
+  _preferredSkillType: 1

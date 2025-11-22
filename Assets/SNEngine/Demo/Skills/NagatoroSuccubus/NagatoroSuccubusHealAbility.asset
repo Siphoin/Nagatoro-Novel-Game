@@ -15,7 +15,7 @@ MonoBehaviour:
   _guidSO: e2cc7da2-2da1-4929-9b5f-e042417f0099
   _cost: 1
   _duration: 0.34
-  _cooldown: 0
+  _cooldown: 3
   _nameAbility: Succubus Blood
   _descriptionAbility: Heals Succubus Nagatoro Health by 12.
   _healAmount: 12

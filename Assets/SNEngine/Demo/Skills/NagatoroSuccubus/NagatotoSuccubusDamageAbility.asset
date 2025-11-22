@@ -15,7 +15,7 @@ MonoBehaviour:
   _guidSO: 83fa2e9c-84c2-4e85-8502-47b46c43f582
   _cost: 4
   _duration: 0.5
-  _cooldown: 0
+  _cooldown: 3
   _nameAbility: Whip
   _descriptionAbility: Nagatoro strikes with his whip, total damage 25.
   _damageAmount: 25

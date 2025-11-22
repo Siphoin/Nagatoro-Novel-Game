@@ -1,5 +1,7 @@
 ﻿using FightSystem.Abilities;
 using UnityEngine;
+using CoreGame.FightSystem;
+using CoreGame.FightSystem.Utils; // <-- Добавляем для доступа к DamageUtils
 
 namespace CoreGame.FightSystem.Abilities
 {
@@ -11,13 +13,16 @@ namespace CoreGame.FightSystem.Abilities
 
         protected override void TurnTick(IFightComponent user, IFightComponent target)
         {
-            float targetCurrentHealth = target.HealthComponent.CurrentHealth;
-            float drainAmount = targetCurrentHealth * _drainPercent;
+            float targetMaxHealth = target.HealthComponent.MaxHealth;
+            float drainAmount = targetMaxHealth * _drainPercent;
 
             if (drainAmount > 0)
             {
-                target.HealthComponent.TakeDamage(drainAmount);
-                user.HealthComponent.Heal(drainAmount);
+                float finalDrainAmount = DamageUtils.ApplyGuardReduction(target.FightCharacter, drainAmount);
+
+
+                target.HealthComponent.TakeDamage(finalDrainAmount);
+                user.HealthComponent.Heal(finalDrainAmount);
             }
         }
 

@@ -18,6 +18,7 @@ using SNEngine.Polling;
 using CoreGame.FightSystem.Abilities;
 using System.Linq;
 using CoreGame.FightSystem.Utils;
+using CoreGame.FightSystem.ManaSystem;
 
 namespace CoreGame.Services
 {
@@ -31,6 +32,7 @@ namespace CoreGame.Services
         private Dictionary<FightCharacter, List<AbilityEntity>> _currentAbilitesData;
         private Dictionary<FightCharacter, float> _currentEnergyData;
         private Dictionary<FightCharacter, List<AbilityEntity>> _activeTickEffects;
+        private readonly Dictionary<AbilityEntity, int> _activeCooldowns = new Dictionary<AbilityEntity, int>();
         private IFightWindow _fightWindow;
         private IFightComponent _player;
         private IFightComponent _enemy;
@@ -163,7 +165,14 @@ namespace CoreGame.Services
             if (_fightComponents != null)
             {
                 foreach (var component in _fightComponents.Values)
-                    if (component is FightComponent fightComponent) Object.Destroy(fightComponent);
+                    if (component is FightComponent fightComponent)
+                    {
+                        HealthComponent healthComponent = fightComponent.gameObject.GetComponent<HealthComponent>();
+                        ManaComponent manaComponent = fightComponent.gameObject.GetComponent<ManaComponent>();
+                        Object.Destroy(fightComponent);
+                        Object.Destroy(manaComponent);
+                        Object.Destroy(healthComponent);
+                    }
                 _fightComponents.Clear();
             }
         }
@@ -251,7 +260,11 @@ namespace CoreGame.Services
                 ExecuteEnemyTurn().Forget();
 
             ProcessAbilitiesOverTurns();
+            ProgressCooldowns();
+
         }
+
+
 
         private async void OnPlayerTurnExecuted(PlayerAction action)
         {
@@ -259,7 +272,6 @@ namespace CoreGame.Services
             _fightWindow.HidePanelAction();
             SaveHealthBeforeAction();
             await HandlePlayerAction(action);
-            ProgressCooldowns();
             if (CheckFightEndConditions()) return;
             StartNewTurn(FightTurnOwner.Enemy);
         }
@@ -285,7 +297,6 @@ namespace CoreGame.Services
             float enemyEnergy = _currentEnergyData.GetValueOrDefault(_enemyCharacter);
             AIDecision enemyDecision = _aiFighter.DecideAction(enemyAbilities, enemyEnergy);
             await HandleEnemyAction(enemyDecision);
-            ProgressCooldowns();
             if (CheckFightEndConditions()) return;
             await UniTask.Delay(TimeSpan.FromSeconds(ENEMY_TURN_DELAY), DelayType.DeltaTime, PlayerLoopTiming.Update, CancellationToken.None);
             StartNewTurn(FightTurnOwner.Player);
@@ -370,9 +381,22 @@ namespace CoreGame.Services
                 }
 
                 OnAbilityUsed?.Invoke(fightCharacter, ability, _currentEnergyData[fightCharacter]);
+                
                 await HandleAbilityUsage(fightCharacter, ability);
             }
         }
+
+        public float GetCurrentEnergyCharacter (FightCharacter fightCharacter)
+        {
+            return _currentEnergyData[fightCharacter];
+        }
+        public bool IsAbilityOnCooldown(FightCharacter fightCharacter, ScriptableAbility ability)
+        {
+            var abilites = _currentAbilitesData[fightCharacter];
+            var entity = abilites.First(x => x.ReferenceAbility == ability);
+            return entity.CurrentCooldown > 0;
+        }
+
 
         private async UniTask HandleAbilityUsage(FightCharacter fightCharacter, ScriptableAbility ability)
         {
