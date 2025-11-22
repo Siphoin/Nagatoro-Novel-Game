@@ -17,5 +17,5 @@ MonoBehaviour:
   _duration: 0.34
   _cooldown: 3
   _nameAbility: Heal
-  _descriptionAbility: Heals Naoto Health by 7.
-  _healAmount: 7
+  _descriptionAbility: Heals Naoto Health by 9. Cooldown 2 turns.
+  _healAmount: 9

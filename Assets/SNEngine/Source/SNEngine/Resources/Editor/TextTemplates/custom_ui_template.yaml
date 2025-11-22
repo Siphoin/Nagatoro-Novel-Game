@@ -1,7 +1,8 @@
-ability_9aea0641-7a3e-4ac2-9600-25422a15e297_desc: Heals Naoto Health by 10.
+ability_9aea0641-7a3e-4ac2-9600-25422a15e297_desc: Heals Naoto Health by 9.
 ability_9aea0641-7a3e-4ac2-9600-25422a15e297_name: Heal
 fight_attack: Attack
 fight_guard: Guard
 fight_wait: Wait
 fight_skill: Skill
 fight_back: Back
+fight_uses_prefix: uses

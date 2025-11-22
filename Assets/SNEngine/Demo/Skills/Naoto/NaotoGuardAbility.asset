@@ -19,5 +19,5 @@ MonoBehaviour:
   _nameAbility: Frost Armor
   _descriptionAbility: Naoto strengthens his spirit, increasing his resolve to withstand
     the enemy's torment. This defensive stance slightly reduces incoming damage and
-    lasts for 2 turns.
+    lasts for 2 turns. Cooldown 2 turns.
   _turnsToTick: 3

@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _guidSO: 9a9c8178-e113-44b2-a3cb-a4b6825842ad
   _cost: 5
-  _duration: 1
+  _duration: 3
   _cooldown: 3
   _nameAbility: Succubus Drain
   _descriptionAbility: Drains a percentage of the target's current Health Points

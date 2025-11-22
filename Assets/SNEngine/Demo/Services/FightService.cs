@@ -339,14 +339,6 @@ namespace CoreGame.Services
 
             _wasLastHitCritical[targetCharacter.ReferenceCharacter] = isCritical;
             targetComponent.HealthComponent.TakeDamage(finalDamage);
-
-            if (targetComponent.HealthComponent.CurrentHealth > 0 && targetCharacter == _enemyCharacter)
-            {
-                await UniTask.WhenAll(
-                    _characterService.ShakePosition(_enemyCharacter.ReferenceCharacter, _hitShakeDuration, _hitShakeStrength, _hitShakeVibrato, true),
-                    AnimateCharacterHit(_enemyCharacter.ReferenceCharacter)
-                );
-            }
         }
 
 
@@ -381,12 +373,12 @@ namespace CoreGame.Services
                 }
 
                 OnAbilityUsed?.Invoke(fightCharacter, ability, _currentEnergyData[fightCharacter]);
-                
+
                 await HandleAbilityUsage(fightCharacter, ability);
             }
         }
 
-        public float GetCurrentEnergyCharacter (FightCharacter fightCharacter)
+        public float GetCurrentEnergyCharacter(FightCharacter fightCharacter)
         {
             return _currentEnergyData[fightCharacter];
         }
@@ -458,14 +450,31 @@ namespace CoreGame.Services
 
                 if (character == _playerCharacter.ReferenceCharacter && currentHealth > 0)
                 {
-                    await UniTask.WhenAll(
-                        _backgroundService.ShakePosition(_hitShakeDuration, _hitShakeStrength, _hitShakeVibrato, true),
-                        AnimateBackgroundHit()
-                    );
+                    await HandleBackgroundHitAnimation();
+                }
+                else if (character == _enemyCharacter.ReferenceCharacter && currentHealth > 0)
+                {
+                    await HandleHitAnimation(character);
                 }
             }
 
             _healthBeforeLastAction[character] = currentHealth;
+        }
+
+        private async UniTask HandleHitAnimation(Character character)
+        {
+            await UniTask.WhenAll(
+                _characterService.ShakePosition(character, _hitShakeDuration, _hitShakeStrength, _hitShakeVibrato, true),
+                AnimateCharacterHit(character)
+            );
+        }
+
+        private async UniTask HandleBackgroundHitAnimation()
+        {
+            await UniTask.WhenAll(
+                _backgroundService.ShakePosition(_hitShakeDuration, _hitShakeStrength, _hitShakeVibrato, true),
+                AnimateBackgroundHit()
+            );
         }
 
         private async UniTask AnimateCharacterHit(Character character)

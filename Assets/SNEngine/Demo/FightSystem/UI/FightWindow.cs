@@ -4,6 +4,7 @@ using CoreGame.Services;
 using DG.Tweening;
 using SNEngine;
 using SNEngine.Polling;
+using SNEngine.Services;
 using System;
 using System.Linq;
 using UnityEngine;
@@ -13,6 +14,9 @@ namespace CoreGame.FightSystem.UI
 {
     public class FightWindow : MonoBehaviour, IFightWindow
     {
+        private const string USES_LOCALIZE_KEY = "fight_uses_prefix";
+        private const string ABILITY_DESC_KEY_PREFIX = "ability_";
+        private const string ABILITY_DESC_KEY_SUFFIX = "_name";
         [Header("UI Components")]
         [SerializeField] private FillSlider _healthPlayer;
         [SerializeField] private FillSlider _healthEnemy;
@@ -26,6 +30,7 @@ namespace CoreGame.FightSystem.UI
         [SerializeField] private RectTransform _enemyEnergyContainer;
         [SerializeField] private RectTransform _panelListActions;
         [SerializeField] private AbilityWindow _abilityWindow;
+        [SerializeField] private HintUI _hintUI;
 
         [Header("Health Bar Animation Settings")]
         [SerializeField, Min(0)] private float _durationChangeHealth = 0.3f;
@@ -133,7 +138,11 @@ namespace CoreGame.FightSystem.UI
         public void ResetState()
         {
             if (_fightService != null)
+            {
                 _fightService.OnAbilityUsed -= UpdateEnergyAfterAbility;
+                _fightService.OnPlayerHealed -= HandlePlayerHealed;
+                _fightService.OnAbilityUsed -= HandleAbilityUsed;
+            }
         }
 
         private Tweener AnimateUIElement(RectTransform rectTransform, Vector2 endPosition)
@@ -147,6 +156,7 @@ namespace CoreGame.FightSystem.UI
             _fightService = NovelGame.Instance.GetService<FightService>();
             _fightService.OnAbilityUsed += UpdateEnergyAfterAbility;
             _fightService.OnPlayerHealed += HandlePlayerHealed;
+            _fightService.OnAbilityUsed += HandleAbilityUsed;
 
             _panelAction.gameObject.SetActive(true);
             _abilityWindow.gameObject.SetActive(false);
@@ -175,6 +185,7 @@ namespace CoreGame.FightSystem.UI
             {
                 _fightService.OnAbilityUsed -= UpdateEnergyAfterAbility;
                 _fightService.OnPlayerHealed -= HandlePlayerHealed;
+                _fightService.OnAbilityUsed -= HandleAbilityUsed;
             }
 
             Sequence hideSequence = DOTween.Sequence();
@@ -249,6 +260,20 @@ namespace CoreGame.FightSystem.UI
             {
                 _healOverlayImage.DOFade(0f, _healFadeDuration / 2);
             });
+        }
+
+        private void HandleAbilityUsed(FightCharacter fightCharacter, ScriptableAbility ability, float currentEnergy)
+        {
+            if (ability != null && _hintUI != null)
+            {
+                var languageService = NovelGame.Instance.GetService<LanguageService>();
+                string usesPrefix = languageService.LanguageIsLoaded ? languageService.TransliteUI(USES_LOCALIZE_KEY) : "uses";
+                string abilityLocalizeKey = $"{ABILITY_DESC_KEY_PREFIX}_{ability.GUID}_{ABILITY_DESC_KEY_SUFFIX}";
+                string abilityName = languageService.LanguageIsLoaded ? languageService.TransliteUI(abilityLocalizeKey) : ability.NameAbility;
+                string characterName = fightCharacter.ReferenceCharacter.GetName();
+                string hintMessage = $"{characterName} {usesPrefix}: {abilityName}";
+                _hintUI.ShowHint(hintMessage);
+            }
         }
     }
 }

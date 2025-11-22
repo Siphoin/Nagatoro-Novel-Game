@@ -75,8 +75,6 @@ namespace CoreGame.FightSystem.AI
                 {
                     return new AIDecision(PlayerAction.UseSkill, healAbility.ReferenceAbility);
                 }
-
-                return AIDecision.Simple(PlayerAction.Guard);
             }
             return AIDecision.Simple(PlayerAction.Wait);
         }
