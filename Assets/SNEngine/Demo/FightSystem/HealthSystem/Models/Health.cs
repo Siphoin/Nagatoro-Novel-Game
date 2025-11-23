@@ -3,10 +3,11 @@ using UnityEngine;
 
 namespace CoreGame.FightSystem.HealthSystem.Models
 {
+    [Serializable]
     public class Health
     {
-        private float _currentHealth;
-        private float _maxHealth;
+        [SerializeField]  private float _currentHealth;
+        [SerializeField] private float _maxHealth;
 
         public event Action<float, float> OnHealthChanged;
 

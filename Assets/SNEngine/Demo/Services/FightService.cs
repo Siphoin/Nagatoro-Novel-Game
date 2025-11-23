@@ -32,7 +32,6 @@ namespace CoreGame.Services
         private Dictionary<FightCharacter, List<AbilityEntity>> _currentAbilitesData;
         private Dictionary<FightCharacter, float> _currentEnergyData;
         private Dictionary<FightCharacter, List<AbilityEntity>> _activeTickEffects;
-        private readonly Dictionary<AbilityEntity, int> _activeCooldowns = new Dictionary<AbilityEntity, int>();
         private IFightWindow _fightWindow;
         private IFightComponent _player;
         private IFightComponent _enemy;
@@ -55,6 +54,7 @@ namespace CoreGame.Services
         [SerializeField, Range(1, 10)] private int _defaultEnergyRestoreCooldown = 3;
         private Dictionary<FightCharacter, int> _energyRestoreCounters;
         private const float ENERGY_RESTORE_AMOUNT = 1f;
+        private Dictionary<string, ScriptableAbility> _allAbilitiesByGUID;
 
         public IFightComponent Player => _player;
         public IFightComponent Enemy => _enemy;
@@ -63,7 +63,6 @@ namespace CoreGame.Services
         public event Action<FightResult> OnFightEnded;
         public event Action<FightCharacter, ScriptableAbility, float> OnAbilityUsed;
         public event Action<FightCharacter, float> OnPlayerHealed;
-        // НОВОЕ СОБЫТИЕ: Оповещение о критическом попадании. Передает атакующего, цель и нанесенный урон.
         public event Action<FightCharacter, FightCharacter, float> OnCriticalHit;
 
         public override void Initialize()
@@ -84,9 +83,9 @@ namespace CoreGame.Services
             ui.AddElementToUIContainer(prefab.gameObject);
             prefab.gameObject.SetActive(false);
             containerTexts.transform.SetParent(prefab.transform, false);
-            _poolHealText = new(healTextPrefab, containerTexts.transform, 9, true);
-            _poolDamageText = new(damageTextPrefab, containerTexts.transform, 9, true);
-            _poolCriticalDamageText = new(criticalDamageTextPrefab, containerTexts.transform, 9, true);
+            _poolHealText = new PoolMono<HealText>(healTextPrefab, containerTexts.transform, 9, true);
+            _poolDamageText = new PoolMono<DamageText>(damageTextPrefab, containerTexts.transform, 9, true);
+            _poolCriticalDamageText = new PoolMono<CriticalDamageText>(criticalDamageTextPrefab, containerTexts.transform, 9, true);
         }
 
         public override void ResetState()
@@ -95,7 +94,7 @@ namespace CoreGame.Services
             UnsubscribeFromHealthEvents();
             HideCharacters();
             ClearupFightComponents();
-            _fightWindow.ResetState();
+            if (_fightWindow != null) _fightWindow.ResetState();
             _aiFighter = null;
             _player = null;
             _enemy = null;
@@ -109,36 +108,221 @@ namespace CoreGame.Services
             _activeTickEffects = null;
         }
 
-        public void TurnFight(FightCharacter playerCharacter, FightCharacter enemyCharacter)
+        public FightServiceSaveData GetSaveData()
+        {
+            if (_playerCharacter == null || _enemyCharacter == null || _player == null || _enemy == null)
+            {
+                return null;
+            }
+
+            var saveData = new FightServiceSaveData
+            {
+                PlayerCharacterGUID = _playerCharacter.ReferenceCharacter.GUID,
+                EnemyCharacterGUID = _enemyCharacter.ReferenceCharacter.GUID,
+                CurrentTurnOwner = (int)_fightTurnOwner,
+                PlayerEnergyRestoreCounter = _energyRestoreCounters.GetValueOrDefault(_playerCharacter),
+                EnemyEnergyRestoreCounter = _energyRestoreCounters.GetValueOrDefault(_enemyCharacter),
+                IsPlayerGuarding = _player.IsGuarding,
+                IsEnemyGuarding = _enemy.IsGuarding,
+                PlayerData = GetCharacterSaveData(_playerCharacter, _player),
+                EnemyData = GetCharacterSaveData(_enemyCharacter, _enemy)
+            };
+
+            return saveData;
+        }
+
+        private FightCharacterSaveData GetCharacterSaveData(FightCharacter fightCharacter, IFightComponent fightComponent)
+        {
+            var characterData = new FightCharacterSaveData
+            {
+                CurrentHealth = fightComponent.HealthComponent.CurrentHealth,
+                CurrentEnergy = _currentEnergyData.GetValueOrDefault(fightCharacter),
+                AbilitiesData = new List<AbilitySaveData>(),
+                ActiveTickEffects = new List<AbilitySaveData>()
+            };
+
+            var abilities = _currentAbilitesData.GetValueOrDefault(fightCharacter);
+            if (abilities != null)
+            {
+                characterData.AbilitiesData.AddRange(
+                    abilities.Select(e => new AbilitySaveData
+                    {
+                        AbilityGUID = e.ReferenceAbility.GUID,
+                        CurrentCooldown = e.CurrentCooldown,
+                        RemainingTicks = 0
+                    })
+                );
+            }
+
+            var activeTicks = _activeTickEffects.GetValueOrDefault(fightCharacter);
+            if (activeTicks != null)
+            {
+                characterData.ActiveTickEffects.AddRange(
+                    activeTicks.Select(e => new AbilitySaveData
+                    {
+                        AbilityGUID = e.ReferenceAbility.GUID,
+                        CurrentCooldown = 0,
+                        RemainingTicks = e.RemainingTicks
+                    })
+                );
+            }
+
+            return characterData;
+        }
+
+        private void PreloadAllAbilities()
+        {
+            if (_allAbilitiesByGUID != null) return;
+
+            _allAbilitiesByGUID = new Dictionary<string, ScriptableAbility>();
+
+            ScriptableAbility[] allAbilities = Resources.LoadAll<ScriptableAbility>("Skills");
+
+            foreach (var ability in allAbilities)
+            {
+                if (ability != null && !string.IsNullOrEmpty(ability.GUID) && !_allAbilitiesByGUID.ContainsKey(ability.GUID))
+                {
+                    _allAbilitiesByGUID.Add(ability.GUID, ability);
+                }
+            }
+        }
+
+        public void TurnFight(FightCharacter playerCharacter, FightCharacter enemyCharacter, FightServiceSaveData saveData = null)
         {
             _playerCharacter = playerCharacter;
             _enemyCharacter = enemyCharacter;
-            _fightComponents = new();
-            _healthBeforeLastAction = new();
-            _wasLastHitCritical = new()
+            _fightComponents = new Dictionary<Character, IFightComponent>();
+            _healthBeforeLastAction = new Dictionary<Character, float>();
+            _wasLastHitCritical = new Dictionary<Character, bool>
             {
                 { playerCharacter.ReferenceCharacter, false },
                 { enemyCharacter.ReferenceCharacter, false }
             };
-            _currentAbilitesData = new();
-            _currentEnergyData = new();
-            _energyRestoreCounters = new();
-            _activeTickEffects = new();
-            SetupCharacterForFight(playerCharacter);
-            SetupCharacterForFight(enemyCharacter);
+            _currentAbilitesData = new Dictionary<FightCharacter, List<AbilityEntity>>();
+            _currentEnergyData = new Dictionary<FightCharacter, float>();
+            _energyRestoreCounters = new Dictionary<FightCharacter, int>();
+            _activeTickEffects = new Dictionary<FightCharacter, List<AbilityEntity>>();
+
+            PreloadAllAbilities();
+
             SetupAbilitesCharacterForFight(playerCharacter);
             SetupAbilitesCharacterForFight(enemyCharacter);
+
+            SetupCharacterForFight(playerCharacter);
+            SetupCharacterForFight(enemyCharacter);
+
             _player = _fightComponents[playerCharacter.ReferenceCharacter];
             _enemy = _fightComponents[enemyCharacter.ReferenceCharacter];
             EnemyData = enemyCharacter;
             PlayerData = playerCharacter;
-            _fightWindow.SetData(_player, _enemy, playerCharacter, enemyCharacter);
+
             ScriptableAI enemyAI = _enemyCharacter.ReferenceAI;
             _aiFighter = new AIFighter(_enemyCharacter, _enemy, _player, enemyAI);
+
+            _fightWindow.SetData(_player, _enemy, playerCharacter, enemyCharacter);
             _fightWindow.OnTurnExecuted += OnPlayerTurnExecuted;
-            SubscribeToHealthEvents();
+
+            if (saveData != null)
+            {
+                LoadFightState(saveData);
+                SubscribeToHealthEvents();
+                InitializeHealthActionTracking();
+                _fightWindow.UpdateHealthAndEnergyDisplay(_player, _enemy, playerCharacter, enemyCharacter);
+            }
+            else
+            {
+                SubscribeToHealthEvents();
+                InitializeHealthActionTracking();
+                StartNewTurn(FightTurnOwner.Player);
+            }
             _fightWindow.Show();
-            StartNewTurn(FightTurnOwner.Player);
+        }
+
+        private void InitializeHealthActionTracking()
+        {
+            if (_player != null && _playerCharacter != null)
+            {
+                _healthBeforeLastAction[_playerCharacter.ReferenceCharacter] = _player.HealthComponent.CurrentHealth;
+            }
+            if (_enemy != null && _enemyCharacter != null)
+            {
+                _healthBeforeLastAction[_enemyCharacter.ReferenceCharacter] = _enemy.HealthComponent.CurrentHealth;
+            }
+        }
+
+        private void LoadFightState(FightServiceSaveData saveData)
+        {
+            LoadCharacterState(_playerCharacter, _player, saveData.PlayerData, saveData.PlayerEnergyRestoreCounter);
+            LoadCharacterState(_enemyCharacter, _enemy, saveData.EnemyData, saveData.EnemyEnergyRestoreCounter);
+
+            if (saveData.IsPlayerGuarding) _player.StartGuard();
+            if (saveData.IsEnemyGuarding) _enemy.StartGuard();
+
+            _fightTurnOwner = (FightTurnOwner)saveData.CurrentTurnOwner;
+
+            StartNewTurn(_fightTurnOwner, isInitialLoad: true);
+        }
+
+        private void LoadCharacterState(FightCharacter fightCharacter, IFightComponent fightComponent, FightCharacterSaveData data, int energyRestoreCounter)
+        {
+            fightComponent.HealthComponent.SetData(fightCharacter.Health);
+
+            _currentEnergyData[fightCharacter] = data.CurrentEnergy;
+            _energyRestoreCounters[fightCharacter] = energyRestoreCounter;
+
+            float initialHealth = fightCharacter.Health;
+            float loadedHealth = data.CurrentHealth;
+            float delta = loadedHealth - initialHealth;
+
+            if (Mathf.Abs(delta) > 0.01f)
+            {
+                if (delta < 0)
+                {
+                    fightComponent.HealthComponent.TakeDamage(Mathf.Abs(delta));
+                }
+                else
+                {
+                    fightComponent.HealthComponent.Heal(delta);
+                }
+            }
+
+            _currentAbilitesData[fightCharacter].Clear();
+            foreach (var ability in fightCharacter.Abilities)
+            {
+                var entity = new AbilityEntity(ability);
+                var savedData = data.AbilitiesData.FirstOrDefault(d => d.AbilityGUID == entity.ReferenceAbility.GUID);
+
+                if (savedData != null)
+                {
+                    entity.CurrentCooldown = savedData.CurrentCooldown;
+                }
+
+                _currentAbilitesData[fightCharacter].Add(entity);
+            }
+
+            _activeTickEffects[fightCharacter].Clear();
+            foreach (var savedTickData in data.ActiveTickEffects)
+            {
+                ScriptableAbility abilityAsset = LoadAbilityByGUID(savedTickData.AbilityGUID);
+                if (abilityAsset is ScriptableOverTurnAbility overTurnAbility)
+                {
+                    var tickEntity = new AbilityEntity(overTurnAbility);
+                    tickEntity.RemainingTicks = savedTickData.RemainingTicks;
+                    _activeTickEffects[fightCharacter].Add(tickEntity);
+                }
+            }
+        }
+
+        private ScriptableAbility LoadAbilityByGUID(string guid)
+        {
+            if (_allAbilitiesByGUID == null) return null;
+
+            if (_allAbilitiesByGUID.TryGetValue(guid, out var ability))
+            {
+                return ability;
+            }
+
+            return null;
         }
 
         private void SetupCharacterForFight(FightCharacter character)
@@ -158,6 +342,7 @@ namespace CoreGame.Services
             _currentEnergyData.Add(fightCharacter, fightCharacter.EnergyPoint);
             _energyRestoreCounters.Add(fightCharacter, _defaultEnergyRestoreCooldown);
             _currentAbilitesData.Add(fightCharacter, new List<AbilityEntity>());
+            _activeTickEffects.Add(fightCharacter, new List<AbilityEntity>());
             foreach (var ability in fightCharacter.Abilities)
                 _currentAbilitesData[fightCharacter].Add(new AbilityEntity(ability));
         }
@@ -196,7 +381,7 @@ namespace CoreGame.Services
                     if (_energyRestoreCounters[fightCharacter] > 0) _energyRestoreCounters[fightCharacter]--;
                     if (_energyRestoreCounters[fightCharacter] == 0)
                     {
-                        float currentEnergy = _currentEnergyData[fightCharacter];
+                        float currentEnergy = _currentEnergyData.GetValueOrDefault(fightCharacter);
                         float maxEnergy = fightCharacter.EnergyPoint;
                         if (currentEnergy < maxEnergy)
                         {
@@ -247,7 +432,7 @@ namespace CoreGame.Services
             }
         }
 
-        private void StartNewTurn(FightTurnOwner newOwner)
+        private void StartNewTurn(FightTurnOwner newOwner, bool isInitialLoad = false)
         {
             _fightTurnOwner = newOwner;
 
@@ -256,17 +441,17 @@ namespace CoreGame.Services
             else
                 _enemy.StopGuard();
 
+            if (!isInitialLoad)
+            {
+                ProcessAbilitiesOverTurns();
+                ProgressCooldowns();
+            }
+
             if (_fightTurnOwner == FightTurnOwner.Player)
                 _fightWindow.ShowPanelAction();
             else
                 ExecuteEnemyTurn().Forget();
-
-            ProcessAbilitiesOverTurns();
-            ProgressCooldowns();
-
         }
-
-
 
         private async void OnPlayerTurnExecuted(PlayerAction action)
         {
@@ -348,12 +533,9 @@ namespace CoreGame.Services
             }
         }
 
-
         public async UniTask UseAbility(FightCharacter fightCharacter, ScriptableAbility ability)
         {
             if (fightCharacter != _playerCharacter && fightCharacter != _enemyCharacter) return;
-
-            SaveHealthBeforeAction();
 
             var currentEnergyCharacter = _currentEnergyData.GetValueOrDefault(fightCharacter, 0f);
             var abilityList = _currentAbilitesData.GetValueOrDefault(fightCharacter);
@@ -379,6 +561,8 @@ namespace CoreGame.Services
                         _activeTickEffects[fightCharacter] = new List<AbilityEntity>();
                     }
 
+                    tickEntity.RemainingTicks = overTurnAbility.Duration;
+
                     _activeTickEffects[fightCharacter].Add(tickEntity);
                 }
 
@@ -390,15 +574,15 @@ namespace CoreGame.Services
 
         public float GetCurrentEnergyCharacter(FightCharacter fightCharacter)
         {
-            return _currentEnergyData[fightCharacter];
+            return _currentEnergyData.GetValueOrDefault(fightCharacter);
         }
+
         public bool IsAbilityOnCooldown(FightCharacter fightCharacter, ScriptableAbility ability)
         {
             var abilites = _currentAbilitesData[fightCharacter];
             var entity = abilites.First(x => x.ReferenceAbility == ability);
             return entity.CurrentCooldown > 0;
         }
-
 
         private async UniTask HandleAbilityUsage(FightCharacter fightCharacter, ScriptableAbility ability)
         {
@@ -416,8 +600,14 @@ namespace CoreGame.Services
 
         private void SaveHealthBeforeAction()
         {
-            _healthBeforeLastAction[_playerCharacter.ReferenceCharacter] = _player.HealthComponent.CurrentHealth;
-            _healthBeforeLastAction[_enemyCharacter.ReferenceCharacter] = _enemy.HealthComponent.CurrentHealth;
+            if (_playerCharacter != null && _player != null)
+            {
+                _healthBeforeLastAction[_playerCharacter.ReferenceCharacter] = _player.HealthComponent.CurrentHealth;
+            }
+            if (_enemyCharacter != null && _enemy != null)
+            {
+                _healthBeforeLastAction[_enemyCharacter.ReferenceCharacter] = _enemy.HealthComponent.CurrentHealth;
+            }
         }
 
         private void SubscribeToHealthEvents()
@@ -439,7 +629,13 @@ namespace CoreGame.Services
         {
             float healthBefore = _healthBeforeLastAction.GetValueOrDefault(character, currentHealth);
             float delta = currentHealth - healthBefore;
-            if (Mathf.Abs(delta) < 0.01f) return;
+
+            if (Mathf.Abs(delta) < 0.01f)
+            {
+                _healthBeforeLastAction[character] = currentHealth;
+                return;
+            }
+
             Vector3 worldPosition = _characterService.GetCharacterWorldPosition(character);
             Vector3 screenPosition = Camera.main.WorldToScreenPoint(worldPosition);
 

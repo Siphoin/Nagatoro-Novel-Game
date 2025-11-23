@@ -10,5 +10,6 @@ namespace CoreGame.FightSystem.UI
         void ShowPanelAction();
         void HidePanelAction();
         void HidePanelSkills();
+        void UpdateHealthAndEnergyDisplay(IFightComponent fightComponentPlayer, IFightComponent fightComponentEnemy, FightCharacter playerData, FightCharacter enemyData);
     }
 }

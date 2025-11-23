@@ -10,7 +10,7 @@ namespace CoreGame.FightSystem.Abilities
         public ScriptableAbility ReferenceAbility { get; private set; }
         public int CurrentCooldown { get; set; }
 
-        [field: SerializeField] public int RemainingTicks { get; set; }
+        [field: SerializeField] public float RemainingTicks { get; set; }
 
 
         public AbilityEntity(ScriptableAbility referenceAbility)

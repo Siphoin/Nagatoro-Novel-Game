@@ -7,7 +7,7 @@ namespace CoreGame.FightSystem.HealthSystem
     public class HealthComponent : MonoBehaviour, IHealthComponent
     {
 
-        private Health _healthModel;
+       [SerializeField] private Health _healthModel;
 
         public float CurrentHealth => _healthModel.CurrentHealth;
         public float MaxHealth => _healthModel.MaxHealth;

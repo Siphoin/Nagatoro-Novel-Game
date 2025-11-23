@@ -165,6 +165,7 @@ namespace CoreGame.FightSystem.UI
                 _fightService.OnAbilityUsed -= UpdateEnergyAfterAbility;
                 _fightService.OnPlayerHealed -= HandlePlayerHealed;
                 _fightService.OnAbilityUsed -= HandleAbilityUsed;
+                _fightService.OnCriticalHit -= OnCriticalHit;
             }
         }
 
@@ -271,11 +272,7 @@ namespace CoreGame.FightSystem.UI
             fightComponentPlayer.HealthComponent.OnHealthChanged += OnHealthChangedPlayer;
 
             _healthEnemy.MaxValue = fightComponentEnemy.HealthComponent.MaxHealth;
-            _healthEnemy.SetValueSmoothly(fightComponentEnemy.HealthComponent.CurrentHealth, _durationChangeHealth, _easeHealthAnimation);
-            _healthPlayer.SetValueSmoothly(fightComponentPlayer.HealthComponent.CurrentHealth, _durationChangeHealth, _easeHealthAnimation);
-
-            ShowEnergyPoints(_poolEnergyFillsEnemy, enemyData, enemyData.EnergyPoint);
-            ShowEnergyPoints(_poolEnergyFillsPlayer, playerData, playerData.EnergyPoint);
+            _healthPlayer.MaxValue = fightComponentPlayer.HealthComponent.MaxHealth;
 
             if (_playerAvatar != null)
                 _playerAvatar.SetAvatar(playerData.Avatar);
@@ -299,6 +296,21 @@ namespace CoreGame.FightSystem.UI
 
             if (_healthEnemyFillImage != null)
                 _healthEnemyFillImage.color = enemyColor;
+
+            UpdateHealthAndEnergyDisplay(fightComponentPlayer, fightComponentEnemy, playerData, enemyData);
+        }
+
+        public void UpdateHealthAndEnergyDisplay(IFightComponent fightComponentPlayer, IFightComponent fightComponentEnemy, FightCharacter playerData, FightCharacter enemyData)
+        {
+            _healthEnemy.SetValueSmoothly(fightComponentEnemy.HealthComponent.CurrentHealth, _durationChangeHealth, _easeHealthAnimation);
+            _healthPlayer.SetValueSmoothly(fightComponentPlayer.HealthComponent.CurrentHealth, _durationChangeHealth, _easeHealthAnimation);
+
+            FightService fightService = NovelGame.Instance.GetService<FightService>();
+            float currentEnergyPlayer = fightService.GetCurrentEnergyCharacter(playerData);
+            float currentEnergyEnemy = fightService.GetCurrentEnergyCharacter(enemyData);
+
+            ShowEnergyPoints(_poolEnergyFillsEnemy, enemyData, currentEnergyEnemy);
+            ShowEnergyPoints(_poolEnergyFillsPlayer, playerData, currentEnergyPlayer);
         }
 
         private void OnHealthChangedPlayer(float current, float max)

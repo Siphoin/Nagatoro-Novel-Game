@@ -1,11 +1,14 @@
-﻿using SiphoinUnityHelpers.XNodeExtensions.AsyncNodes;
-using Cysharp.Threading.Tasks;
-using UnityEngine;
-using SNEngine.SaveSystem;
-using SNEngine;
-using CoreGame.Services;
-using XNode;
+﻿using CoreGame.FightSystem.Models;
 using CoreGame.FightSystem.UI;
+using CoreGame.Services;
+using Cysharp.Threading.Tasks;
+using Newtonsoft.Json.Linq;
+using SiphoinUnityHelpers.XNodeExtensions.AsyncNodes;
+using SNEngine;
+using SNEngine.SaveSystem;
+using System;
+using UnityEngine;
+using XNode;
 namespace CoreGame.FightSystem
 {
     public class FightNode : AsyncNode, ISaveProgressNode
@@ -15,6 +18,8 @@ namespace CoreGame.FightSystem
         [SerializeField] private FightCharacter _enemyCharacter;
         [Output(ShowBackingValue.Never), SerializeField, Header("Victory - 0 Defeat - 1 Tie - 2")] private int _result;
         private bool _finished;
+        private FightServiceSaveData _saveData;
+
         public override async void Execute()
         {
             if (!_playerCharacter)
@@ -32,7 +37,7 @@ namespace CoreGame.FightSystem
 
             var fightService = NovelGame.Instance.GetService<FightService>();
             fightService.OnFightEnded += OnFightEnded;
-            fightService.TurnFight(_playerCharacter, _enemyCharacter);
+            fightService.TurnFight(_playerCharacter, _enemyCharacter, _saveData);
         }
 
         private async void OnFightEnded(FightResult result)
@@ -51,17 +56,36 @@ namespace CoreGame.FightSystem
 
         public object GetDataForSave()
         {
-            return null;
+            return NovelGame.Instance.GetService<FightService>().GetSaveData();
         }
 
         public void ResetSaveBehaviour()
         {
+            _saveData = null;
             _finished = false;
         }
 
         public void SetDataFromSave(object data)
         {
-            
+            if (data is JObject jObject)
+            {
+                try
+                {
+                    FightServiceSaveData saveData = jObject.ToObject<FightServiceSaveData>();
+                    if (saveData != null)
+                    {
+                        _saveData = saveData;
+                    }
+                }
+                catch (Exception e)
+                {
+                    Debug.LogError($"Deserialization error: {e.Message}");
+                }
+            }
+            else if (data is FightServiceSaveData directSaveData)
+            {
+                _saveData = directSaveData;
+            }
         }
 
         public override object GetValue(NodePort port)
