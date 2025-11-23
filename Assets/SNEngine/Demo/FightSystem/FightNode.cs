@@ -22,6 +22,10 @@ namespace CoreGame.FightSystem
 
         public override async void Execute()
         {
+            if (_finished)
+            {
+                return;
+            }
             if (!_playerCharacter)
             {
                 Debug.LogError($"fight player character not seted to node {GUID}");
@@ -45,13 +49,14 @@ namespace CoreGame.FightSystem
             var fightService = NovelGame.Instance.GetService<FightService>();
             fightService.OnFightEnded -= OnFightEnded;
             _result = (int)result;
+            _finished = true;
             await UniTask.WaitForSeconds(FightWindow.ANIMATION_DURATION_HIDE + DELAY_FINISH_FIGHT);
             StopTask();
         }
 
         public override bool CanSkip()
         {
-            return _finished;
+            return false;
         }
 
         public object GetDataForSave()
@@ -63,6 +68,7 @@ namespace CoreGame.FightSystem
         {
             _saveData = null;
             _finished = false;
+            _result = 0;
         }
 
         public void SetDataFromSave(object data)
@@ -75,6 +81,8 @@ namespace CoreGame.FightSystem
                     if (saveData != null)
                     {
                         _saveData = saveData;
+                        _finished = _saveData.Result != FightResult.None;
+                        _result = (int)saveData.Result;
                     }
                 }
                 catch (Exception e)
@@ -85,6 +93,8 @@ namespace CoreGame.FightSystem
             else if (data is FightServiceSaveData directSaveData)
             {
                 _saveData = directSaveData;
+                _finished = _saveData.Result != FightResult.None;
+                _result = (int)directSaveData.Result;
             }
         }
 

@@ -15,6 +15,7 @@ namespace CoreGame.FightSystem.Models
         public int EnemyEnergyRestoreCounter { get; set; }
         public bool IsPlayerGuarding { get; set; }
         public bool IsEnemyGuarding { get; set; }
+        public FightResult Result { get; set; }
 
         public FightServiceSaveData()
         {

@@ -45,6 +45,7 @@ namespace CoreGame.Services
         private const string FIGHT_WINDOW_VANILLA_PATH = "UI/FightWindow";
         private const float ENEMY_TURN_DELAY = 0.5f;
         private FightTurnOwner _fightTurnOwner = FightTurnOwner.Player;
+        private FightResult _result;
         [SerializeField] private float _hitShakeDuration = 0.3f;
         [SerializeField] private float _hitShakeStrength = 10f;
         [SerializeField] private int _hitShakeVibrato = 10;
@@ -125,7 +126,8 @@ namespace CoreGame.Services
                 IsPlayerGuarding = _player.IsGuarding,
                 IsEnemyGuarding = _enemy.IsGuarding,
                 PlayerData = GetCharacterSaveData(_playerCharacter, _player),
-                EnemyData = GetCharacterSaveData(_enemyCharacter, _enemy)
+                EnemyData = GetCharacterSaveData(_enemyCharacter, _enemy),
+                Result = _result,
             };
 
             return saveData;
@@ -236,6 +238,8 @@ namespace CoreGame.Services
                 StartNewTurn(FightTurnOwner.Player);
             }
             _fightWindow.Show();
+
+            _result = FightResult.None;
         }
 
         private void InitializeHealthActionTracking()
@@ -713,6 +717,7 @@ namespace CoreGame.Services
             _fightWindow.Hide();
             HideCharacters();
             ClearupFightComponents();
+            _result = result;
             OnFightEnded?.Invoke(result);
         }
     }
