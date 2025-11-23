@@ -69,8 +69,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: Frost Armor
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 3898c6c3c11849f459aa8cc7ad746351, type: 2}
-  m_sharedMaterial: {fileID: 2100000, guid: 7c105983dad93224caf4a119c3dfb421, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 9d8d0fefb0a8c9645a526f27853f91b9, type: 2}
+  m_sharedMaterial: {fileID: 2348783745894363702, guid: 9d8d0fefb0a8c9645a526f27853f91b9, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -94,8 +94,8 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 31.02
-  m_fontSizeBase: 31.02
+  m_fontSize: 23.22
+  m_fontSizeBase: 23.22
   m_fontWeight: 400
   m_enableAutoSizing: 0
   m_fontSizeMin: 18

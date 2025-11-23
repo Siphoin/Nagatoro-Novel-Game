@@ -19,6 +19,9 @@ namespace CoreGame.FightSystem.UI
         private const string USES_LOCALIZE_KEY = "fight_uses_prefix";
         private const string ABILITY_DESC_KEY_PREFIX = "ability_";
         private const string ABILITY_DESC_KEY_SUFFIX = "_name";
+        private const string CRITICAL_DAMAGE_KEY_MESSAGE = "fight_critical_damage_message";
+        private const string DAMAGE_KEY_MESSAGE = "fight_damage";
+        private const string FROM_DAMAGE_KEY_MESSAGE = "fight_from";
         [Header("UI Components")]
         [SerializeField] private FillSlider _healthPlayer;
         [SerializeField] private FillSlider _healthEnemy;
@@ -177,6 +180,7 @@ namespace CoreGame.FightSystem.UI
             _fightService.OnAbilityUsed += UpdateEnergyAfterAbility;
             _fightService.OnPlayerHealed += HandlePlayerHealed;
             _fightService.OnAbilityUsed += HandleAbilityUsed;
+            _fightService.OnCriticalHit += OnCriticalHit;
 
             _panelAction.gameObject.SetActive(true);
             _abilityWindow.gameObject.SetActive(false);
@@ -206,6 +210,8 @@ namespace CoreGame.FightSystem.UI
             showSequence.Join(AnimateUIElement(_enemyAvatarRT, _initialEnemyAvatarPosition));
         }
 
+
+
         public void Hide()
         {
             if (_fightService != null)
@@ -213,6 +219,7 @@ namespace CoreGame.FightSystem.UI
                 _fightService.OnAbilityUsed -= UpdateEnergyAfterAbility;
                 _fightService.OnPlayerHealed -= HandlePlayerHealed;
                 _fightService.OnAbilityUsed -= HandleAbilityUsed;
+                _fightService.OnCriticalHit -= OnCriticalHit;
             }
 
             Sequence hideSequence = DOTween.Sequence();
@@ -332,6 +339,20 @@ namespace CoreGame.FightSystem.UI
                 string hintMessage = $"{characterName} {usesPrefix}: {abilityName}";
                 _hintUI.ShowHint(hintMessage);
             }
+        }
+
+        private void OnCriticalHit(FightCharacter attacker, FightCharacter hitTarget, float damwge)
+        {
+            var languageService = NovelGame.Instance.GetService<LanguageService>();
+            string nameAttacker = attacker.ReferenceCharacter.GetName();
+            string nameTarget = hitTarget.ReferenceCharacter.GetName();
+            float damageOut = Mathf.Round(damwge);
+            string criticalDamagePrefix = languageService.LanguageIsLoaded ? languageService.TransliteUI(CRITICAL_DAMAGE_KEY_MESSAGE) : "takes critical";
+            string damagePrefix = languageService.LanguageIsLoaded ? languageService.TransliteUI(DAMAGE_KEY_MESSAGE) : "damage";
+            string damageFromPrefix = languageService.LanguageIsLoaded ? languageService.TransliteUI(FROM_DAMAGE_KEY_MESSAGE) : "from";
+            string message = $"{nameTarget} {criticalDamagePrefix} {damageOut} {damagePrefix} {damageFromPrefix} {nameAttacker}";
+            _hintUI.ShowHint(message);
+
         }
     }
 }

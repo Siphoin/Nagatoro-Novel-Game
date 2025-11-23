@@ -63,6 +63,8 @@ namespace CoreGame.Services
         public event Action<FightResult> OnFightEnded;
         public event Action<FightCharacter, ScriptableAbility, float> OnAbilityUsed;
         public event Action<FightCharacter, float> OnPlayerHealed;
+        // НОВОЕ СОБЫТИЕ: Оповещение о критическом попадании. Передает атакующего, цель и нанесенный урон.
+        public event Action<FightCharacter, FightCharacter, float> OnCriticalHit;
 
         public override void Initialize()
         {
@@ -339,12 +341,20 @@ namespace CoreGame.Services
 
             _wasLastHitCritical[targetCharacter.ReferenceCharacter] = isCritical;
             targetComponent.HealthComponent.TakeDamage(finalDamage);
+
+            if (isCritical)
+            {
+                OnCriticalHit?.Invoke(attackerCharacter, targetCharacter, finalDamage);
+            }
         }
 
 
         public async UniTask UseAbility(FightCharacter fightCharacter, ScriptableAbility ability)
         {
             if (fightCharacter != _playerCharacter && fightCharacter != _enemyCharacter) return;
+
+            SaveHealthBeforeAction();
+
             var currentEnergyCharacter = _currentEnergyData.GetValueOrDefault(fightCharacter, 0f);
             var abilityList = _currentAbilitesData.GetValueOrDefault(fightCharacter);
             var abilityEntity = abilityList.FirstOrDefault(e => e.ReferenceAbility == ability);

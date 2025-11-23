@@ -68,8 +68,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: +10
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 3898c6c3c11849f459aa8cc7ad746351, type: 2}
-  m_sharedMaterial: {fileID: 2100000, guid: 7c105983dad93224caf4a119c3dfb421, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 9d8d0fefb0a8c9645a526f27853f91b9, type: 2}
+  m_sharedMaterial: {fileID: 2100000, guid: 69dd9a3165c90f64488e9a9b5c8ce482, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -149,6 +149,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e691a4bfb98a79e48b4f1166afc4d571, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _component: {fileID: 7219276426367933668}
   _healColor: {r: 0.40392157, g: 0.8, b: 0.2901961, a: 1}
   _duration: 1
   _moveY: 1.5
