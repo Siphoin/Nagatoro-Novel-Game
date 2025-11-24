@@ -48,11 +48,6 @@ namespace SNEngine.Utils
                 assets[asset.name] = asset;
             }
 
-            if (assets.Count == 0)
-            {
-                NovelGameDebug.LogError($"Failed to load any resources of type {typeof(T).Name} from paths: {vanillaPath} and {customPath}");
-            }
-
             var result = new T[assets.Count];
 
             assets.Values.CopyTo(result, 0);
