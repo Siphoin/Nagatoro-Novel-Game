@@ -181,7 +181,6 @@ namespace SNEngine.Services
         private async UniTask LoadDialoguesAsync(string langPath)
         {
             string dialogiesPath = Path.Combine(langPath, "dialogues");
-            Debug.Log(dialogiesPath);
             _nodesLocalizeData = new Dictionary<string, NodeLocalizationData>();
 
             if (!NovelDirectory.Exists(dialogiesPath)) return;
