@@ -24,7 +24,7 @@ namespace SNEngine.IO
         static UniTask WithStream(string path, FileMode mode, FileAccess access, FileShare share, Func<Stream, UniTask> action) =>
             WithStream<object>(path, mode, access, share, async s => { await action(s); return null; });
 
-        static bool IsStreamingAssetsPathRestricted(string path)
+        private static bool IsStreamingAssetsPathRestricted(string path)
         {
             return path.StartsWith("jar") || path.StartsWith("http");
         }

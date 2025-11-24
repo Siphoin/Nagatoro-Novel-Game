@@ -1,22 +1,16 @@
-﻿using SNEngine.Services;
-using SNEngine.UserDataSystem.Models;
-using SNEngine.IO;
+﻿using SNEngine.UserDataSystem.Models;
 using UnityEngine;
-using System.IO;
 using Cysharp.Threading.Tasks;
-using Newtonsoft.Json;
-using System;
 using SNEngine.Debugging;
+using SNEngine.UserDataSystem;
 
 namespace SNEngine.Services
 {
     [CreateAssetMenu(menuName = "SNEngine/Services/User Data Service")]
     public class UserDataService : ServiceBase, IService, IResetable
     {
-        private const string DATA_FOLDER_NAME = "UserData";
-        private const string FILE_NAME = "userdata.json";
-
         private UserData _data;
+        private IUserDataProvider _provider;
 
         public UserData Data => _data;
 
@@ -24,49 +18,28 @@ namespace SNEngine.Services
 
         public override async void Initialize()
         {
+            base.Initialize();
+
+#if UNITY_WEBGL
+            _provider = new PlayerPrefsUserDataProvider();
+            NovelGameDebug.Log("[UserDataService] Initialized with PlayerPrefsUserDataProvider for WebGL.");
+#else
+            _provider = new FileUserDataProvider();
+            NovelGameDebug.Log("[UserDataService] Initialized with FileUserDataProvider for FileSystem.");
+#endif
+
             _data = await LoadAsync();
-        }
-
-        private string GetFolderPath()
-        {
-            return Path.Combine(NovelDirectory.PersistentDataPath, DATA_FOLDER_NAME);
-        }
-
-        private string GetFilePath()
-        {
-            return Path.Combine(GetFolderPath(), FILE_NAME);
         }
 
         public async UniTask<UserData> LoadAsync()
         {
-            string folderPath = GetFolderPath();
-            string filePath = GetFilePath();
-
-            try
+            if (_provider == null)
             {
-                if (!NovelDirectory.Exists(folderPath))
-                {
-                    await NovelDirectory.CreateAsync(folderPath);
-                    NovelGameDebug.Log($"[UserDataService] Created directory: {folderPath}");
-                }
+                NovelGameDebug.LogError("[UserDataService] Provider is not initialized.");
+                return new UserData();
+            }
 
-                string json = await NovelFile.ReadAllTextAsync(filePath);
-                _data = JsonConvert.DeserializeObject<UserData>(json);
-
-                NovelGameDebug.Log($"[UserDataService] Loaded successfully from: {filePath}");
-            }
-            catch (FileNotFoundException)
-            {
-                _data = new UserData();
-                NovelGameDebug.LogWarning($"[UserDataService] File not found at: {filePath}. Creating default data and saving.");
-                await SaveAsync();
-            }
-            catch (Exception ex)
-            {
-                NovelGameDebug.LogError($"[UserDataService] Failed to load/deserialize data: {ex.Message}. Creating default data and attempting to save.");
-                _data = new UserData();
-                await SaveAsync();
-            }
+            _data = await _provider.LoadAsync();
 
             _data ??= new UserData();
             return _data;
@@ -74,33 +47,13 @@ namespace SNEngine.Services
 
         public UniTask SaveAsync()
         {
-            string folderPath = GetFolderPath();
-            string filePath = GetFilePath();
-
-            try
+            if (_provider == null)
             {
-                if (!NovelDirectory.Exists(folderPath))
-                {
-                    NovelDirectory.Create(folderPath);
-                }
-
-                Formatting formatting =
-#if UNITY_EDITOR
-                    Formatting.Indented;
-#else
-                    Formatting.None;
-#endif
-
-                string json = JsonConvert.SerializeObject(_data, formatting);
-
-                NovelGameDebug.Log($"[UserDataService] Saving to: {filePath} (Format: {formatting})");
-                return NovelFile.WriteAllTextAsync(filePath, json);
-            }
-            catch (Exception ex)
-            {
-                NovelGameDebug.LogError($"[UserDataService] Failed to save data: {ex.Message}");
+                NovelGameDebug.LogError("[UserDataService] Provider is not initialized.");
                 return UniTask.CompletedTask;
             }
+
+            return _provider.SaveAsync(_data);
         }
     }
 }
