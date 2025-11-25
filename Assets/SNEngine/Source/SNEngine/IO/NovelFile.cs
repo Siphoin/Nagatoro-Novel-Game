@@ -1,12 +1,10 @@
-﻿using Cysharp.Threading.Tasks;
-using SNEngine.Debugging;
-using System;
+﻿using System;
 using System.IO;
 using System.Text;
+using Cysharp.Threading.Tasks;
+using SNEngine.Debugging;
 using UnityEngine;
 using UnityEngine.Networking;
-using static System.Net.Mime.MediaTypeNames;
-using Application = UnityEngine.Application;
 
 namespace SNEngine.IO
 {
@@ -28,6 +26,10 @@ namespace SNEngine.IO
 
         private static bool IsStreamingAssetsPathRestricted(string path)
         {
+            if (path.StartsWith("jar") || path.StartsWith("http"))
+            {
+                return true;
+            }
             if (Application.platform == RuntimePlatform.WebGLPlayer)
             {
                 return true;
@@ -135,7 +137,7 @@ namespace SNEngine.IO
         {
             if (IsStreamingAssetsPathRestricted(path))
             {
-                if (UnityEngine.Application.platform == RuntimePlatform.WebGLPlayer)
+                if (Application.platform == RuntimePlatform.WebGLPlayer)
                 {
                     throw new NotSupportedException("Synchronous IO is not supported on WebGL for StreamingAssets. Use ReadAllBytesAsync instead.");
                 }
