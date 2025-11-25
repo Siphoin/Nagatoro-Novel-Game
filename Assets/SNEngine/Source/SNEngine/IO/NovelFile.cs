@@ -1,10 +1,12 @@
-﻿using System;
+﻿using Cysharp.Threading.Tasks;
+using SNEngine.Debugging;
+using System;
 using System.IO;
 using System.Text;
-using Cysharp.Threading.Tasks;
-using SNEngine.Debugging;
 using UnityEngine;
 using UnityEngine.Networking;
+using static System.Net.Mime.MediaTypeNames;
+using Application = UnityEngine.Application;
 
 namespace SNEngine.IO
 {
@@ -26,7 +28,22 @@ namespace SNEngine.IO
 
         private static bool IsStreamingAssetsPathRestricted(string path)
         {
-            return path.StartsWith("jar") || path.StartsWith("http");
+            if (Application.platform == RuntimePlatform.WebGLPlayer)
+            {
+                return true;
+            }
+
+            if (path.Contains("://"))
+            {
+                return true;
+            }
+
+            if (Application.platform == RuntimePlatform.Android && path.Contains(Application.streamingAssetsPath))
+            {
+                return true;
+            }
+
+            return false;
         }
 
         static async UniTask<string> ReadStreamingAssetsTextAsync(string path, Encoding encoding = null)
@@ -72,6 +89,11 @@ namespace SNEngine.IO
         {
             if (IsStreamingAssetsPathRestricted(path))
             {
+                if (Application.platform == RuntimePlatform.WebGLPlayer)
+                {
+                    throw new NotSupportedException("Synchronous IO is not supported on WebGL for StreamingAssets. Use ReadAllTextAsync instead.");
+                }
+
                 NovelGameDebug.LogWarning("Blocking call to ReadAllText on restricted path. Use async version.");
                 return ReadAllTextAsync(path, encoding).GetAwaiter().GetResult();
             }
@@ -113,6 +135,11 @@ namespace SNEngine.IO
         {
             if (IsStreamingAssetsPathRestricted(path))
             {
+                if (UnityEngine.Application.platform == RuntimePlatform.WebGLPlayer)
+                {
+                    throw new NotSupportedException("Synchronous IO is not supported on WebGL for StreamingAssets. Use ReadAllBytesAsync instead.");
+                }
+
                 NovelGameDebug.LogWarning("Blocking call to ReadAllBytes on restricted path. Use async version.");
                 return ReadAllBytesAsync(path).GetAwaiter().GetResult();
             }
@@ -141,7 +168,28 @@ namespace SNEngine.IO
         public static UniTask AppendAllBytesAsync(string path, byte[] bytes) =>
             WithStream(path, FileMode.Append, FileAccess.Write, FileShare.None, s => s.WriteAsync(bytes, 0, bytes.Length).AsUniTask());
 
-        public static bool Exists(string path) => File.Exists(path);
+        static async UniTask<bool> ExistsStreamingAssetsAsync(string path)
+        {
+            using var request = UnityWebRequest.Head(path);
+            await request.SendWebRequest();
+            return request.result == UnityWebRequest.Result.Success;
+        }
+
+        public static bool Exists(string path)
+        {
+            if (IsStreamingAssetsPathRestricted(path))
+            {
+                if (Application.platform == RuntimePlatform.WebGLPlayer)
+                {
+                    throw new NotSupportedException("Synchronous IO is not supported on WebGL for restricted paths. Use an asynchronous method for existence checks.");
+                }
+
+                NovelGameDebug.LogWarning("Blocking call to Exists on restricted path. Use async version.");
+                return ExistsStreamingAssetsAsync(path).GetAwaiter().GetResult();
+            }
+
+            return File.Exists(path);
+        }
 
         public static void Delete(string path) => File.Delete(path);
 

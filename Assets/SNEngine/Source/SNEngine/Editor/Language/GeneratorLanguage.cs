@@ -40,7 +40,8 @@ namespace SNEngine.Editor.Language
             FlagsLanguageWorkerEditor.FlagToUse = flagPath;
             FlagsLanguageWorkerEditor.PathSave = mainPath;
             UITemplateLanguageWorkerEditor.PathSave = mainPath;
-
+            LanguageManifestWorkerEditor.PathSave = mainPath;
+            AvailableLanguagesManifestWorkerEditor.PathSave = Path.Combine(NovelDirectory.StreamingAssetsPath, "Language");
             await languageService.RunAllWorkersAsync();
         }
     }
