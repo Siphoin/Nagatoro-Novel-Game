@@ -191,6 +191,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _key: '%VERSION%'
   _component: {fileID: 9001565022907165314}
+  _autoLocalize: 1
+  _showKey: 1
 --- !u!114 &1209081753821710474
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -364,6 +366,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _key: exit
   _component: {fileID: 191631760088465809}
+  _autoLocalize: 1
+  _showKey: 1
 --- !u!114 &2814066881161229858
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -614,6 +618,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _key: '%COMPANYNAME%'
   _component: {fileID: 1135272041449140600}
+  _autoLocalize: 1
+  _showKey: 1
 --- !u!114 &6527902136377206085
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1164,6 +1170,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _key: settings
   _component: {fileID: 151539835449088147}
+  _autoLocalize: 1
+  _showKey: 1
 --- !u!114 &8909909348755190818
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1337,6 +1345,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _key: continue
   _component: {fileID: 4764204688126500394}
+  _autoLocalize: 1
+  _showKey: 1
 --- !u!114 &5521231814241387909
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1752,6 +1762,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _key: new_game
   _component: {fileID: 3271184580632310123}
+  _autoLocalize: 1
+  _showKey: 1
 --- !u!114 &174912997846069454
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2016,7 +2028,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_AspectMode: 0
-  m_AspectRatio: 1.7777777
+  m_AspectRatio: 1.7786456
 --- !u!114 &9110869770501137551
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2033,7 +2045,7 @@ MonoBehaviour:
   _rawImage: {fileID: 9166610188517479032}
   _audioSource: {fileID: 6966947125473363860}
   _aspectRatioFitter: {fileID: 2355299826282688137}
-  _defaultClip: {fileID: 32900000, guid: 7fc4330fee219cb429e74383db05f048, type: 3}
+  _videoFilePath: Video/menu_intro.mp4
   _playOnAwake: 1
   _isLooping: 1
 --- !u!114 &1333425020418466105

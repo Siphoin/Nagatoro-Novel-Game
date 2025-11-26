@@ -2,6 +2,9 @@
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.Video;
+using System.IO;
+using Cysharp.Threading.Tasks;
+using System;
 
 namespace SNEngine.VideoPlayerSystem
 {
@@ -17,9 +20,10 @@ namespace SNEngine.VideoPlayerSystem
         [SerializeField, ReadOnly(ReadOnlyMode.Always)] private AspectRatioFitter _aspectRatioFitter;
 
         private RenderTexture _renderTexture;
+        private bool _isUserInteracted = false;
 
         [Header("Video Settings")]
-        [SerializeField] private VideoClip _defaultClip;
+        [SerializeField] private string _defaultFilePath;
         [SerializeField] private bool _playOnAwake = true;
         [SerializeField] private bool _isLooping = false;
 
@@ -86,15 +90,26 @@ namespace SNEngine.VideoPlayerSystem
         {
             SetupVideoPlayer();
 
-            if (_defaultClip != null)
+            if (!string.IsNullOrEmpty(_defaultFilePath))
             {
-                this.Clip = _defaultClip;
+                SetVideoUrl(_defaultFilePath);
             }
             this.IsLooping = _isLooping;
 
-            if (_playOnAwake && (this.Clip != null || !string.IsNullOrEmpty(this.URL)))
+            if (_playOnAwake && !string.IsNullOrEmpty(this.URL))
             {
-                PrepareAndPlay();
+                _videoPlayer.Prepare();
+            }
+        }
+
+        private void Update()
+        {
+            if (Application.platform == RuntimePlatform.WebGLPlayer && !_isUserInteracted)
+            {
+                if (Input.GetMouseButtonDown(0) || Input.GetKeyDown(KeyCode.Space))
+                {
+                    _isUserInteracted = true;
+                }
             }
         }
 
@@ -113,7 +128,10 @@ namespace SNEngine.VideoPlayerSystem
                 }
             }
 
-            source.Play();
+            if (Application.platform != RuntimePlatform.WebGLPlayer && _playOnAwake)
+            {
+                source.Play();
+            }
         }
 
         private void SetupVideoPlayer()
@@ -125,6 +143,7 @@ namespace SNEngine.VideoPlayerSystem
 
             _videoPlayer.renderMode = VideoRenderMode.RenderTexture;
             _videoPlayer.targetTexture = _renderTexture;
+            _videoPlayer.waitForFirstFrame = true;
 
             _videoPlayer.audioOutputMode = VideoAudioOutputMode.AudioSource;
             _videoPlayer.SetTargetAudioSource(0, _audioSource);
@@ -148,6 +167,32 @@ namespace SNEngine.VideoPlayerSystem
                 _rawImage.texture = _renderTexture;
                 _videoPlayer.targetTexture = _renderTexture;
             }
+        }
+
+        private void SetVideoUrl(string relativePath)
+        {
+            string path = Path.Combine(Application.streamingAssetsPath, relativePath);
+
+            _videoPlayer.source = VideoSource.Url;
+            _videoPlayer.url = path;
+        }
+
+        public async UniTask StartVideoAfterDelay(TimeSpan delay)
+        {
+            if (Application.platform == RuntimePlatform.WebGLPlayer)
+            {
+                await UniTask.WaitUntil(() => _isUserInteracted);
+            }
+
+            if (!_videoPlayer.isPrepared)
+            {
+                _videoPlayer.Prepare();
+                await UniTask.WaitUntil(() => _videoPlayer.isPrepared);
+            }
+
+            await UniTask.Delay(delay);
+
+            _videoPlayer.Play();
         }
 
         public void PrepareAndPlay()

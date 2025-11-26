@@ -232,7 +232,7 @@ MonoBehaviour:
     _typeConstraint: 0
     _dynamic: 0
   _input: {fileID: 0}
-  _video: {fileID: 32900000, guid: 5ddb66d74578a7540af4b36a0d8d11a2, type: 3}
+  _videoPath: Video/intro.mp4
 --- !u!114 &5181620657163601309
 MonoBehaviour:
   m_ObjectHideFlags: 0

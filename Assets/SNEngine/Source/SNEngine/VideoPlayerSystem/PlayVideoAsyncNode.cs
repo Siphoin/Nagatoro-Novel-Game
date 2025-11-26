@@ -1,25 +1,29 @@
 ﻿using Cysharp.Threading.Tasks;
+using SNEngine.Attributes;
 using SNEngine.Debugging;
+using System.IO;
 using UnityEngine;
 using UnityEngine.Video;
 
 namespace SNEngine.VideoPlayerSystem
 {
-    public class PlayVideoNodeAsynx : VideoInteractionNodeAsync
+    public class PlayVideoAsyncNode : VideoInteractionNodeAsync
     {
-        [SerializeField] private VideoClip _video;
+        [SerializeField, StreamingVideoPath(hideLabel: true)] private string _videoPath;
+
         protected override async UniTask Interact(NovelVideoPlayer input)
         {
-            if (_video is null)
+            if (string.IsNullOrEmpty(_videoPath))
             {
-                NovelGameDebug.LogError($"video not seted for node {GUID}");
+                NovelGameDebug.LogError($"video path not seted for node {GUID}");
                 StopTask();
                 return;
             }
-            input.Clip = _video;
+
+            input.URL = System.IO.Path.Combine(Application.streamingAssetsPath, _videoPath);
             input.Show();
             input.Play();
-            
+
             await UniTask.WaitUntil(() => input.IsPlaying, cancellationToken: TokenSource.Token);
             await UniTask.WaitUntil(() => !input.IsPlaying, cancellationToken: TokenSource.Token);
             StopTask();

@@ -1,6 +1,9 @@
 ﻿using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.Video;
+using System.IO;
+using Cysharp.Threading.Tasks;
+using System;
 
 namespace CoreGame
 {
@@ -16,8 +19,10 @@ namespace CoreGame
         [SerializeField] private AspectRatioFitter _aspectRatioFitter;
 
         private RenderTexture _renderTexture;
+        private bool _isUserInteracted = false;
 
-        [SerializeField] private VideoClip _defaultClip;
+        [Header("Video Settings")]
+        [SerializeField] private string _videoFilePath;
         [SerializeField] private bool _playOnAwake = true;
         [SerializeField] private bool _isLooping = true;
 
@@ -33,15 +38,27 @@ namespace CoreGame
         {
             SetupVideoPlayer();
 
-            if (_defaultClip != null)
+            if (!string.IsNullOrEmpty(_videoFilePath))
             {
-                SetClip(_defaultClip);
+                SetVideoUrl(_videoFilePath);
             }
+
             _videoPlayer.isLooping = _isLooping;
 
-            if (_playOnAwake && (_videoPlayer.clip != null || !string.IsNullOrEmpty(_videoPlayer.url)))
+            if (_playOnAwake && !string.IsNullOrEmpty(_videoPlayer.url))
             {
-                PrepareAndPlay();
+                _videoPlayer.Prepare();
+            }
+        }
+
+        private void Update()
+        {
+            if (Application.platform == RuntimePlatform.WebGLPlayer && !_isUserInteracted)
+            {
+                if (Input.GetMouseButtonDown(0) || Input.GetKeyDown(KeyCode.Space))
+                {
+                    _isUserInteracted = true;
+                }
             }
         }
 
@@ -60,7 +77,10 @@ namespace CoreGame
                 }
             }
 
-            source.Play();
+            if (Application.platform != RuntimePlatform.WebGLPlayer && _playOnAwake)
+            {
+                source.Play();
+            }
         }
 
         private void SetupVideoPlayer()
@@ -72,6 +92,7 @@ namespace CoreGame
 
             _videoPlayer.renderMode = VideoRenderMode.RenderTexture;
             _videoPlayer.targetTexture = _renderTexture;
+            _videoPlayer.waitForFirstFrame = true;
 
             _videoPlayer.audioOutputMode = VideoAudioOutputMode.AudioSource;
             _videoPlayer.SetTargetAudioSource(0, _audioSource);
@@ -97,6 +118,14 @@ namespace CoreGame
             }
         }
 
+        private void SetVideoUrl(string relativePath)
+        {
+            string path = Path.Combine(Application.streamingAssetsPath, relativePath);
+
+            _videoPlayer.source = VideoSource.Url;
+            _videoPlayer.url = path;
+        }
+
         private void PrepareAndPlay()
         {
             if (_videoPlayer.isPrepared)
@@ -109,13 +138,22 @@ namespace CoreGame
             }
         }
 
-        private void SetClip(VideoClip clip)
+        public async UniTask StartVideoAfterDelay(TimeSpan delay)
         {
-            _videoPlayer.clip = clip;
-            if (clip != null)
+            if (Application.platform == RuntimePlatform.WebGLPlayer)
             {
-                UpdateRenderTexture((int)clip.width, (int)clip.height);
+                await UniTask.WaitUntil(() => _isUserInteracted);
             }
+
+            if (!_videoPlayer.isPrepared)
+            {
+                _videoPlayer.Prepare();
+                await UniTask.WaitUntil(() => _videoPlayer.isPrepared);
+            }
+
+            await UniTask.Delay(delay);
+
+            _videoPlayer.Play();
         }
     }
 }

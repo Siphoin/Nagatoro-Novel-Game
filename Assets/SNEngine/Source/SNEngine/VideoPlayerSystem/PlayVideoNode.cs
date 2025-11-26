@@ -1,4 +1,5 @@
-﻿using SNEngine.Debugging;
+﻿using SNEngine.Attributes;
+using SNEngine.Debugging;
 using UnityEngine;
 using UnityEngine.Video;
 
@@ -6,15 +7,17 @@ namespace SNEngine.VideoPlayerSystem
 {
     public class PlayVideoNode : VideoInteractionNode
     {
-        [SerializeField] private VideoClip _video;
+        [SerializeField, StreamingVideoPath] private string _videoPath;
+
         protected override void Interact(NovelVideoPlayer input)
         {
-            if (_video is null)
+            if (string.IsNullOrEmpty(_videoPath))
             {
-                NovelGameDebug.LogError($"video not seted for node {GUID}");
+                NovelGameDebug.LogError($"video path not seted for node {GUID}");
                 return;
             }
-            input.Clip = _video;
+
+            input.URL = System.IO.Path.Combine(Application.streamingAssetsPath, _videoPath);
             input.Show();
             input.Play();
         }
