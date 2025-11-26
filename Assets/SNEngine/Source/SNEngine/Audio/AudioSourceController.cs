@@ -13,6 +13,7 @@ namespace SNEngine.Audio
         private AudioType? _type;
         private AudioService _service;
         [SerializeField, ReadOnly] private AudioSource _audioSource;
+        [SerializeField] private AudioType _defaultAudioType;
 
         private void OnEnable()
         {
@@ -23,7 +24,15 @@ namespace SNEngine.Audio
             }
             if (_type is null)
             {
-                _type = TryGetComponent(out MusicPlayer _) ? AudioType.Music : AudioType.FX;
+                if (_defaultAudioType == AudioType.None)
+                {
+                    _type = TryGetComponent(out MusicPlayer _) ? AudioType.Music : AudioType.FX;
+                }
+
+                else
+                {
+                    _type = _defaultAudioType;
+                }
             }
             switch (_type.Value)
             {

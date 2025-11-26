@@ -54,7 +54,7 @@ namespace SNEngine.Services
             return element;
         }
 
-        public void SetVolumeMusic (float volume)
+        public void SetVolumeMusic(float volume)
         {
             AudioData.MusicVolumw = Mathf.Clamp01((float)volume);
             OnMusicVolumeChanged?.Invoke(volume);
@@ -64,6 +64,24 @@ namespace SNEngine.Services
         {
             AudioData.FXVolume = Mathf.Clamp01((float)volume);
             OnFXVolumeChanged?.Invoke(volume);
+        }
+
+        public void SetMuteMusic(float volume)
+        {
+            AudioData.MusicVolumw = Mathf.Clamp01((float)volume);
+            OnMusicVolumeChanged?.Invoke(volume);
+        }
+
+        public void SetMuteFX(bool mute)
+        {
+            AudioData.MuteFX = mute;
+            OnFXMuteChanged?.Invoke(mute);
+        }
+
+        public void SetMuteMusic(bool mute)
+        {
+            AudioData.MuteMusic = mute;
+            OnMusicMuteChanged?.Invoke(mute);
         }
 
         public override void ResetState()

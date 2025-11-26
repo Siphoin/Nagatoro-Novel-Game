@@ -2,6 +2,7 @@
 {
     public enum AudioType
     {
+        None,
         Music,
         FX,
     }

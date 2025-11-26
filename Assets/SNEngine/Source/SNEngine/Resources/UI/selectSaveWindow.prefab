@@ -908,8 +908,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6201deda13aca8c42934ee7fb76c19a9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _key: select_save
+  _key: saves
   _component: {fileID: 6120593910713747906}
+  _autoLocalize: 1
+  _showKey: 1
 --- !u!1 &8162223345523605520
 GameObject:
   m_ObjectHideFlags: 0

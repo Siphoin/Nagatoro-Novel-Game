@@ -6,6 +6,7 @@ using SNEngine.Graphs;
 using SNEngine.IO;
 using SNEngine.Localization;
 using SNEngine.Localization.Models;
+using SNEngine.SaveSystem;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -38,6 +39,34 @@ namespace SNEngine.Services
         public string CurrentLanguageCode { get; private set; } = "None";
         public LanguageMetaData MetaData => _metaData;
         public Texture2D Flag => _flag;
+
+        public override void Initialize()
+        {
+            base.Initialize();
+            LoadDefaultLanguage().Forget();
+        }
+
+        private async UniTask LoadDefaultLanguage()
+        {
+            UserDataService userDataService = NovelGame.Instance.GetService<UserDataService>();
+            string defaultLangCode = "en";
+            string langToLoad = defaultLangCode;
+
+            if (string.IsNullOrEmpty(userDataService.Data.CurrentLanguage))
+            {
+                NovelGameDebug.Log($"[{nameof(LanguageService)}] UserData CurrentLanguage is empty. Setting to default: {defaultLangCode}");
+                await LoadLanguage(langToLoad);
+
+                if (LanguageIsLoaded)
+                {
+                    userDataService.Data.CurrentLanguage = langToLoad;
+                    await userDataService.SaveAsync();
+                    NovelGameDebug.Log($"[{nameof(LanguageService)}] Current language seted to {defaultLangCode}");
+                }
+            }
+
+        }
+
 
 #if UNITY_EDITOR
         private void OnEnable()

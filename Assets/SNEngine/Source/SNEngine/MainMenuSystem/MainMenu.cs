@@ -6,6 +6,7 @@ using UnityEngine.Events;
 using TMPro;
 using SNEngine.SaveSystem;
 using SNEngine.InputSystem;
+using SNEngine.Audio.UI.Services;
 
 namespace SNEngine.MainMenuSystem
 {
@@ -139,7 +140,7 @@ namespace SNEngine.MainMenuSystem
 
         private void OpenSettings()
         {
-            throw new NotImplementedException();
+            NovelGame.Instance.GetService<SettingsService>().Show();
         }
 
         private void Exit()
