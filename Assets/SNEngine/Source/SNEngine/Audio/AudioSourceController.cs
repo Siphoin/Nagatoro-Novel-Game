@@ -30,10 +30,14 @@ namespace SNEngine.Audio
                 case AudioType.Music:
                     _service.OnMusicMuteChanged += OnMusicMuteChanged;
                     _service.OnMusicVolumeChanged += OnMusicVolumeChanged;
+                    OnMusicMuteChanged(_service.AudioData.MuteMusic);
+                    OnMusicVolumeChanged(_service.AudioData.MusicVolumw);
                     break;
                 case AudioType.FX:
                     _service.OnFXMuteChanged += OnFXMuteChanged;
                     _service.OnFXVolumeChanged += OnFXVolumeChanged;
+                    OnFXMuteChanged(_service.AudioData.MuteFX);
+                    OnFXVolumeChanged(_service.AudioData.FXVolume);
                     break;
                 default:
                     NovelGameDebug.LogError($"unkown type of audio type: {_type.Value}");

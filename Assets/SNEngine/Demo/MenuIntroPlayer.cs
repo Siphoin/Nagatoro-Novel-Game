@@ -4,6 +4,7 @@ using UnityEngine.Video;
 using System.IO;
 using Cysharp.Threading.Tasks;
 using System;
+using SNEngine.Audio;
 
 namespace CoreGame
 {
@@ -11,6 +12,7 @@ namespace CoreGame
     [RequireComponent(typeof(RawImage))]
     [RequireComponent(typeof(VideoPlayer))]
     [RequireComponent(typeof(AspectRatioFitter))]
+    [RequireComponent(typeof(AudioSourceController))]
     public class MenuIntroPlayer : MonoBehaviour
     {
         [SerializeField] private VideoPlayer _videoPlayer;

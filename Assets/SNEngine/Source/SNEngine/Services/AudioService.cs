@@ -18,7 +18,7 @@ namespace SNEngine.Services
         public event Action<bool> OnMusicMuteChanged;
         public event Action<bool> OnFXMuteChanged;
 
-        private AudioData AudioData => NovelGame.Instance.GetService<UserDataService>().Data.AudioData;
+        public AudioData AudioData => NovelGame.Instance.GetService<UserDataService>().Data.AudioData;
 
         public override void Initialize()
         {
