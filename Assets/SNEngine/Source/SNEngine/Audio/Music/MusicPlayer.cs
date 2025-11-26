@@ -9,6 +9,7 @@ using UnityEngine;
 namespace SNEngine.Audio.Music
 {
     [RequireComponent(typeof(AudioSource))]
+    [RequireComponent(typeof(AudioSourceController))]
     public class MusicPlayer : MonoBehaviour, IMusicPlayer
     {
         [SerializeField] private AudioSource _audioSource;

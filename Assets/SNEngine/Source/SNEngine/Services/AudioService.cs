@@ -1,6 +1,8 @@
 ﻿using SNEngine.Audio;
+using SNEngine.Audio.Models;
 using SNEngine.Debugging;
 using SNEngine.Polling;
+using System;
 using UnityEngine;
 
 namespace SNEngine.Services
@@ -10,6 +12,13 @@ namespace SNEngine.Services
     {
         private PoolMono<AudioObject> _audioObjects;
         [SerializeField, Min(1)] private int _sizePool = 9;
+        public event Action<float> OnMusicVolumeChanged;
+        public event Action<float> OnFXVolumeChanged;
+
+        public event Action<bool> OnMusicMuteChanged;
+        public event Action<bool> OnFXMuteChanged;
+
+        private AudioData AudioData => NovelGame.Instance.GetService<UserDataService>().Data.AudioData;
 
         public override void Initialize()
         {
@@ -43,6 +52,18 @@ namespace SNEngine.Services
             var element = _audioObjects.GetFreeElement();
             element.gameObject.SetActive(true);
             return element;
+        }
+
+        public void SetVolumeMusic (float volume)
+        {
+            AudioData.MusicVolumw = Mathf.Clamp01((float)volume);
+            OnMusicVolumeChanged?.Invoke(volume);
+        }
+
+        public void SetVolumeFX(float volume)
+        {
+            AudioData.FXVolume = Mathf.Clamp01((float)volume);
+            OnFXVolumeChanged?.Invoke(volume);
         }
 
         public override void ResetState()

@@ -1,11 +1,13 @@
 using SNEngine.Debugging;
 using SNEngine.Repositories;
+using SNEngine.SaveSystem;
 using SNEngine.Services;
 using UnityEngine;
 
 namespace SNEngine
 {
     [RequireComponent(typeof(MonoStratup))]
+    [RequireComponent(typeof(UserDataSaver))]
     public class NovelGame : MonoBehaviour, INovelGame
     {
         [SerializeField] private ServiceContainer _serviceContainer;

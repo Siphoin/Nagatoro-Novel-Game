@@ -7,6 +7,7 @@ using UnityEngine.Audio;
 namespace SNEngine.Audio
 {
     [RequireComponent(typeof(AudioSource))]
+    [RequireComponent(typeof(AudioSourceController))]
     public class AudioObject : MonoBehaviour, IAudioObject
     {
         [SerializeField] private AudioSource _audioSource;
