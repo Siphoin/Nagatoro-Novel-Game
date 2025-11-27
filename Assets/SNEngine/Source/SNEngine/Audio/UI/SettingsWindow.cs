@@ -12,12 +12,9 @@ namespace SNEngine.Audio.UI
         [SerializeField] private FillSlider _musicVolume;
         [SerializeField] private Toggle _toggleFX;
         [SerializeField] private Toggle _toggleMusic;
+        [SerializeField] private Toggle _toggleFullScreen;
 
         private AudioService _audioService;
-        private void Awake()
-        {
-
-        }
 
         private void OnFXChanged(float volume)
         {
@@ -50,11 +47,24 @@ namespace SNEngine.Audio.UI
             _toggleFX.isOn = !_audioService.AudioData.MuteFX;
             _fxVolume.Value = _audioService.AudioData.FXVolume;
             _musicVolume.Value = _audioService.AudioData.MusicVolumw;
+            _toggleFullScreen.isOn = NovelGame.Instance.GetService<FullScreenService>().Data.IsOn;
+
+            
 
             _toggleMusic.onValueChanged.AddListener(OnToggleMusic);
             _toggleFX.onValueChanged.AddListener(OnToggleFX);
             _musicVolume.OnValueChanged.AddListener(OnMusicChanged);
             _fxVolume.OnValueChanged.AddListener(OnFXChanged);
+#if UNITY_STANDALONE || UNITY_WEBGL
+            _toggleFullScreen.onValueChanged.AddListener(FullScreenChanged);
+#else
+            Destroy(_toggleFullScreen.gameObject);
+#endif
+        }
+
+        private void FullScreenChanged(bool fullScreen)
+        {
+            NovelGame.Instance.GetService<FullScreenService>().SetFullScreen(fullScreen);
         }
 
         private void OnDisable()
@@ -63,6 +73,10 @@ namespace SNEngine.Audio.UI
             _toggleFX.onValueChanged.RemoveListener(OnToggleFX);
             _musicVolume.OnValueChanged.RemoveListener(OnMusicChanged);
             _fxVolume.OnValueChanged.RemoveListener(OnFXChanged);
+#if UNITY_STANDALONE || UNITY_WEBGL
+            _toggleFullScreen.onValueChanged.RemoveListener(FullScreenChanged);
+#endif
+
         }
     }
 }
