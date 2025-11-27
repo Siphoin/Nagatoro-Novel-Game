@@ -14,11 +14,6 @@ namespace SNEngine.CharacterSystem
         public string Name => _name;
         public Sprite Sprite { get
             {
-                if (_sprite is null)
-                {
-                    NovelGameDebug.LogError($"Sprite of emotion {_name} is null!");
-                }
-
                 return _sprite;
             } }
 
