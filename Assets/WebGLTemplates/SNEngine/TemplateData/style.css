@@ -115,6 +115,21 @@ body {
     display: none; 
 }
 
+.created-by {
+margin-top: 10px;
+font-size: 13px;
+font-weight: bold;
+color: #d60000;
+opacity: 0.8;
+}
+
+@media (prefers-color-scheme: dark) {
+.created-by {
+color: #ff6666;
+}
+}
+
+
 @keyframes slideUpFade {
     0% {
         opacity: 0;

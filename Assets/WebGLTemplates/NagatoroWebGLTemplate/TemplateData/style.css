@@ -1,0 +1,188 @@
+body {
+    margin: 0;
+    padding: 0;
+    font-family: "Inter", Arial, sans-serif;
+    overflow: hidden;
+    background: url("background.png") center right / cover no-repeat fixed;
+    animation: bgMove 20s ease-in-out infinite alternate;
+}
+
+@keyframes bgMove {
+    from { background-position: 55% center; }
+    to { background-position: 60% center; }
+}
+
+#unity-container {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+}
+
+#unity-canvas {
+    width: 100%;
+    height: 100%;
+    background: transparent;
+}
+
+#loading-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    z-index: 20;
+    background: rgba(255,255,255,0.0);
+    transition: opacity .9s ease, visibility .9s ease;
+}
+
+#loading-overlay.hidden {
+    opacity: 0;
+    visibility: hidden;
+}
+
+#particle-layer {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+    z-index: 1;
+    pointer-events: none;
+}
+
+.glass-card {
+    position: relative;
+    z-index: 5;
+    left: 4vw;
+    width: 360px;
+    padding: 45px 38px;
+    border-radius: 16px;
+    background: rgba(255, 255, 255, 0.35);
+    border: 1px solid rgba(0, 0, 0, 0.45);
+    box-shadow: 0 10px 40px rgba(0,0,0,0.25);
+    transform: translateY(50px);
+    opacity: 0;
+    animation: cardAppear 1.2s cubic-bezier(.2,.7,.2,1) forwards,
+               cardFloat 5s ease-in-out infinite alternate;
+}
+
+@keyframes cardAppear {
+    0% { opacity: 0; transform: translateY(50px) scale(.97); }
+    100% { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+@keyframes cardFloat {
+    from { transform: translateY(-3px); }
+    to { transform: translateY(6px); }
+}
+
+.logo-text {
+    font-size: 30px;
+    font-weight: 800;
+    color: #000000;
+    text-shadow: 0 0 15px rgba(0,0,0,0.1);
+    margin-bottom: 20px;
+    animation: glowLogo 2.5s ease-in-out infinite alternate;
+}
+
+@keyframes glowLogo {
+    from { text-shadow: 0 0 6px rgba(0,0,0,0.15); }
+    to { text-shadow: 0 0 10px rgba(0,0,0,0.25); }
+}
+
+.loading-info {
+    margin-bottom: 25px;
+    font-size: 14px;
+    font-weight: 600;
+    color: #000000;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.loading-spinner {
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    border: 2px solid rgba(0,0,0,0.35);
+    border-top-color: #000000;
+    animation: spin .7s linear infinite;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+#unity-progress-bar-empty {
+    width: 100%;
+    height: 10px;
+    background: rgba(0,0,0,0.25);
+    border-radius: 6px;
+    overflow: hidden;
+}
+
+#unity-progress-bar-full {
+    width: 0%;
+    height: 100%;
+    background: linear-gradient(90deg, #000000, #333333);
+    border-radius: 6px;
+    animation: barGlow 1.4s infinite alternate;
+    transition: width .25s ease-out;
+}
+
+@keyframes barGlow {
+    from { box-shadow: 0 0 6px rgba(0,0,0,.4); }
+    to   { box-shadow: 0 0 14px rgba(0,0,0,.8); }
+}
+
+.created-by {
+    margin-top: 12px;
+    text-align: center;
+    font-size: 13px;
+    font-weight: 600;
+    color: #000000;
+    opacity: 0.8;
+}
+
+#unity-warning {
+    position: absolute;
+    top: 4%;
+    left: 3%;
+    z-index: 30;
+    color: black;
+}
+
+.particle {
+    position: absolute;
+    top: -20px;
+    width: 4px;
+    height: 4px;
+    background: rgba(0,0,0,0.85);
+    border-radius: 50%;
+    opacity: 0;
+    animation: particleFall linear forwards;
+}
+
+@keyframes particleFall {
+    0% { transform: translateY(0); opacity: 0; }
+    10% { opacity: .7; }
+    100% { transform: translateY(110vh); opacity: 0; }
+}
+
+.petal {
+    position: absolute;
+    top: -40px;
+    width: 24px;
+    height: 18px;
+    background: rgb(245,170,185);
+    border-radius: 60% 40% 60% 40%;
+    opacity: 0;
+    animation: petalFall linear forwards;
+}
+
+@keyframes petalFall {
+    0% { transform: translateY(0) rotate(0deg); opacity: 0; }
+    10% { opacity: .9; }
+    100% { transform: translateY(120vh) rotate(360deg); opacity: 0; }
+}

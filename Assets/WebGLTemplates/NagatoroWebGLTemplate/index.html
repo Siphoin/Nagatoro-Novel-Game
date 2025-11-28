@@ -11,8 +11,10 @@
   <body>
     <div id="unity-container">
       <canvas id="unity-canvas" width={{{ WIDTH }}} height={{{ HEIGHT }}} tabindex="-1"></canvas>
-      
+
       <div id="loading-overlay">
+        <div id="particle-layer"></div>
+
         <div class="glass-card">
             <div class="logo-text">{{{ PRODUCT_NAME }}}</div>
 
@@ -20,7 +22,7 @@
                 <div class="loading-spinner"></div>
                 <span id="loading-text">GAME LOADING...</span>
             </div>
-            
+
             <div id="unity-progress-bar-empty">
                 <div id="unity-progress-bar-full"></div>
             </div>
@@ -29,7 +31,7 @@
         </div>
       </div>
 
-      <div id="unity-warning"> </div>
+      <div id="unity-warning"></div>
     </div>
 
     <script>
@@ -39,7 +41,6 @@
         }
       });
 
-      var container = document.querySelector("#unity-container");
       var canvas = document.querySelector("#unity-canvas");
       var loadingOverlay = document.querySelector("#loading-overlay");
       var progressBarFull = document.querySelector("#unity-progress-bar-full");
@@ -53,10 +54,10 @@
         var div = document.createElement('div');
         div.innerHTML = msg;
         warningBanner.appendChild(div);
-        if (type == 'error') div.style = 'background: #d60000; color: white; padding: 10px; border-radius: 6px;';
+        if (type == 'error') div.style = 'background:#d60000;color:white;padding:12px;border-radius:6px;';
         else {
-          if (type == 'warning') div.style = 'background: #f1c40f; padding: 10px; border-radius: 6px;';
-          setTimeout(function() {
+          if (type == 'warning') div.style = 'background:#f1c40f;padding:12px;border-radius:6px;';
+          setTimeout(function () {
             warningBanner.removeChild(div);
             updateBannerVisibility();
           }, 5000);
@@ -83,38 +84,48 @@
         companyName: {{{ JSON.stringify(COMPANY_NAME) }}},
         productName: {{{ JSON.stringify(PRODUCT_NAME) }}},
         productVersion: {{{ JSON.stringify(PRODUCT_VERSION) }}},
-        showBanner: unityShowBanner,
+        showBanner: unityShowBanner
       };
-
-      if (/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) {
-        var meta = document.createElement('meta');
-        meta.name = 'viewport';
-        meta.content = 'width=device-width, height=device-height, initial-scale=1.0, user-scalable=no, shrink-to-fit=yes';
-        document.getElementsByTagName('head')[0].appendChild(meta);
-      }
-
-#if BACKGROUND_FILENAME
-      canvas.style.background = "url('" + buildUrl + "/{{{ BACKGROUND_FILENAME.replace(/'/g, '%27') }}}') center / cover";
-#endif
 
       var script = document.createElement("script");
       script.src = loaderUrl;
       script.onload = () => {
         createUnityInstance(canvas, config, (progress) => {
           progressBarFull.style.width = 100 * progress + "%";
-          if(progress < 0.2) loadingText.innerText = "LOADING ASSETS...";
-          else if(progress < 0.7) loadingText.innerText = "COMPILING SHADERS...";
+          if (progress < 0.25) loadingText.innerText = "LOADING ASSETS...";
+          else if (progress < 0.75) loadingText.innerText = "COMPILING SHADERS...";
           else loadingText.innerText = "STARTING...";
         }).then((unityInstance) => {
           loadingOverlay.classList.add("hidden");
-          setTimeout(() => {
-            loadingOverlay.style.display = "none";
-          }, 800); 
-        }).catch((message) => {
-          alert(message);
-        });
+          setTimeout(() => loadingOverlay.style.display = "none", 900);
+        }).catch((message) => alert(message));
       };
       document.body.appendChild(script);
+
+      const particleLayer = document.getElementById("particle-layer");
+
+      function spawnParticle() {
+        const p = document.createElement("div");
+        p.className = "particle";
+        p.style.left = Math.random() * 100 + "vw";
+        p.style.animationDuration = 4 + Math.random() * 6 + "s";
+        p.style.opacity = 0.2 + Math.random() * 0.6;
+        particleLayer.appendChild(p);
+        setTimeout(() => p.remove(), 10000);
+      }
+
+      function spawnPetal() {
+        const p = document.createElement("div");
+        p.className = "petal";
+        p.style.left = Math.random() * 100 + "vw";
+        p.style.animationDuration = 6 + Math.random() * 8 + "s";
+        p.style.transform = "rotate(" + (Math.random() * 360) + "deg)";
+        particleLayer.appendChild(p);
+        setTimeout(() => p.remove(), 14000);
+      }
+
+      setInterval(spawnParticle, 200);
+      setInterval(spawnPetal, 700);
     </script>
   </body>
 </html>
