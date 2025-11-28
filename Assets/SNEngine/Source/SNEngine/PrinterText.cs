@@ -45,7 +45,7 @@ namespace SNEngine
             gameObject.SetActive(true);
         }
 
-#if UNITY_STANDALONE
+#if UNITY_STANDALONE || UNITY_WEBGL
         protected virtual void OnPress(KeyCode key)
         {
             if (_cancellationTokenSource != null)
@@ -56,7 +56,7 @@ namespace SNEngine
         }
 #endif
 
-#if UNITY_STANDALONE || UNITY_ANDROID || UNITY_IOS
+#if UNITY_STANDALONE || UNITY_ANDROID || UNITY_IOS || UNITY_WEBGL
         protected virtual void OnButtonPress(KeyCode key)
         {
             if (_cancellationTokenSource != null)
@@ -69,7 +69,7 @@ namespace SNEngine
 
         protected virtual void StartOutputDialog(string message)
         {
-#if UNITY_STANDALONE
+#if UNITY_STANDALONE || UNITY_WEBGL
             _inputSystem.AddListener(OnPress, StandaloneInputEventType.KeyDown);
 #endif
 
@@ -77,7 +77,7 @@ namespace SNEngine
             _inputSystem.AddListener(OnTapScreen, MobileInputEventType.TouchBegan);
 #endif
 
-#if UNITY_STANDALONE || UNITY_ANDROID || UNITY_IOS
+#if UNITY_STANDALONE || UNITY_ANDROID || UNITY_IOS || UNITY_WEBGL
             _inputSystem.AddListener(OnButtonPress, GamepadButtonEventType.ButtonDown);
 #endif
 
@@ -123,7 +123,7 @@ namespace SNEngine
         {
             _cancellationTokenSource = null;
 
-#if UNITY_STANDALONE
+#if UNITY_STANDALONE || UNITY_WEBGL
             _inputSystem.RemoveListener(OnPress, StandaloneInputEventType.KeyDown);
 #endif
 
@@ -131,7 +131,7 @@ namespace SNEngine
             _inputSystem.RemoveListener(OnTapScreen, MobileInputEventType.TouchBegan);
 #endif
 
-#if UNITY_STANDALONE || UNITY_ANDROID || UNITY_IOS
+#if UNITY_STANDALONE || UNITY_ANDROID || UNITY_IOS || UNITY_WEBGL
             _inputSystem.RemoveListener(OnButtonPress, GamepadButtonEventType.ButtonDown);
 #endif
 

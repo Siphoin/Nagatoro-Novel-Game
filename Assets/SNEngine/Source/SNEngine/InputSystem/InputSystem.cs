@@ -9,7 +9,7 @@ namespace SNEngine.InputSystem
 {
     public class InputSystem : MonoBehaviour, IInputSystem
     {
-#if UNITY_STANDALONE
+#if UNITY_STANDALONE || UNITY_WEBGL
         private event UnityAction<KeyCode> OnKeyUp;
 
         private event UnityAction<KeyCode> OnKeyDown;
@@ -31,7 +31,7 @@ namespace SNEngine.InputSystem
         private event UnityAction<Touch> OnTouchStationary;
 #endif
 
-#if UNITY_STANDALONE || UNITY_ANDROID || UNITY_IOS
+#if UNITY_STANDALONE || UNITY_ANDROID || UNITY_IOS || UNITY_WEBGL
         private event UnityAction<KeyCode> OnButtonDown;
 
         private event UnityAction<KeyCode> OnButtonUp;
@@ -46,7 +46,7 @@ namespace SNEngine.InputSystem
 
         private void Awake()
         {
-#if UNITY_STANDALONE
+#if UNITY_STANDALONE || UNITY_WEBGL
             _keyCodes = Enum.GetValues(typeof(KeyCode));
 
             Log("Enabled Standalone Input");
@@ -56,7 +56,7 @@ namespace SNEngine.InputSystem
             Log("Enabled Mobile Input");
 #endif
 
-#if UNITY_STANDALONE || UNITY_ANDROID || UNITY_IOS
+#if UNITY_STANDALONE || UNITY_ANDROID || UNITY_IOS || UNITY_WEBGL
             _gamepadButtonCodes = new List<KeyCode>();
             for (int i = 0; i <= 19; i++)
             {
@@ -75,7 +75,7 @@ namespace SNEngine.InputSystem
         {
             #region Standalone Input
 
-#if UNITY_STANDALONE
+#if UNITY_STANDALONE || UNITY_WEBGL
 
             ListeringKeyCodes();
 #endif
@@ -93,7 +93,7 @@ namespace SNEngine.InputSystem
 
             #region Gamepad Input
 
-#if UNITY_STANDALONE || UNITY_ANDROID || UNITY_IOS
+#if UNITY_STANDALONE || UNITY_ANDROID || UNITY_IOS || UNITY_WEBGL
             ListeringButtons();
             ListeringAxis();
 #endif
@@ -102,7 +102,7 @@ namespace SNEngine.InputSystem
 
         }
 
-#if UNITY_STANDALONE
+#if UNITY_STANDALONE || UNITY_WEBGL
         private void ListeringKeyCodes()
         {
             if (Input.anyKeyDown && OnKeyDown.IsHaveSubcribe())
@@ -166,7 +166,7 @@ namespace SNEngine.InputSystem
 
 #endif
 
-#if UNITY_STANDALONE || UNITY_ANDROID || UNITY_IOS
+#if UNITY_STANDALONE || UNITY_ANDROID || UNITY_IOS || UNITY_WEBGL
         private void ListeringButtons()
         {
             foreach (var keyCode in _gamepadButtonCodes)
@@ -218,7 +218,7 @@ namespace SNEngine.InputSystem
         }
         private void AddListener(StandaloneInputEventType eventType, UnityAction<KeyCode> observer)
         {
-#if UNITY_STANDALONE
+#if UNITY_STANDALONE || UNITY_WEBGL
             try
             {
                 switch (eventType)
@@ -252,7 +252,7 @@ namespace SNEngine.InputSystem
 
         private void RemoveListener(StandaloneInputEventType eventType, UnityAction<KeyCode> observer)
         {
-#if UNITY_STANDALONE
+#if UNITY_STANDALONE || UNITY_WEBGL
             try
             {
                 switch (eventType)
@@ -373,7 +373,7 @@ namespace SNEngine.InputSystem
 
         public void AddListener(UnityAction<KeyCode> action, GamepadButtonEventType eventType)
         {
-#if UNITY_STANDALONE || UNITY_ANDROID || UNITY_IOS
+#if UNITY_STANDALONE || UNITY_ANDROID || UNITY_IOS || UNITY_WEBGL
             try
             {
                 switch (eventType)
@@ -403,7 +403,7 @@ namespace SNEngine.InputSystem
 
         public void RemoveListener(UnityAction<KeyCode> action, GamepadButtonEventType eventType)
         {
-#if UNITY_STANDALONE || UNITY_ANDROID || UNITY_IOS
+#if UNITY_STANDALONE || UNITY_ANDROID || UNITY_IOS || UNITY_WEBGL
             try
             {
                 switch (eventType)
@@ -433,7 +433,7 @@ namespace SNEngine.InputSystem
 
         public void AddAxisListener(UnityAction<string, float> action, string axisName)
         {
-#if UNITY_STANDALONE || UNITY_ANDROID || UNITY_IOS
+#if UNITY_STANDALONE || UNITY_ANDROID || UNITY_IOS || UNITY_WEBGL
             OnAxisChanged += action;
             if (!_axisValues.ContainsKey(axisName))
             {
@@ -445,13 +445,13 @@ namespace SNEngine.InputSystem
 
         public void RemoveAxisListener(UnityAction<string, float> action)
         {
-#if UNITY_STANDALONE || UNITY_ANDROID || UNITY_IOS
+#if UNITY_STANDALONE || UNITY_ANDROID || UNITY_IOS || UNITY_WEBGL
             OnAxisChanged -= action;
             Log(action.Target.GetType().Name, "Axis Listener", nameof(RemoveAxisListener));
 #endif
         }
 
-#if UNITY_STANDALONE
+#if UNITY_STANDALONE || UNITY_WEBGL
         private void Log(UnityAction<KeyCode> action, StandaloneInputEventType eventType, string message)
         {
             Log($"{message}:Target Event: <b>On{eventType}</b> Observer: <b>{action.Target.GetType().Name}</b>");
@@ -465,7 +465,7 @@ namespace SNEngine.InputSystem
         }
 #endif
 
-#if UNITY_STANDALONE || UNITY_ANDROID || UNITY_IOS
+#if UNITY_STANDALONE || UNITY_ANDROID || UNITY_IOS || UNITY_WEBGL
         private void Log(UnityAction<KeyCode> action, GamepadButtonEventType eventType, string message)
         {
             Log($"{message}:Target Event: <b>On{eventType}</b> Observer: <b>{action.Target.GetType().Name}</b>");

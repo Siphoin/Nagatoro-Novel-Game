@@ -663,11 +663,11 @@ PlayerSettings:
   webGLTemplate: PROJECT:NagatoroWebGLTemplate
   webGLAnalyzeBuildSize: 0
   webGLUseEmbeddedResources: 0
-  webGLCompressionFormat: 0
+  webGLCompressionFormat: 2
   webGLWasmArithmeticExceptions: 0
   webGLLinkerTarget: 1
   webGLThreadsSupport: 0
-  webGLDecompressionFallback: 0
+  webGLDecompressionFallback: 1
   webGLInitialMemorySize: 32
   webGLMaximumMemorySize: 2048
   webGLMemoryGrowthMode: 2
@@ -677,7 +677,7 @@ PlayerSettings:
   webGLEnableWebGPU: 0
   webGLPowerPreference: 2
   webGLWebAssemblyTable: 0
-  webGLWebAssemblyBigInt: 0
+  webGLWebAssemblyBigInt: 1
   webGLCloseOnQuit: 0
   webWasm2023: 0
   scriptingDefineSymbols:

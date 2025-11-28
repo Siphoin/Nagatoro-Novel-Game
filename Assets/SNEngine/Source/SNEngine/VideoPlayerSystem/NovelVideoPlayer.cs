@@ -5,6 +5,9 @@ using UnityEngine.Video;
 using System.IO;
 using Cysharp.Threading.Tasks;
 using System;
+using TMPro;
+using DG.Tweening;
+
 #if UNITY_WEBGL
 using SNEngine.WebGL;
 #endif
@@ -25,6 +28,7 @@ namespace SNEngine.VideoPlayerSystem
         [SerializeField, ReadOnly(ReadOnlyMode.Always)] private AudioSource _audioSource;
         [SerializeField, ReadOnly(ReadOnlyMode.Always)] private AspectRatioFitter _aspectRatioFitter;
         [SerializeField] private Button _buttonSkip;
+        [SerializeField] private TextMeshProUGUI _loadingText;
 
         private RenderTexture _renderTexture;
         private bool _isUserInteracted = false;
@@ -141,6 +145,15 @@ namespace SNEngine.VideoPlayerSystem
             }
         }
 
+        private void OnVideoStarted(VideoPlayer source)
+        {
+            if (_loadingText != null)
+            {
+                _loadingText.DOKill();
+                _loadingText.DOFade(0, 0.5f).OnComplete(() => _loadingText.gameObject.SetActive(false));
+            }
+        }
+
         private void SetupVideoPlayer()
         {
             _renderTexture = new RenderTexture(1280, 720, 24);
@@ -157,6 +170,13 @@ namespace SNEngine.VideoPlayerSystem
             _audioSource.playOnAwake = false;
 
             _videoPlayer.prepareCompleted += OnVideoPrepared;
+            _videoPlayer.started += OnVideoStarted;
+
+            if (_loadingText != null)
+            {
+                _loadingText.gameObject.SetActive(true);
+                _loadingText.DOFade(1, 0.5f).SetLoops(-1, LoopType.Yoyo);
+            }
         }
 
         private void UpdateRenderTexture(int width, int height)
@@ -236,6 +256,7 @@ namespace SNEngine.VideoPlayerSystem
         public void ResetState()
         {
             _videoPlayer.prepareCompleted -= OnVideoPrepared;
+            _videoPlayer.started -= OnVideoStarted;
 
             if (_renderTexture != null)
             {
@@ -248,6 +269,11 @@ namespace SNEngine.VideoPlayerSystem
             PlaybackSpeed = 1;
             IsLooping = false;
             Hide();
+            if (_loadingText != null)
+            {
+                _loadingText.DOKill();
+                _loadingText.gameObject.SetActive(false);
+            }
         }
 
         private void OnEnable()
