@@ -73,14 +73,15 @@ class SessionManager:
         if self.parent_window.root_localization_path:
             normalized_root_localization_path = self.parent_window.lang_service.normalize_path(self.parent_window.root_localization_path)
             for tab in self.parent_window.open_tabs:
+                normalized_tab_file_path = self.parent_window.lang_service.normalize_path(tab.file_path) # Normalize tab path
                 # Check if the tab's file_path starts with the normalized root_localization_path
-                if tab.file_path.lower().startswith(normalized_root_localization_path):
-                    tab_data = {
+                if normalized_tab_file_path.startswith(normalized_root_localization_path):
+                     tab_data = {
                         'file_path': tab.file_path,
                         'is_dirty': tab.is_dirty,
-                        'dirty_content': tab.yaml_text if tab.is_dirty else None
+                        'dirty_content': tab.yaml_text if tab.is_dirty else None 
                     }
-                    session_data['open_tabs'].append(tab_data)
+                     session_data['open_tabs'].append(tab_data)
 
         try:
             with open(self.session_file_path, 'w', encoding='utf-8') as f:
@@ -195,6 +196,9 @@ class SessionManager:
             is_dirty = tab_data.get('is_dirty', False)
             dirty_content = tab_data.get('dirty_content')
             
+            # Normalize the file_path from session_data for consistent comparison
+            normalized_tab_file_path = self.parent_window.lang_service.normalize_path(file_path)
+
             if not os.path.exists(file_path): continue
             
             file_content = ""
@@ -208,7 +212,8 @@ class SessionManager:
             is_valid_file = False
             for normalized_folder, files in self.parent_window.temp_structure['structure'].items():
                 file_name = os.path.basename(file_path)
-                if file_name in files and file_path.lower().startswith(normalized_folder): 
+                # Use the normalized_tab_file_path for comparison
+                if file_name in files and normalized_tab_file_path.startswith(normalized_folder): 
                      is_valid_file = True
                      break
             
