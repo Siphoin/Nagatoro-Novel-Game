@@ -406,12 +406,84 @@ def try_close_tab(self, index: int):
             if tab_to_close.is_dirty:
                 return
 
+    # Сохраняем индекс, который является текущим до удаления
+    old_current_index = self.current_tab_index
+    old_current_tab = self.current_tab
+
+    # Удаляем таб
     self.open_tabs.pop(index)
 
+    # Проверяем, был ли закрываемый таб текущим активным
+    was_current_tab = (index == old_current_index)
+
     if self.open_tabs:
-        new_index = min(index, len(self.open_tabs) - 1)
-        self.switch_tab_action(new_index)
+        if was_current_tab:
+            # Если закрываем текущий активный таб, переключаемся на следующий или предыдущий
+            # Если закрываем последний таб, переходим к предыдущему, иначе - к следующему
+            if index >= len(self.open_tabs):
+                # Закрываем последний таб или таб с индексом, равным длине массива (после удаления)
+                new_index = max(0, len(self.open_tabs) - 1)
+            else:
+                # Закрываем таб посередине, переходим к табу на том же индексе (теперь следующий)
+                new_index = min(index, len(self.open_tabs) - 1)
+
+            self.switch_tab_action(new_index)
+        else:
+            # Если закрываем не текущий активный таб, нужно обновить состояние текущего таба
+            # Обновляем индекс текущего таба и сам таб в зависимости от позиции удаляемого таба
+            if old_current_index > index:
+                # Если текущий таб находился после удаляемого, его индекс уменьшается на 1
+                new_current_index = old_current_index - 1
+                # Обновляем текущий таб и его индекс
+                self.current_tab_index = new_current_index
+                self.current_tab = self.open_tabs[new_current_index]
+
+                # Всегда обновляем содержимое редактора при изменении текущего таба
+                self.text_edit.setText(self.current_tab.yaml_text)
+                # Обновляем подсветку синтаксиса
+                if hasattr(self, 'highlighter') and self.highlighter:
+                    highlighter_colors = {
+                        'key_color': self.STYLES['DarkTheme'].get('SyntaxKeyColor', '#E06C75'),
+                        'string_color': self.STYLES['DarkTheme'].get('SyntaxStringColor', '#ABB2BF'),
+                        'comment_color': self.STYLES['DarkTheme'].get('SyntaxCommentColor', '#608B4E'),
+                        'keyword_color': self.STYLES['DarkTheme'].get('SyntaxKeywordColor', '#AF55C4'),
+                        'default_color': self.STYLES['DarkTheme'].get('SyntaxDefaultColor', '#CCCCCC')
+                    }
+                    self.highlighter.update_colors(highlighter_colors)
+
+                    # Force re-highlighting to apply the new colors
+                    doc = self.text_edit.document()
+                    self.highlighter.setDocument(None)
+                    self.highlighter.setDocument(doc)
+            elif old_current_index == index:
+                # Это не должно произойти, так как мы проверили was_current_tab ранее
+                # Но на всякий случай добавим обработку
+                pass
+            else:
+                # Если текущий таб находился до удаляемого, индекс не меняется,
+                # но нужно обновить current_tab, так как позиция других табов изменилась
+                # Обновляем current_tab, чтобы он указывал на правильный объект из массива
+                self.current_tab = self.open_tabs[old_current_index]
+
+                # Всегда обновляем содержимое редактора при любом изменении таба или позиции
+                self.text_edit.setText(self.current_tab.yaml_text)
+                # Обновляем подсветку синтаксиса
+                if hasattr(self, 'highlighter') and self.highlighter:
+                    highlighter_colors = {
+                        'key_color': self.STYLES['DarkTheme'].get('SyntaxKeyColor', '#E06C75'),
+                        'string_color': self.STYLES['DarkTheme'].get('SyntaxStringColor', '#ABB2BF'),
+                        'comment_color': self.STYLES['DarkTheme'].get('SyntaxCommentColor', '#608B4E'),
+                        'keyword_color': self.STYLES['DarkTheme'].get('SyntaxKeywordColor', '#AF55C4'),
+                        'default_color': self.STYLES['DarkTheme'].get('SyntaxDefaultColor', '#CCCCCC')
+                    }
+                    self.highlighter.update_colors(highlighter_colors)
+
+                    # Force re-highlighting to apply the new colors
+                    doc = self.text_edit.document()
+                    self.highlighter.setDocument(None)
+                    self.highlighter.setDocument(doc)
     else:
+        # Если не осталось табов
         self.current_tab = None
         self.current_tab_index = -1
         self.text_edit.setText("")

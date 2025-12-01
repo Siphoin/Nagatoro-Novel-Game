@@ -532,6 +532,10 @@ class YAMLEditorWindow(QMainWindow):
         self.language_selector_combo.setEnabled(False)
         self.status_bar.addPermanentWidget(self.language_selector_combo)
 
+        # Add font size label to status bar
+        self.font_size_label = QLabel(f"Font Size: {self._current_font_size} (Ctrl+↑/↓)")
+        self.status_bar.addPermanentWidget(self.font_size_label)
+
         self._notification_label = QLabel()
         self._notification_label.setVisible(False)
         self.status_bar.addPermanentWidget(self._notification_label)
