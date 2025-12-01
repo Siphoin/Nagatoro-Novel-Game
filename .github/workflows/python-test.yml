@@ -29,12 +29,12 @@ jobs:
         if [ -f yaml_editor_python/requirements-dev.txt ]; then pip install -r yaml_editor_python/requirements-dev.txt; fi
 
     - name: Run tests from yaml_editor_python directory
+      working-directory: yaml_editor_python
       run: |
-        cd yaml_editor_python
+        # Set PYTHONPATH to include src directory so imports work correctly
+        export PYTHONPATH="$(pwd)/src:$PYTHONPATH"
         python -m pip install --upgrade pip
         python -m pip install -r requirements.txt
-        # Install the package in development mode so imports work correctly
-        pip install -e .
         python -m pytest src/tests/ -v
 
     - name: Run basic import test to ensure code is syntactically correct
