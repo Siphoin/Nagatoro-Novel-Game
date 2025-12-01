@@ -45,3 +45,7 @@ DarkTheme:
   ScrollbarRadius: 6
   # Brand text (right side of tabs)
   BrandTextColor: "#E06C75"   # soft-red for signature (instead of #D9685A)
+
+  # Icon colors
+  FolderIconColor: "#E06C75"  # Color for folder icon
+  YamlFileIconColor: "#CCCCCC"  # Color for YAML file icon

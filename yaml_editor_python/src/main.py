@@ -1,6 +1,7 @@
 # main.py
 import sys
 import os
+import traceback
 
 # Import PyQt5 first
 from PyQt5.QtWidgets import QApplication
@@ -15,8 +16,14 @@ def main():
     app = QApplication(sys.argv)
 
     # 2. Create and display the main window
-    editor_window = YAMLEditorWindow()
-    editor_window.show()
+    try:
+        editor_window = YAMLEditorWindow()
+        editor_window.show()
+        print("Window created successfully. Starting event loop...")
+    except Exception as e:
+        print("Error creating window:")
+        traceback.print_exc()
+        return
 
     # 3. Start the main event loop
     sys.exit(app.exec_())

@@ -28,6 +28,8 @@ from PyQt5.QtGui import QIcon
 from PyQt5.QtGui import QFont
 from PyQt5.QtGui import QColor
 from PyQt5.QtGui import QPixmap
+from PyQt5.QtSvg import QSvgRenderer
+from PyQt5.QtCore import QSize
 
 from PyQt5.QtCore import Qt
 from PyQt5.QtCore import QSize
@@ -39,11 +41,10 @@ from PyQt5.QtCore import QPropertyAnimation, QEasingCurve
 
 from PyQt5.QtWidgets import QGraphicsOpacityEffect
 
-# Imports for .models and .icons should be available if they are in the same src folder
+# Imports for .models should be available if they are in the same src folder
 from models import YamlTab
 from highlighter import YamlHighlighter
 from validator import StructureValidator
-from icons import SVG_FOLDER_ICON, SVG_YAML_FILE_ICON
 from session_manager import SessionManager # Add this if session_manager.py is in src/
 from language_service import LanguageService # Import the LanguageService from the new file
 from views.tabs import question_message_box # Import the custom message box function
@@ -56,10 +57,86 @@ def create_icon_from_svg(svg_content: str, size: QSize = QSize(16, 16)) -> QIcon
     data_uri = f'data:image:svg+xml;base64,{base64_data}'
     icon = QIcon(data_uri)
     return icon
+
 # -------------------------------------------------------------------
 
 
 class YAMLEditorWindow(QMainWindow):
+
+    def _load_folder_icon(self) -> str:
+        """Loads the folder SVG icon from file, fallback to default if not found."""
+        try:
+            icon_path = self._get_resource_path('icons/folder.svg')
+            with open(icon_path, 'r', encoding='utf-8') as f:
+                return f.read()
+        except FileNotFoundError:
+            # Fallback to default colored icon if file not found
+            folder_color = self.STYLES['DarkTheme'].get('FolderIconColor', '#E06C75')
+            return f"""
+<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16">
+  <path fill="{folder_color}" d="M14 6H8.5L7 4.5H2a1 1 0 0 0-1 1V11a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V7a1 1 0 0 0-1-1zM2 5h4.5l1 1h6.5v4H2V5z"/>
+</svg>
+"""
+
+    def _load_yaml_file_icon(self) -> str:
+        """Loads the YAML file SVG icon from file, fallback to default if not found."""
+        try:
+            icon_path = self._get_resource_path('icons/yaml_file.svg')
+            with open(icon_path, 'r', encoding='utf-8') as f:
+                return f.read()
+        except FileNotFoundError:
+            # Fallback to default colored icon if file not found
+            yaml_color = self.STYLES['DarkTheme'].get('YamlFileIconColor', '#CCCCCC')
+            return f"""
+<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16">
+  <path fill="{yaml_color}" d="M4 1h8a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1zM4 2v12h8V2H4z"/>
+  <text x="8" y="10" font-family="Arial, sans-serif" font-size="8" font-weight="bold" fill="#007bff" text-anchor="middle">
+    Y
+  </text>
+</svg>
+"""
+
+    def _update_svg_colors(self, svg_content: str, folder_color: str = None, yaml_color: str = None) -> str:
+        """Updates colors in SVG content based on current styles, replacing white with the specified color."""
+
+        # For folder icon: if it contains the folder path and folder_color is specified, replace white with folder_color
+        if folder_color and 'M2 4.5A1.5 1.5 0 0 1 3.5 3h3.086a1.5 1.5 0 0 1 1.06.44L8.56 4.354A1.5 1.5 0 0 0 9.62 4.8H12.5A1.5 1.5 0 0 1 14 6.3v5.2A1.5 1.5 0 0 1 12.5 13h-9A1.5 1.5 0 0 1 2 11.5v-7z' in svg_content:
+            # Replace 'white' with the specified folder color in both the svg tag and path tags
+            svg_content = svg_content.replace('fill="white"', f'fill="{folder_color}"')
+
+        # For YAML file icon: if it contains the document path and yaml_color is specified, replace white with yaml_color
+        if yaml_color and 'M4 2h5.5L13 5.5V13a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V3a1 1 0 0 1 1-1z' in svg_content:
+            # Replace 'white' with the specified YAML color in all fill attributes
+            svg_content = svg_content.replace('fill="white"', f'fill="{yaml_color}"')
+
+        return svg_content
+
+    def _create_icon_from_svg_content(self, svg_content: str, is_folder: bool = False, is_yaml: bool = False) -> QIcon:
+        """Creates a QIcon from SVG content using QSvgRenderer for better compatibility."""
+        try:
+            # Create a pixmap with the desired size
+            pixmap = QPixmap(16, 16)
+            pixmap.fill(Qt.transparent)  # Make background transparent
+
+            # Create a painter to draw on the pixmap
+            from PyQt5.QtGui import QPainter
+            painter = QPainter(pixmap)
+            painter.setRenderHint(QPainter.Antialiasing, True)
+            painter.setRenderHint(QPainter.SmoothPixmapTransform, True)
+
+            # Create an SVG renderer and render to the painter
+            from PyQt5.QtCore import QByteArray
+            svg_bytes = QByteArray(svg_content.encode('utf-8'))
+            renderer = QSvgRenderer(svg_bytes)
+            renderer.render(painter)
+
+            painter.end()
+
+            # Return QIcon from the pixmap
+            return QIcon(pixmap)
+        except Exception:
+            # Fallback to the original method if SVG rendering fails
+            return create_icon_from_svg(svg_content)
 
     def __init__(self):
         super().__init__()
@@ -73,10 +150,21 @@ class YAMLEditorWindow(QMainWindow):
         self.setStyleSheet(self.CSS_STYLES) # Apply generated styles
 
         # --- Icons Initialization ---
-        self.icon_folder = create_icon_from_svg(SVG_FOLDER_ICON)
-        self.icon_yaml = create_icon_from_svg(SVG_YAML_FILE_ICON)
+        folder_icon_color = self.STYLES['DarkTheme'].get('FolderIconColor', '#E06C75')
+        yaml_icon_color = self.STYLES['DarkTheme'].get('YamlFileIconColor', '#CCCCCC')
+
+        # Load SVG contents
+        folder_svg_content = self._load_folder_icon()
+        yaml_svg_content = self._load_yaml_file_icon()
+
+        # Apply color updates based on loaded styles
+        folder_svg_content = self._update_svg_colors(folder_svg_content, folder_color=folder_icon_color)
+        yaml_svg_content = self._update_svg_colors(yaml_svg_content, yaml_color=yaml_icon_color)
+
+        # Create icons with applied colors
+        self.icon_folder = self._create_icon_from_svg_content(folder_svg_content)
+        self.icon_yaml = self._create_icon_from_svg_content(yaml_svg_content)
         self._last_open_dir: str = os.path.expanduser("~")
-        # self.icon_close = create_icon_from_svg(SVG_CLOSE_ICON) # Ignore SVG cross
 
         # --- Model/Services ---
         self.lang_service = LanguageService()
@@ -192,7 +280,9 @@ class YAMLEditorWindow(QMainWindow):
                 'HoverColor': "#3A3A3A", 'FilePanelBackground': "#181818", 'FilePanelHover': "#2D2D2D",
                 'FolderColor': "#E06C75", 'StatusDefault': "#999999", 'NotificationSuccess': "#6BA878",
                 'NotificationError': "#D9685A",
-                'NotificationWarning': "#E8C56B"
+                'NotificationWarning': "#E8C56B",
+                'FolderIconColor': "#E06C75",  # Color for the folder icon
+                'YamlFileIconColor': "#CCCCCC"  # Color for YAML file icon
             }
         }
 
@@ -640,8 +730,28 @@ class YAMLEditorWindow(QMainWindow):
             self.CSS_STYLES = self._generate_css(updated_theme)
             self.setStyleSheet(self.CSS_STYLES)
 
+            # Обновляем иконки, т.к. цвета иконок могут измениться
+            folder_icon_color = self.STYLES['DarkTheme'].get('FolderIconColor', '#E06C75')
+            yaml_icon_color = self.STYLES['DarkTheme'].get('YamlFileIconColor', '#CCCCCC')
+
+            # Загружаем SVG иконки и обновляем их цвета
+            folder_svg_content = self._load_folder_icon()
+            yaml_svg_content = self._load_yaml_file_icon()
+
+            # Обновляем цвета в SVG содержимом
+            folder_svg_content = self._update_svg_colors(folder_svg_content, folder_color=folder_icon_color)
+            yaml_svg_content = self._update_svg_colors(yaml_svg_content, yaml_color=yaml_icon_color)
+
+            # Пересоздаем иконки с новыми цветами
+            self.icon_folder = self._create_icon_from_svg_content(folder_svg_content)
+            self.icon_yaml = self._create_icon_from_svg_content(yaml_svg_content)
+
             # Обновляем подсветку синтаксиса для текущего текстового редактора
             self.update_highlighter_colors(styles)
+
+            # Перерисовываем дерево файлов, чтобы обновить иконки
+            if hasattr(self, 'draw_file_tree'):
+                self.draw_file_tree()
 
         dialog = StylesEditorDialog(self, self._get_resource_path('styles.yaml'))
         dialog.styles_changed.connect(on_styles_changed)

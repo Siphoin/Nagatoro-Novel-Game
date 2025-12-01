@@ -152,19 +152,20 @@ def draw_folder_content(self, folder_path: str, structure: dict, level: int):
         label.setPixmap(self.icon_folder.pixmap(QSize(16, 16)))
         label.setStyleSheet(f"color: {folder_color}; padding: 2px 0; margin-left: 0px; font-weight: bold;")
         self.file_tree_layout.addWidget(label)
-    
+
     else:
         icon_char = '▼' if should_be_open and not (is_searching and folder_matches) else '►'
-        
+
         folder_button = QPushButton(f" {icon_char} {folder_name}")
         folder_button.setFlat(True)
         folder_button.setIcon(self.icon_folder)
-        
+        folder_button.setIconSize(QSize(16, 16))  # Ensure icon size is set
+
         # Style for folder
         folder_button.setStyleSheet(f"""
-            QPushButton {{ 
-                text-align: left; 
-                border: none; 
+            QPushButton {{
+                text-align: left;
+                border: none;
                 padding: 2px 0;
                 padding-left: {(level) * 15}px;
                 color: {folder_color};
@@ -173,10 +174,10 @@ def draw_folder_content(self, folder_path: str, structure: dict, level: int):
                 background-color: {self.STYLES['DarkTheme']['FilePanelHover']};
             }}
         """)
-        
+
         if not is_searching or not folder_matches:
             folder_button.clicked.connect(lambda _, path=normalized_path, state=should_be_open: self.set_foldout(path, not state))
-        
+
         self.file_tree_layout.addWidget(folder_button)
 
     # 2. Draw files and recursive call if should_be_open
@@ -210,34 +211,35 @@ def _add_file_button(self, name: str, path: str, level: int):
         display_name += "*"
 
     file_button = QPushButton(display_name)
-    
+
     if name.lower().endswith(".yaml"):
         file_button.setIcon(self.icon_yaml)
-    
+        file_button.setIconSize(QSize(16, 16))  # Ensure icon size is set
+
     highlight_color = self.STYLES['DarkTheme']['HighlightColor']
     hover_color = self.STYLES['DarkTheme']['FilePanelHover']
-    
+
     base_style = f"text-align: left; border: none; padding: 2px 0; padding-left: {(level + 1) * 15}px;"
-    
+
     if is_selected:
         style = f"""
-            QPushButton {{ 
-                {base_style} 
-                background-color: {highlight_color}; 
+            QPushButton {{
+                {base_style}
+                background-color: {highlight_color};
                 color: white;
             }}
         """
     else:
         style = f"""
-            QPushButton {{ 
-                {base_style} 
+            QPushButton {{
+                {base_style}
                 color: {self.STYLES['DarkTheme']['Foreground']};
             }}
             QPushButton:hover {{
                 background-color: {hover_color};
             }}
         """
-        
+
     file_button.setStyleSheet(style)
     file_button.clicked.connect(lambda: self.try_switch_file_action(path))
     self.file_tree_layout.addWidget(file_button)
