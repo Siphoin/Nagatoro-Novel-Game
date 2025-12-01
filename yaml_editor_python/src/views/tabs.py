@@ -339,29 +339,18 @@ def close_tab_with_animation(self, index: int):
 
 
 def switch_tab_action(self, index):
-    if index == self.current_tab_index:
+    """Switch to a different tab, ensuring the text edit component updates properly."""
+    if not (0 <= index < len(self.open_tabs)):
         return
 
+    # Update current tab and index
     self.current_tab_index = index
     self.current_tab = self.open_tabs[index]
-    self.text_edit.setText(self.current_tab.yaml_text)
 
-    # Обновляем подсветку синтаксиса с текущими цветами темы
-    if hasattr(self, 'highlighter') and self.highlighter:
-        highlighter_colors = {
-            'key_color': self.STYLES['DarkTheme'].get('SyntaxKeyColor', '#E06C75'),
-            'string_color': self.STYLES['DarkTheme'].get('SyntaxStringColor', '#ABB2BF'),
-            'comment_color': self.STYLES['DarkTheme'].get('SyntaxCommentColor', '#608B4E'),
-            'keyword_color': self.STYLES['DarkTheme'].get('SyntaxKeywordColor', '#AF55C4'),
-            'default_color': self.STYLES['DarkTheme'].get('SyntaxDefaultColor', '#CCCCCC')
-        }
-        self.highlighter.update_colors(highlighter_colors)
+    # Use helper function to update text edit content
+    update_text_edit_content(self)
 
-        # Force re-highlighting to apply the new colors
-        doc = self.text_edit.document()
-        self.highlighter.setDocument(None)
-        self.highlighter.setDocument(doc)
-
+    # Update UI
     self.draw_tabs_placeholder()
     self.draw_file_tree()
     self.update_status_bar()
@@ -391,104 +380,64 @@ def handle_text_change(self):
 
 
 def try_close_tab(self, index: int):
+    """Close a tab and update the editor to show the appropriate content."""
     if not (0 <= index < len(self.open_tabs)):
         return
 
     tab_to_close = self.open_tabs[index]
     if tab_to_close.is_dirty:
-        reply = self.question_message_box(self, 'Save Changes',
-                                          f"File '{os.path.basename(tab_to_close.file_path)}' has unsaved changes. Do you want to save?",
-                                          self.QMessageBox.Save | self.QMessageBox.Discard | self.QMessageBox.Cancel, self.QMessageBox.Cancel)
-        if reply == self.QMessageBox.Cancel:
+        reply = question_message_box(self, 'Save Changes',
+                                     f"File '{os.path.basename(tab_to_close.file_path)}' has unsaved changes. Do you want to save?",
+                                     QMessageBox.Save | QMessageBox.Discard | QMessageBox.Cancel, QMessageBox.Cancel)
+        if reply == QMessageBox.Cancel:
             return
-        if reply == self.QMessageBox.Save:
+        if reply == QMessageBox.Save:
             self.save_file_action(tab_to_close)
             if tab_to_close.is_dirty:
                 return
 
-    # Сохраняем индекс, который является текущим до удаления
-    old_current_index = self.current_tab_index
-    old_current_tab = self.current_tab
+    # Determine if the tab being closed is the currently active one
+    was_current_tab = (index == self.current_tab_index)
 
-    # Удаляем таб
-    self.open_tabs.pop(index)
+    # Remove the tab from the list
+    closed_tab = self.open_tabs.pop(index)
 
-    # Проверяем, был ли закрываемый таб текущим активным
-    was_current_tab = (index == old_current_index)
-
+    # Update the current tab index if needed
     if self.open_tabs:
+        # Adjust current tab index if the current tab was after the closed tab
+        if self.current_tab_index > index:
+            self.current_tab_index -= 1
+            # Update current tab reference to the new position
+            if 0 <= self.current_tab_index < len(self.open_tabs):
+                self.current_tab = self.open_tabs[self.current_tab_index]
+
+        # If the currently active tab was closed, we need to select a new tab
         if was_current_tab:
-            # Если закрываем текущий активный таб, переключаемся на следующий или предыдущий
-            # Если закрываем последний таб, переходим к предыдущему, иначе - к следующему
-            if index >= len(self.open_tabs):
-                # Закрываем последний таб или таб с индексом, равным длине массива (после удаления)
-                new_index = max(0, len(self.open_tabs) - 1)
+            # If we closed the last tab, select the new last tab
+            if self.current_tab_index >= len(self.open_tabs):
+                self.current_tab_index = max(0, len(self.open_tabs) - 1)
+
+            # Update the current tab reference
+            if 0 <= self.current_tab_index < len(self.open_tabs):
+                self.current_tab = self.open_tabs[self.current_tab_index]
             else:
-                # Закрываем таб посередине, переходим к табу на том же индексе (теперь следующий)
-                new_index = min(index, len(self.open_tabs) - 1)
+                self.current_tab = None
+                self.current_tab_index = -1
 
-            self.switch_tab_action(new_index)
-        else:
-            # Если закрываем не текущий активный таб, нужно обновить состояние текущего таба
-            # Обновляем индекс текущего таба и сам таб в зависимости от позиции удаляемого таба
-            if old_current_index > index:
-                # Если текущий таб находился после удаляемого, его индекс уменьшается на 1
-                new_current_index = old_current_index - 1
-                # Обновляем текущий таб и его индекс
-                self.current_tab_index = new_current_index
-                self.current_tab = self.open_tabs[new_current_index]
+        # Ensure we have a valid current tab reference
+        if self.current_tab_index >= 0 and self.current_tab_index < len(self.open_tabs):
+            self.current_tab = self.open_tabs[self.current_tab_index]
 
-                # Всегда обновляем содержимое редактора при изменении текущего таба
-                self.text_edit.setText(self.current_tab.yaml_text)
-                # Обновляем подсветку синтаксиса
-                if hasattr(self, 'highlighter') and self.highlighter:
-                    highlighter_colors = {
-                        'key_color': self.STYLES['DarkTheme'].get('SyntaxKeyColor', '#E06C75'),
-                        'string_color': self.STYLES['DarkTheme'].get('SyntaxStringColor', '#ABB2BF'),
-                        'comment_color': self.STYLES['DarkTheme'].get('SyntaxCommentColor', '#608B4E'),
-                        'keyword_color': self.STYLES['DarkTheme'].get('SyntaxKeywordColor', '#AF55C4'),
-                        'default_color': self.STYLES['DarkTheme'].get('SyntaxDefaultColor', '#CCCCCC')
-                    }
-                    self.highlighter.update_colors(highlighter_colors)
-
-                    # Force re-highlighting to apply the new colors
-                    doc = self.text_edit.document()
-                    self.highlighter.setDocument(None)
-                    self.highlighter.setDocument(doc)
-            elif old_current_index == index:
-                # Это не должно произойти, так как мы проверили was_current_tab ранее
-                # Но на всякий случай добавим обработку
-                pass
-            else:
-                # Если текущий таб находился до удаляемого, индекс не меняется,
-                # но нужно обновить current_tab, так как позиция других табов изменилась
-                # Обновляем current_tab, чтобы он указывал на правильный объект из массива
-                self.current_tab = self.open_tabs[old_current_index]
-
-                # Всегда обновляем содержимое редактора при любом изменении таба или позиции
-                self.text_edit.setText(self.current_tab.yaml_text)
-                # Обновляем подсветку синтаксиса
-                if hasattr(self, 'highlighter') and self.highlighter:
-                    highlighter_colors = {
-                        'key_color': self.STYLES['DarkTheme'].get('SyntaxKeyColor', '#E06C75'),
-                        'string_color': self.STYLES['DarkTheme'].get('SyntaxStringColor', '#ABB2BF'),
-                        'comment_color': self.STYLES['DarkTheme'].get('SyntaxCommentColor', '#608B4E'),
-                        'keyword_color': self.STYLES['DarkTheme'].get('SyntaxKeywordColor', '#AF55C4'),
-                        'default_color': self.STYLES['DarkTheme'].get('SyntaxDefaultColor', '#CCCCCC')
-                    }
-                    self.highlighter.update_colors(highlighter_colors)
-
-                    # Force re-highlighting to apply the new colors
-                    doc = self.text_edit.document()
-                    self.highlighter.setDocument(None)
-                    self.highlighter.setDocument(doc)
+        # Use helper function to update text edit content
+        update_text_edit_content(self)
     else:
-        # Если не осталось табов
+        # No tabs left
         self.current_tab = None
         self.current_tab_index = -1
-        self.text_edit.setText("")
-        self.text_edit.document().clearUndoRedoStacks()
+        # Use helper function to update text edit content
+        update_text_edit_content(self)
 
+    # Update UI
     self.draw_tabs_placeholder()
     self.draw_file_tree()
     self.update_status_bar()
@@ -508,6 +457,34 @@ def update_undo_redo_ui(self):
     self.redo_action.setEnabled(len(self.current_tab.redo_stack) > 0)
 
 
+def update_text_edit_content(self):
+    """Helper function to ensure text edit content is properly updated from the current tab."""
+    if self.current_tab:
+        # Update the text edit with the current tab's content
+        self.text_edit.setText(self.current_tab.yaml_text)
+        # Clear undo/redo stacks to avoid confusion with new content
+        self.text_edit.document().clearUndoRedoStacks()
+
+        # Update syntax highlighter with current theme colors
+        if hasattr(self, 'highlighter') and self.highlighter:
+            highlighter_colors = {
+                'key_color': self.STYLES['DarkTheme'].get('SyntaxKeyColor', '#E06C75'),
+                'string_color': self.STYLES['DarkTheme'].get('SyntaxStringColor', '#ABB2BF'),
+                'comment_color': self.STYLES['DarkTheme'].get('SyntaxCommentColor', '#608B4E'),
+                'keyword_color': self.STYLES['DarkTheme'].get('SyntaxKeywordColor', '#AF55C4'),
+                'default_color': self.STYLES['DarkTheme'].get('SyntaxDefaultColor', '#CCCCCC')
+            }
+            self.highlighter.update_colors(highlighter_colors)
+
+            # Force re-highlighting to apply the new colors
+            doc = self.text_edit.document()
+            self.highlighter.setDocument(None)
+            self.highlighter.setDocument(doc)
+    else:
+        self.text_edit.setText("")
+        self.text_edit.document().clearUndoRedoStacks()
+
+
 def question_message_box(parent, title, text, buttons, default_button):
     msg_box = QMessageBox(parent)
     msg_box.setWindowTitle(title)
@@ -520,7 +497,7 @@ def question_message_box(parent, title, text, buttons, default_button):
     background_color = parent.STYLES['DarkTheme']['SecondaryBackground']
     foreground_color = parent.STYLES['DarkTheme']['Foreground']
     border_color = parent.STYLES['DarkTheme']['BorderColor']
-    
+
     palette.setColor(QPalette.Window, QColor(background_color))
     palette.setColor(QPalette.WindowText, QColor(foreground_color))
     msg_box.setPalette(palette)

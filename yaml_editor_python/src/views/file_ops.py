@@ -46,8 +46,30 @@ def load_file(self, file_path: str):
     self.current_tab = new_tab
 
     self.validate_yaml(file_path, file_content)
-    self.text_edit.setText(self.current_tab.yaml_text)
-    self.text_edit.document().clearUndoRedoStacks()
+
+    # Use the helper function to ensure consistent text edit updates
+    if hasattr(self, 'update_text_edit_content'):
+        self.update_text_edit_content()
+    else:
+        # Fallback if helper function is not available
+        self.text_edit.setText(self.current_tab.yaml_text)
+        self.text_edit.document().clearUndoRedoStacks()
+        # Update syntax highlighter with current theme colors
+        if hasattr(self, 'highlighter') and self.highlighter:
+            highlighter_colors = {
+                'key_color': self.STYLES['DarkTheme'].get('SyntaxKeyColor', '#E06C75'),
+                'string_color': self.STYLES['DarkTheme'].get('SyntaxStringColor', '#ABB2BF'),
+                'comment_color': self.STYLES['DarkTheme'].get('SyntaxCommentColor', '#608B4E'),
+                'keyword_color': self.STYLES['DarkTheme'].get('SyntaxKeywordColor', '#AF55C4'),
+                'default_color': self.STYLES['DarkTheme'].get('SyntaxDefaultColor', '#CCCCCC')
+            }
+            self.highlighter.update_colors(highlighter_colors)
+
+            # Force re-highlighting to apply the new colors
+            doc = self.text_edit.document()
+            self.highlighter.setDocument(None)
+            self.highlighter.setDocument(doc)
+
     self.draw_tabs_placeholder()
     self.draw_file_tree()
     self.update_status_bar()

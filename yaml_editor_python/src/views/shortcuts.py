@@ -42,14 +42,15 @@ def keyPressEvent(self, event):
                     pass
             event.accept()
             return
-        if event.key() == Qt.Key_Z and self.undo_action.isEnabled():
-            self.handle_undo()
-            event.accept()
-            return
-        if event.key() == Qt.Key_Y and self.redo_action.isEnabled():
-            self.handle_redo()
-            event.accept()
-            return
+
+    if event.key() == Qt.Key_Z and event.modifiers() == Qt.ControlModifier and self.undo_action.isEnabled():
+        self.handle_undo()
+        event.accept()
+        return
+    if event.key() == Qt.Key_Y and event.modifiers() == Qt.ControlModifier and self.redo_action.isEnabled():
+        self.handle_redo()
+        event.accept()
+        return
 
     super(self.__class__, self).keyPressEvent(event)
 
@@ -78,7 +79,17 @@ def handle_undo(self):
         self.current_tab._yaml_text = text_to_restore
         self.current_tab.is_dirty = True
 
-        self.text_edit.setText(text_to_restore)
+        # Use helper function to ensure consistent text edit updates
+        if hasattr(self, 'update_text_edit_content'):
+            # Temporarily update the current tab content to reflect the undo
+            original_text = self.text_edit.toPlainText()
+            self.text_edit.setText(text_to_restore)
+            # Since highlighter is already set up, we can just trigger re-highlighting if needed
+            if hasattr(self, 'highlighter') and self.highlighter:
+                self.highlighter.rehighlight()
+        else:
+            self.text_edit.setText(text_to_restore)
+
         self.draw_tabs_placeholder()
         self.draw_file_tree()
         self.update_status_bar()
@@ -97,7 +108,17 @@ def handle_redo(self):
         self.current_tab._yaml_text = text_to_restore
         self.current_tab.is_dirty = True
 
-        self.text_edit.setText(text_to_restore)
+        # Use helper function to ensure consistent text edit updates
+        if hasattr(self, 'update_text_edit_content'):
+            # Temporarily update the current tab content to reflect the redo
+            original_text = self.text_edit.toPlainText()
+            self.text_edit.setText(text_to_restore)
+            # Since highlighter is already set up, we can just trigger re-highlighting if needed
+            if hasattr(self, 'highlighter') and self.highlighter:
+                self.highlighter.rehighlight()
+        else:
+            self.text_edit.setText(text_to_restore)
+
         self.draw_tabs_placeholder()
         self.draw_file_tree()
         self.update_status_bar()

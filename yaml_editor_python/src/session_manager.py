@@ -227,23 +227,47 @@ class SessionManager:
         # 6. Set active tab
         if self.parent_window.open_tabs:
             target_index = min(current_tab_index, len(self.parent_window.open_tabs) - 1)
-            
+
             if target_index < 0:
                  target_index = 0
-                 
+
             self.parent_window.current_tab_index = target_index
             self.parent_window.current_tab = self.parent_window.open_tabs[target_index]
-            self.parent_window.text_edit.setText(self.parent_window.current_tab.yaml_text)
-            
-            # RESTORED: Use clearUndoRedoStacks()
-            self.parent_window.text_edit.document().clearUndoRedoStacks() 
+
+            # Use helper function to ensure consistent text edit updates
+            if hasattr(self.parent_window, 'update_text_edit_content'):
+                self.parent_window.update_text_edit_content()
+            else:
+                # Fallback if helper function is not available
+                self.parent_window.text_edit.setText(self.parent_window.current_tab.yaml_text)
+                self.parent_window.text_edit.document().clearUndoRedoStacks()
+                # Update syntax highlighter with current theme colors
+                if hasattr(self.parent_window, 'highlighter') and self.parent_window.highlighter:
+                    highlighter_colors = {
+                        'key_color': self.parent_window.STYLES['DarkTheme'].get('SyntaxKeyColor', '#E06C75'),
+                        'string_color': self.parent_window.STYLES['DarkTheme'].get('SyntaxStringColor', '#ABB2BF'),
+                        'comment_color': self.parent_window.STYLES['DarkTheme'].get('SyntaxCommentColor', '#608B4E'),
+                        'keyword_color': self.parent_window.STYLES['DarkTheme'].get('SyntaxKeywordColor', '#AF55C4'),
+                        'default_color': self.parent_window.STYLES['DarkTheme'].get('SyntaxDefaultColor', '#CCCCCC')
+                    }
+                    self.parent_window.highlighter.update_colors(highlighter_colors)
+
+                    # Force re-highlighting to apply the new colors
+                    doc = self.parent_window.text_edit.document()
+                    self.parent_window.highlighter.setDocument(None)
+                    self.parent_window.highlighter.setDocument(doc)
         else:
             self.parent_window.current_tab_index = -1
             self.parent_window.current_tab = None
-            self.parent_window.text_edit.setText("")
-            # RESTORED: Use clearUndoRedoStacks()
-            if hasattr(self.parent_window.text_edit, 'clearUndoRedoStacks'):
-                 self.parent_window.text_edit.document().clearUndoRedoStacks()
+            # Use helper function to ensure consistent text edit updates
+            if hasattr(self.parent_window, 'update_text_edit_content'):
+                self.parent_window.update_text_edit_content()
+            else:
+                # Fallback if helper function is not available
+                self.parent_window.text_edit.setText("")
+                # RESTORED: Use clearUndoRedoStacks()
+                if hasattr(self.parent_window.text_edit, 'clearUndoRedoStacks'):
+                    self.parent_window.text_edit.document().clearUndoRedoStacks()
 
         # 7. Update UI
         self.parent_window.draw_file_tree()
