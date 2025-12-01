@@ -168,16 +168,16 @@ class YAMLEditorWindow(QMainWindow):
         # NEW CODE (Uses a path that works in PyInstaller and in development)
         style_file = self._get_resource_path('styles.yaml')
 
-        # --- BACKUP STYLES (Unchanged) ---
+        # --- BACKUP STYLES (Updated for red-black theme) ---
         default_styles = {
             # ... (Your styles) ...
             'DarkTheme': {
-                'Background': "#3C3C3C", 'Foreground': "#CCCCCC", 'SecondaryBackground': "#4C4C4C",
-                'EditorBackground': "#2D2D2D", 'BorderColor': "#1D1D1D", 'HighlightColor': "#0078D7",
-                'HoverColor': "#5C5C5C", 'FilePanelBackground': "#333333", 'FilePanelHover': "#4C4C4C",
-                'FolderColor': "#FFC107", 'StatusDefault': "#AAAAAA", 'NotificationSuccess': "#28A745",
-                'NotificationError': "#DC3545",
-                'NotificationWarning': "#FFC107"
+                'Background': "#1A1A1A", 'Foreground': "#E8E8E8", 'SecondaryBackground': "#2A2A2A",
+                'EditorBackground': "#1F1F1F", 'BorderColor': "#3A3A3A", 'HighlightColor': "#C84B31",
+                'HoverColor': "#3A3A3A", 'FilePanelBackground': "#181818", 'FilePanelHover': "#2D2D2D",
+                'FolderColor': "#E06C75", 'StatusDefault': "#999999", 'NotificationSuccess': "#6BA878",
+                'NotificationError': "#D9685A",
+                'NotificationWarning': "#E8C56B"
             }
         }
 

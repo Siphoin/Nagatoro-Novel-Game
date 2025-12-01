@@ -11,9 +11,9 @@ class YamlSyntaxStyle:
     def __init__(self):
         # Colors in HEX format, used in Rich Text and adapted for Qt
         self.comment_color = "#608B4E"  # Bright green
-        self.key_color = "#C8A33E"      # Yellow-brown
+        self.key_color = "#E06C75"      # Soft red (for keys)
         self.keyword_color = "#AF55C4"  # Purple (for boolean/null)
-        self.string_color = "#32B7FF"   # Bright blue (for strings and list dashes)
+        self.string_color = "#ABB2BF"   # Light gray (for strings and list dashes, instead of blue)
         self.default_color = "#CCCCCC"  # Light gray (for plain text)
 
 

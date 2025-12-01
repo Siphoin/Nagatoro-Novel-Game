@@ -15,7 +15,7 @@ DarkTheme:
   # File panel colors
   FilePanelBackground: "#181818"  # Very dark panel background
   FilePanelHover: "#2D2D2D"       # Light gray on hover
-  FolderColor: "#E8765B"          # Soft red for folders
+  FolderColor: "#E06C75"          # Soft red for folders (instead of #E8765B)
 
   # Notification/status colors
   StatusDefault: "#999999"        # Gray for normal status
@@ -28,7 +28,7 @@ DarkTheme:
   EditorCloseButtonColor: "#E8E8E8"  # Close tab cross color
   EditorFontName: "Consolas"         # Editor font family
   EditorDefaultFontSize: 14          # Default font size
-  ActiveHighlightColor: "#FFD27A"   # Active match highlight color (current search result highlight)
+  ActiveHighlightColor: "#C84B31"   # Active match highlight color (current search result highlight, changed from yellow to red)
   # Scrollbar styling for a modern thin rounded look
   ScrollbarWidth: 10
   ScrollbarBackground: "transparent"
@@ -36,4 +36,4 @@ DarkTheme:
   ScrollbarHandleHover: "#5A5A5A"
   ScrollbarRadius: 6
   # Brand text (right side of tabs)
-  BrandTextColor: "#D9685A"   # soft-red for SNEngine signature
+  BrandTextColor: "#E06C75"   # soft-red for signature (instead of #D9685A)
