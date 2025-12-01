@@ -624,6 +624,11 @@ class YAMLEditorWindow(QMainWindow):
         from language_manifest_generator import regenerate_language_manifest
         return regenerate_language_manifest(self)
 
+    def create_new_language(self):
+        """Create a new language from an existing template"""
+        from language_creator import create_new_language_dialog
+        return create_new_language_dialog(self)
+
     def open_styles_editor(self):
         """Открывает редактор стилей"""
         from views.styles_editor import StylesEditorDialog

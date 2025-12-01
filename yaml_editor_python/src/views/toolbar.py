@@ -31,6 +31,13 @@ def create_main_toolbar(self):
 
     main_toolbar.addSeparator()
 
+    # Create New Language
+    new_lang_action = QAction("New Language", self)
+    new_lang_action.triggered.connect(self.create_new_language)
+    main_toolbar.addAction(new_lang_action)
+
+    main_toolbar.addSeparator()
+
     # Removed: Flag + label for language selection
     # self.flag_label = QLabel()
     # self.flag_label.setFixedSize(24, 16)
