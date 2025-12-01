@@ -264,13 +264,54 @@ def create_new_language_dialog(parent_window) -> bool:
         def on_language_created(code, path):
             color = QColor(parent_window.STYLES['DarkTheme']['NotificationSuccess'])
             parent_window.show_notification(
-                f"New language '{code}' created successfully at: {os.path.basename(path)}", 
+                f"New language '{code}' created successfully at: {os.path.basename(path)}",
                 color
             )
-            # Refresh the file tree to show the new language
+
+            # Reload all language folders to update the dropdown
+            language_folders = parent_window.lang_service.get_language_folders(parent_window.root_localization_path)
+            parent_window.language_selector_combo.clear()
+            if language_folders:
+                for lang_code in language_folders:
+                    # Check for flag image and add it to the combo box if exists
+                    flag_path = os.path.join(parent_window.root_localization_path, lang_code, 'flag.png')
+                    icon = parent_window.icon_yaml  # Default icon
+                    if os.path.exists(flag_path):
+                        try:
+                            from PyQt5.QtGui import QIcon, QPixmap
+                            pix = QPixmap(flag_path)
+                            if not pix.isNull():
+                                icon = QIcon(pix)
+                        except:
+                            icon = parent_window.icon_yaml  # fallback to default icon
+                    parent_window.language_selector_combo.addItem(icon, lang_code.upper())
+
+                # Set the newly created language as active
+                parent_window.language_selector_combo.setCurrentText(code.upper())
+
+                # Update the active language
+                parent_window.active_language = code
+
+                # Reload the language-specific structure for the new active language
+                if parent_window.root_localization_path and parent_window.active_language:
+                    parent_window.temp_structure = parent_window.lang_service.get_language_specific_structure(
+                        parent_window.root_localization_path, parent_window.active_language
+                    )
+                    parent_window.root_lang_path_normalized = parent_window.temp_structure.get('root_path')
+
+            # Clear any open tabs since we're switching languages
+            parent_window.open_tabs.clear()
+            parent_window.current_tab_index = -1
+            parent_window.current_tab = None
+            parent_window.text_edit.setText("")
+            parent_window.text_edit.document().clearUndoRedoStacks()
+
+            # Update UI to show the new language
             parent_window.draw_file_tree()
             parent_window.draw_tabs_placeholder()
-        
+            parent_window.update_status_bar()
+            parent_window.update_undo_redo_ui()
+
         dialog.language_created.connect(on_language_created)
         dialog.exec_()
         
