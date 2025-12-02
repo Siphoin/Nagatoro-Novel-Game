@@ -1,7 +1,8 @@
-from PyQt5.QtWidgets import QWidget, QVBoxLayout, QToolBar, QTextEdit, QLabel, QSizePolicy, QAction, QMenu
+from PyQt5.QtWidgets import QWidget, QVBoxLayout, QToolBar, QLabel, QSizePolicy, QAction, QMenu
 from PyQt5.QtGui import QFont
 from PyQt5.QtCore import Qt
 from views.search import create_search_widget
+from .code_editor import CodeEditor
 
 
 def create_editor_area(self) -> QWidget:
@@ -33,10 +34,10 @@ def create_editor_area(self) -> QWidget:
         # if search module unavailable, continue without it
         pass
 
-    self.text_edit = QTextEdit()
+    self.text_edit = CodeEditor(styles=self.STYLES)
     font_name = self.STYLES['DarkTheme']['EditorFontName']
     self.text_edit.setFont(QFont(font_name, self._current_font_size))
-    self.text_edit.setText(self.current_tab.yaml_text if self.current_tab else "")
+    self.text_edit.setPlainText(self.current_tab.yaml_text if self.current_tab else "")
     self.text_edit.textChanged.connect(self.handle_text_change)
     
     self.highlighter = None
@@ -69,9 +70,10 @@ def create_editor_area(self) -> QWidget:
         sb_radius = self.STYLES['DarkTheme'].get('ScrollbarRadius', 6)
 
         qss = f"""
-        QTextEdit {{
+        QPlainTextEdit {{
             background: {self.STYLES['DarkTheme'].get('EditorBackground', '#1F1F1F')};
             color: {self.STYLES['DarkTheme'].get('Foreground', '#E8E8E8')};
+            border: 1px solid {self.STYLES['DarkTheme'].get('ActiveHighlightColor', '#C84B31')};
         }}
         QScrollBar:vertical {{
             background: {sb_bg};

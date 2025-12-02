@@ -762,7 +762,7 @@ class YAMLEditorWindow(QMainWindow):
         # Обновляем подсветку синтаксиса, если редактор существует
         if hasattr(self, 'text_edit') and self.text_edit:
             if hasattr(self, 'highlighter') and self.highlighter:
-                # Обновляем цвета подсветчика
+                # Обновляем цвета подсветчика с использованием стилей из темы
                 highlighter_colors = {
                     'key_color': styles.get('SyntaxKeyColor', '#E06C75'),
                     'string_color': styles.get('SyntaxStringColor', '#ABB2BF'),
@@ -776,6 +776,15 @@ class YAMLEditorWindow(QMainWindow):
                 doc = self.text_edit.document()
                 self.highlighter.setDocument(None)
                 self.highlighter.setDocument(doc)
+
+        # Обновить также цвета для нумерации строк
+        if hasattr(self, 'text_edit') and self.text_edit:
+            self.text_edit.styles = {'DarkTheme': styles}
+            # Обновить стили панели нумерации строк
+            if hasattr(self.text_edit, 'update_line_number_styles'):
+                self.text_edit.update_line_number_styles()
+            # Перерисовать панель нумерации строк
+            self.text_edit.line_numbers.update()
 
     def change_font_size(self, change):
         from views.shortcuts import change_font_size as _resize
