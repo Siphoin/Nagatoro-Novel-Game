@@ -81,6 +81,10 @@ class ParticleEffect(QWidget):
         self.timer.start(16)  # ~60 FPS
         self.hide()  # Изначально скрыт
 
+        # Устанавливаем геометрию сразу при инициализации
+        if self.parent():
+            self.update_parent_geometry()
+
     def add_particles_at(self, x, y, count=8):
         """Добавить частицы в указанную позицию"""
         for _ in range(count):
@@ -137,5 +141,11 @@ class ParticleEffect(QWidget):
         """Событие изменения размера"""
         super().resizeEvent(event)
         # Обновляем размер для корректного позиционирования
+        self.update_parent_geometry()
+
+    def update_parent_geometry(self):
+        """Update geometry to match parent"""
         if self.parent():
-            self.setGeometry(0, 0, self.parent().width(), self.parent().height())
+            parent_rect = self.parent().rect()
+            self.setGeometry(parent_rect)
+            self.setFixedSize(parent_rect.size())

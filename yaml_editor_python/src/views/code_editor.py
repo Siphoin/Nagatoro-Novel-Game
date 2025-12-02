@@ -41,6 +41,9 @@ class CodeEditor(QPlainTextEdit):
         self.particle_effect = ParticleEffect(self)
         self.particle_effect.hide()  # Изначально скрыт
 
+        # Initialize the particle effect geometry to match the editor
+        self.particle_effect.update_parent_geometry()
+
         # Initialize line number area width
         self.update_line_number_area_width(0)
 
@@ -54,6 +57,15 @@ class CodeEditor(QPlainTextEdit):
 
         # Connect text input event to particle effect
         self.textChanged.connect(self.on_text_changed)
+
+    def resizeEvent(self, event):
+        """Handle resize events to ensure particle effect is properly sized"""
+        # Call the original resize event
+        super().resizeEvent(event)
+
+        # Update particle effect geometry to match new editor size
+        if hasattr(self, 'particle_effect'):
+            self.particle_effect.update_parent_geometry()
 
     def line_number_area_width(self):
         """Calculate the width needed for line numbers"""
@@ -166,8 +178,23 @@ class CodeEditor(QPlainTextEdit):
             pos = self.mapToGlobal(cursor_rect.topLeft())
             local_pos = self.mapFromGlobal(pos)
 
+            # Calculate the absolute position within the document, considering horizontal scroll
+            # The particle effect is a child widget that covers the entire editor area,
+            # so we need to position particles relative to the editor's visible area
+            content_offset = self.contentOffset()
+            x_pos = local_pos.x() + cursor_rect.width() - content_offset.x()
+            y_pos = local_pos.y() - content_offset.y()
+
+            # Ensure the particle position is within the editor bounds (but allow positions beyond width
+            # for long lines that extend beyond visible area)
+            x_pos = max(0, x_pos)
+            y_pos = max(0, y_pos)
+
             # Добавляем частицы в позицию последнего символа
-            self.particle_effect.add_particles_at(local_pos.x() + cursor_rect.width(), local_pos.y())
+            self.particle_effect.add_particles_at(x_pos, y_pos)
+
+            # Обновляем геометрию эффекта частиц, чтобы она соответствовала родительскому элементу
+            self.particle_effect.update_parent_geometry()
 
     def update_line_number_styles(self):
         """Update styles for the line number area"""
