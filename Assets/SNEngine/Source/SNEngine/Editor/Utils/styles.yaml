@@ -18,6 +18,9 @@ DarkTheme:
   NotificationSuccess: '#6BA878'
   NotificationTextColor: '#1A1A1A'
   NotificationWarning: '#E8C56B'
+  ProgressBarBackground: '#1F1F1F'
+  ProgressBarColor: '#C84B31'
+  ProgressBarBorderColor: '#3A3A3A'
   ScrollbarBackground: transparent
   ScrollbarHandle: '#3A3A3A'
   ScrollbarHandleHover: '#5A5A5A'

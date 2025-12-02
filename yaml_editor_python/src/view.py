@@ -209,6 +209,20 @@ class YAMLEditorWindow(QMainWindow):
         self._current_font_size = 14
         self._foldouts: Dict[str, bool] = {} # For storing folder states
 
+        # Устанавливаем иконку для главного окна
+        icon_path = self._get_resource_path('icons/app.svg')
+        try:
+            # Загружаем SVG иконку и устанавливаем как иконку окна
+            with open(icon_path, 'r', encoding='utf-8') as f:
+                svg_content = f.read()
+            # Создаем иконку из SVG
+            icon = self._create_icon_from_svg_content(svg_content)
+            if icon:
+                self.setWindowIcon(icon)
+        except Exception:
+            # Если не удалось загрузить SVG иконку, используем стандартную иконку
+            pass
+
         self.init_ui()
         self.update_status_bar()
 

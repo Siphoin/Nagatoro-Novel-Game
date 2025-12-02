@@ -49,3 +49,8 @@ DarkTheme:
   # Icon colors
   FolderIconColor: "#E06C75"  # Color for folder icon
   YamlFileIconColor: "#CCCCCC"  # Color for YAML file icon
+
+  # Progress bar colors
+  ProgressBarBackground: "#1F1F1F"  # Background color for progress bar (same as editor background)
+  ProgressBarColor: "#C84B31"       # Progress fill color (same as highlight color)
+  ProgressBarBorderColor: "#3A3A3A" # Border color for progress bar (same as border color)
