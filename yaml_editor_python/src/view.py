@@ -747,12 +747,22 @@ class YAMLEditorWindow(QMainWindow):
                 self.worker.status_updated.connect(self.dialog.update_status)
                 self.worker.operation_finished.connect(handle_apk_save_result)  # Connect to our handler
                 self.worker.operation_finished.connect(lambda success, message: self.dialog.close() if self.dialog else None)
-                self.dialog.cancel_button.clicked.connect(self.worker.cancel)
+                # Connect dialog cancel button to both cancel the worker and give immediate UI feedback
+                self.dialog.cancel_button.clicked.connect(self._on_dialog_cancel)
+                # Also directly connect to the worker's cancel method to ensure cancellation
+                self.dialog.cancel_button.clicked.connect(lambda: self.worker.cancel() if hasattr(self.worker, 'cancel') else None)
 
                 # Start thread and operation
                 self.thread.started.connect(self.worker.run_operation)
                 self.dialog.show()
                 self.thread.start()
+
+            def _on_dialog_cancel(self):
+                """Handle dialog cancel button click with immediate feedback"""
+                # Disable the cancel button to indicate cancellation is in progress
+                if self.dialog and self.dialog.cancel_button:
+                    self.dialog.cancel_button.setEnabled(False)
+                    self.dialog.cancel_button.setText("Cancelling...")
 
         # Calculate the relative path for language files within the APK
         # This is the path from the APK root to the language directory

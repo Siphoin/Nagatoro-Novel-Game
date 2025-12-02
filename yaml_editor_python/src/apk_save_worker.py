@@ -34,6 +34,11 @@ class ApkSaveWorker(ProgressWorker):
             backup_path = self.current_apk_path + ".backup"
             shutil.copy2(self.current_apk_path, backup_path)
 
+            # Check for cancellation after creating backup
+            if self.is_cancelled():
+                self.operation_finished.emit(False, "Operation cancelled by user")
+                return
+
             # Extract original APK to temp directory
             self.status_updated.emit("Extracting APK...")
             self.progress_updated.emit(20, 100, "Extracting APK...")
@@ -69,6 +74,10 @@ class ApkSaveWorker(ProgressWorker):
                 # This tells us where the language files are located within the APK
                 for root_src, dirs_src, files_src in os.walk(self.root_localization_path):
                     for file_src in files_src:
+                        if self.is_cancelled():
+                            self.operation_finished.emit(False, "Operation cancelled by user")
+                            return
+
                         full_path_src = os.path.join(root_src, file_src)
 
                         # Calculate the relative path of this file within the language directory
@@ -122,6 +131,11 @@ class ApkSaveWorker(ProgressWorker):
                         current_file += 1
                         progress = 80 + int((current_file / total_files) * 20)  # 80% to 100%
                         self.progress_updated.emit(progress, 100, f"Adding file {current_file}/{total_files}")
+
+                # Before replacing the original APK, check if cancellation was requested
+                if self.is_cancelled():
+                    self.operation_finished.emit(False, "Operation cancelled by user")
+                    return
 
                 # Replace the original APK with the updated one
                 shutil.move(temp_apk_path, self.current_apk_path)

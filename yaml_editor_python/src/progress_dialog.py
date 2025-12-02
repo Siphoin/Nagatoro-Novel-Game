@@ -221,8 +221,3 @@ class OperationRunner:
 
         if self.dialog:
             self.dialog.close()
-
-        # Handle result as needed
-        if not success:
-            # Could show error dialog here
-            pass
