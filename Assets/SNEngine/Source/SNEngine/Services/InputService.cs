@@ -26,6 +26,11 @@ namespace SNEngine.Services
             _input.AddListener(action, eventType);
         }
 
+        public void AddListener(UnityAction<KeyCode> action, StandaloneInputEventType eventType, bool isHighPriority)
+        {
+            _input.AddListener(action, eventType, isHighPriority);
+        }
+
         public void RemoveListener(UnityAction<KeyCode> action, StandaloneInputEventType eventType)
         {
             _input.RemoveListener(action, eventType);
@@ -36,6 +41,11 @@ namespace SNEngine.Services
             _input.AddListener(action, eventType);
         }
 
+        public void AddListener(UnityAction<Touch> action, MobileInputEventType eventType, bool isHighPriority)
+        {
+            _input.AddListener(action, eventType, isHighPriority);
+        }
+
         public void RemoveListener(UnityAction<Touch> action, MobileInputEventType eventType)
         {
             _input.RemoveListener(action, eventType);
@@ -44,6 +54,11 @@ namespace SNEngine.Services
         public void AddListener(UnityAction<KeyCode> action, GamepadButtonEventType eventType)
         {
             _input.AddListener(action, eventType);
+        }
+
+        public void AddListener(UnityAction<KeyCode> action, GamepadButtonEventType eventType, bool isHighPriority)
+        {
+            _input.AddListener(action, eventType, isHighPriority);
         }
 
         public void RemoveListener(UnityAction<KeyCode> action, GamepadButtonEventType eventType)

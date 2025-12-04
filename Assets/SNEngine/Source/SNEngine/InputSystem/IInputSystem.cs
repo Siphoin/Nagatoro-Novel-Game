@@ -7,13 +7,19 @@ namespace SNEngine.InputSystem
     {
         void AddListener(UnityAction<KeyCode> action, StandaloneInputEventType eventType);
 
+        void AddListener(UnityAction<KeyCode> action, StandaloneInputEventType eventType, bool isHighPriority);
+
         void RemoveListener(UnityAction<KeyCode> action, StandaloneInputEventType eventType);
 
         void AddListener(UnityAction<Touch> action, MobileInputEventType eventType);
 
+        void AddListener(UnityAction<Touch> action, MobileInputEventType eventType, bool isHighPriority);
+
         void RemoveListener(UnityAction<Touch> action, MobileInputEventType eventType);
 
         void AddListener(UnityAction<KeyCode> action, GamepadButtonEventType eventType);
+
+        void AddListener(UnityAction<KeyCode> action, GamepadButtonEventType eventType, bool isHighPriority);
 
         void RemoveListener(UnityAction<KeyCode> action, GamepadButtonEventType eventType);
 

@@ -1,33 +1,54 @@
 ﻿using SiphoinUnityHelpers.XNodeExtensions.Attributes;
+using SNEngine.InputSystem;
 using SNEngine.Services;
-using System;
-using System.Collections;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
 namespace SNEngine.PauseWindowSystem
 {
     [RequireComponent(typeof(Button))]
-    public class OpenPauseWindowButton : MonoBehaviour, IOpenPauseWindowButton
+    public class OpenPauseWindowButton : MonoBehaviour, IOpenPauseWindowButton, IPointerDownHandler
     {
-        [SerializeField, ReadOnly] private Button _button;
-        private void Awake()
+        private IInputSystem _inputSystem;
+
+        private void OnEnable()
         {
-            _button.onClick.AddListener(Pause);
+            _inputSystem = NovelGame.Instance.GetService<InputService>();
+
+            _inputSystem.AddListener(OnPauseHotkey, StandaloneInputEventType.KeyDown, true);
+            _inputSystem.AddListener(OnPauseGamepadButton, GamepadButtonEventType.ButtonDown, true);
+        }
+
+        private void OnDisable()
+        {
+            if (_inputSystem != null)
+            {
+                _inputSystem.RemoveListener(OnPauseHotkey, StandaloneInputEventType.KeyDown);
+                _inputSystem.RemoveListener(OnPauseGamepadButton, GamepadButtonEventType.ButtonDown);
+            }
+        }
+
+        private void OnPauseHotkey(KeyCode keyCode)
+        {
+            if (keyCode == KeyCode.Escape)
+            {
+                Pause();
+            }
+        }
+
+        private void OnPauseGamepadButton(KeyCode keyCode)
+        {
+            if (keyCode == KeyCode.JoystickButton7)
+            {
+                Pause();
+            }
         }
 
         private void Pause()
         {
             NovelGame.Instance.GetService<InputService>().SetActiveInput(false);
             NovelGame.Instance.GetService<PauseWindowService>().Show();
-        }
-
-        private void OnValidate()
-        {
-            if (!_button)
-            {
-                _button = GetComponent<Button>();
-            }
         }
 
         public void ResetState()
@@ -43,6 +64,11 @@ namespace SNEngine.PauseWindowSystem
         public void Show()
         {
             gameObject.SetActive(true);
+        }
+
+        public void OnPointerDown(PointerEventData eventData)
+        {
+            Pause();
         }
     }
 }

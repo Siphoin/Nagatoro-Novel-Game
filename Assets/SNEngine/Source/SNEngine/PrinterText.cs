@@ -70,15 +70,15 @@ namespace SNEngine
         protected virtual void StartOutputDialog(string message)
         {
 #if UNITY_STANDALONE || UNITY_WEBGL
-            _inputSystem.AddListener(OnPress, StandaloneInputEventType.KeyDown);
+            _inputSystem.AddListener(OnPress, StandaloneInputEventType.KeyDown, false);
 #endif
 
 #if UNITY_ANDROID || UNITY_IOS
-            _inputSystem.AddListener(OnTapScreen, MobileInputEventType.TouchBegan);
+            _inputSystem.AddListener(OnTapScreen, MobileInputEventType.TouchBegan, false);
 #endif
 
 #if UNITY_STANDALONE || UNITY_ANDROID || UNITY_IOS || UNITY_WEBGL
-            _inputSystem.AddListener(OnButtonPress, GamepadButtonEventType.ButtonDown);
+            _inputSystem.AddListener(OnButtonPress, GamepadButtonEventType.ButtonDown, false);
 #endif
 
             if (_hasTextEffects)
