@@ -56,5 +56,20 @@ namespace SNEngine.Services
         {
             _inputWindow.Hide();
         }
+
+        public void SetData(string keyTitle, Sprite icon)
+        {
+            _inputWindow.SetData(keyTitle, icon);
+        }
+
+        public async UniTask<InputWindowResult> WaitInputPlayer()
+        {
+            return await _inputWindow.WaitInputPlayer();
+        }
+
+        public override void ResetState()
+        {
+            _inputWindow.ResetState();
+        }
     }
 }

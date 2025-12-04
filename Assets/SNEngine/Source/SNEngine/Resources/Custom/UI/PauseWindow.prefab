@@ -217,7 +217,6 @@ MonoBehaviour:
   _key: settings
   _component: {fileID: 2403248843180881694}
   _autoLocalize: 1
-  _showKey: 1
 --- !u!1 &2578783192561300994
 GameObject:
   m_ObjectHideFlags: 0
@@ -370,7 +369,6 @@ MonoBehaviour:
   _key: save_button
   _component: {fileID: 1572110071239897626}
   _autoLocalize: 1
-  _showKey: 1
 --- !u!1 &3443003338989238947
 GameObject:
   m_ObjectHideFlags: 0
@@ -886,7 +884,6 @@ MonoBehaviour:
   _key: load_save
   _component: {fileID: 4353810606720084789}
   _autoLocalize: 1
-  _showKey: 1
 --- !u!1 &5832265637401191955
 GameObject:
   m_ObjectHideFlags: 0
@@ -1041,7 +1038,6 @@ MonoBehaviour:
   _key: resume
   _component: {fileID: 3416686650248100595}
   _autoLocalize: 1
-  _showKey: 1
 --- !u!1 &5857079273551027877
 GameObject:
   m_ObjectHideFlags: 0
@@ -1436,7 +1432,6 @@ MonoBehaviour:
   _key: back_to_menu
   _component: {fileID: 7151450076435597011}
   _autoLocalize: 1
-  _showKey: 1
 --- !u!1 &8516144882425462753
 GameObject:
   m_ObjectHideFlags: 0
@@ -1501,6 +1496,7 @@ MonoBehaviour:
   _loadSaveButton: {fileID: 2397368260759874456}
   _saveButton: {fileID: 4221214854647780455}
   _backToMenuButton: {fileID: 6290782724358802740}
+  _iconSave: {fileID: 21300000, guid: 9c9b43acf11f5244a8d71e888a04cc6c, type: 3}
 --- !u!114 &1335889867754496579
 MonoBehaviour:
   m_ObjectHideFlags: 0

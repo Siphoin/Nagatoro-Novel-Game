@@ -1,5 +1,4 @@
-﻿using Assets.SNEngine.Source.SNEngine.SaveSystem;
-using Cysharp.Threading.Tasks;
+﻿using Cysharp.Threading.Tasks;
 using SiphoinUnityHelpers.XNodeExtensions;
 using SNEngine.Debugging;
 using SNEngine.Graphs;
@@ -36,7 +35,7 @@ namespace SNEngine.SaveSystem
 #endif
         }
 
-        public UniTask Save(string saveName, SaveData data)
+        private UniTask Save(string saveName, SaveData data)
         {
             if (_provider == null)
             {
@@ -207,6 +206,51 @@ namespace SNEngine.SaveSystem
             }
 
             return result;
+        }
+
+        public async UniTask SaveCurrentState(string saveName)
+        {
+            var dialogueService = NovelGame.Instance.GetService<DialogueService>();
+            var globalVaritablesService = NovelGame.Instance.GetService<VaritablesContainerService>();
+
+            if (dialogueService.CurrentDialogue is not DialogueGraph dialogueGraph)
+            {
+                return;
+            }
+
+            var nodeGuid = dialogueGraph.CurrentExecuteNode.GUID;
+            var varitables = dialogueGraph.Varitables;
+            var globalVaritables = globalVaritablesService.GlobalVaritables;
+
+            Dictionary<string, object> varitablesData = new();
+            foreach (var varitable in varitables)
+            {
+                var guid = varitable.Value.GUID;
+                var valueNode = varitable.Value.GetCurrentValue();
+                varitablesData.Add(guid, valueNode);
+            }
+
+            Dictionary<string, object> globalVaritablesData = new();
+            foreach (var varitable in globalVaritables)
+            {
+                var guid = varitable.Value.GUID;
+                var valueNode = varitable.Value.GetCurrentValue();
+                globalVaritablesData.Add(guid, valueNode);
+            }
+
+            var nodesData = ExtractSaveDataFromGraph(dialogueGraph);
+
+            SaveData saveData = new()
+            {
+                CurrentNode = nodeGuid,
+                Varitables = varitablesData,
+                GlobalVaritables = globalVaritablesData,
+                DialogueGUID = dialogueGraph.GUID,
+                DateSave = System.DateTime.Now,
+                NodesData = nodesData,
+            };
+
+            await Save(saveName, saveData);
         }
 
 #if UNITY_EDITOR
