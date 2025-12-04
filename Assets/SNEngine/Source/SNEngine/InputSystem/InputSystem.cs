@@ -42,6 +42,7 @@ namespace SNEngine.InputSystem
 
         private Dictionary<string, float> _axisValues = new Dictionary<string, float>();
         private List<KeyCode> _gamepadButtonCodes;
+        private bool _enabledInput = true;
 #endif
 
         private void Awake()
@@ -73,31 +74,34 @@ namespace SNEngine.InputSystem
 
         private void Update()
         {
-            #region Standalone Input
+            if (_enabledInput)
+            {
+                #region Standalone Input
 
 #if UNITY_STANDALONE || UNITY_WEBGL
 
-            ListeringKeyCodes();
+                ListeringKeyCodes();
 #endif
 
-            #endregion
+                #endregion
 
-            #region Mobile Input
+                #region Mobile Input
 
 #if UNITY_ANDROID || UNITY_IOS
             ListeringTouch();
 
 #endif
 
-            #endregion
+                #endregion
 
-            #region Gamepad Input
+                #region Gamepad Input
 
 #if UNITY_STANDALONE || UNITY_ANDROID || UNITY_IOS || UNITY_WEBGL
-            ListeringButtons();
-            ListeringAxis();
+                ListeringButtons();
+                ListeringAxis();
 #endif
-            #endregion
+                #endregion
+            }
 
 
         }
@@ -480,6 +484,11 @@ namespace SNEngine.InputSystem
         private void Log(string message)
         {
             NovelGameDebug.Log($"<color=#baa229>{nameof(InputSystem)}:</color> <b>{message}</b>.");
+        }
+
+        public void SetActiveInput(bool status)
+        {
+            _enabledInput = status;
         }
     }
 }
