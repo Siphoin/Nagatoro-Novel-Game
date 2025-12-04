@@ -10,6 +10,7 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using SNEngine.InputSystem;
+using SNEngine.PauseWindowSystem;
 
 namespace SNEngine.SaveSystem.UI
 {
@@ -80,9 +81,11 @@ namespace SNEngine.SaveSystem.UI
 
             if (targetSave != null)
             {
+                NovelGame.Instance.ResetStateServices();
                 NovelGame.Instance.GetService<DialogueService>().ToDialogue(saveData);
                 NovelGame.Instance.GetService<MainMenuService>().Hide();
                 NovelGame.Instance.GetService<SaveListViewService>().Hide();
+                NovelGame.Instance.GetService<PauseWindowService>().Hide();
             }
         }
 
