@@ -38,6 +38,10 @@ class SettingsDialog(QDialog):
         self.line_numbers_checkbox = QCheckBox("Show line numbers")
         interface_layout.addRow(self.line_numbers_checkbox)
 
+        # Чекбокс для подсветки текущей строки
+        self.highlight_current_line_checkbox = QCheckBox("Highlight current line")
+        interface_layout.addRow(self.highlight_current_line_checkbox)
+
         # Комбобокс для выбора темы
         self.theme_combo = QComboBox()
         self.theme_combo.addItems(["Dark"])
@@ -132,6 +136,7 @@ class SettingsDialog(QDialog):
         """Loads current settings into the interface."""
         # Load interface settings
         self.line_numbers_checkbox.setChecked(self.settings_manager.show_line_numbers)
+        self.highlight_current_line_checkbox.setChecked(self.settings_manager.highlight_current_line)
 
         theme = self.settings_manager.theme
         if theme == "dark":
@@ -162,6 +167,7 @@ class SettingsDialog(QDialog):
         """Saves settings from the interface to the settings manager."""
         # Save interface settings
         self.settings_manager.show_line_numbers = self.line_numbers_checkbox.isChecked()
+        self.settings_manager.highlight_current_line = self.highlight_current_line_checkbox.isChecked()
 
         theme_value = self.theme_combo.itemData(self.theme_combo.currentIndex())
         self.settings_manager.theme = theme_value
@@ -182,6 +188,7 @@ class SettingsDialog(QDialog):
         # Send signal that settings changed
         current_settings = {
             'show_line_numbers': self.settings_manager.show_line_numbers,
+            'highlight_current_line': self.settings_manager.highlight_current_line,
             'theme': self.settings_manager.theme,
             'font_size': self.settings_manager.font_size,
             'font_family': self.settings_manager.font_family,

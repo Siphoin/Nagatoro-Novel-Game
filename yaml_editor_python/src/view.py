@@ -1130,6 +1130,16 @@ class YAMLEditorWindow(QMainWindow):
                     except Exception as e:
                         print(f"Error updating line numbers visibility from settings: {e}")
 
+            # Check if highlight current line setting changed
+            if 'highlight_current_line' in settings:
+                # Update the current line highlighting in the text editor if it exists
+                if hasattr(self, 'text_edit') and self.text_edit:
+                    try:
+                        # Call the method to update the highlighting setting
+                        self.text_edit.update_highlight_current_line_setting()
+                    except Exception as e:
+                        print(f"Error updating line highlighting from settings: {e}")
+
         dialog = SettingsDialog(self.settings_manager, self)
         dialog.settings_changed.connect(on_settings_changed)
         dialog.exec_()

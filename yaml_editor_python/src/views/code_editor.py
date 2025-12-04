@@ -3,8 +3,9 @@ Custom QPlainTextEdit with line numbers and particle effects
 Based on PyQt5 example for creating a text editor with line numbers
 """
 from PyQt5.QtWidgets import QWidget, QPlainTextEdit, QFrame, QLabel, QScrollBar
-from PyQt5.QtCore import Qt, QRect
+from PyQt5.QtCore import Qt, QRect, pyqtProperty
 from PyQt5.QtGui import QPainter, QColor, QTextFormat, QFontMetrics, QTextCursor
+from PyQt5.QtCore import QPropertyAnimation, QEasingCurve
 from .particle_system import ParticleEffect
 
 
@@ -70,6 +71,19 @@ class CodeEditor(QPlainTextEdit):
         # Get highlight color from styles for current line number
         self.current_line_color = self.styles.get('DarkTheme', {}).get('ActiveLineNumberColor', '#C84B31')  # Default to highlight color
 
+        # Animation for current line highlighting
+        self._current_line_opacity = 0.0  # Initial opacity for animation
+        self.current_line_animation = QPropertyAnimation(self, b"current_line_opacity")
+        self.current_line_animation.setDuration(150)  # Animation duration in ms
+        self.current_line_animation.setEasingCurve(QEasingCurve.InOutQuad)
+
+        # Timer for pulsing animation when highlighting is enabled
+        from PyQt5.QtCore import QTimer
+        self.pulse_timer = QTimer()
+        self.pulse_timer.timeout.connect(self._update_pulse)
+        self._pulse_value = 0.0  # Current pulse value (0.0 to 1.0)
+        self._pulse_direction = 0.02  # Pulse increment/decrement value
+
         # Connect signals - correct PyQt5 signals (after initialization)
         self.blockCountChanged.connect(self.update_line_number_area_width)
         self.updateRequest.connect(self.update_line_number_area)
@@ -111,9 +125,25 @@ class CodeEditor(QPlainTextEdit):
             self.update_line_number_area_width(0)
 
     def highlight_current_line(self):
-        """Highlight the current line in the line number area"""
-        # Trigger a repaint of the line number area to update the highlight
-        self.line_numbers.update()
+        """Highlight the current line in the line number area with animation"""
+        # Check if line highlighting is enabled in settings
+        if (self.settings_manager and
+            hasattr(self.settings_manager, 'highlight_current_line') and
+            not self.settings_manager.highlight_current_line):
+            # If highlighting is disabled, stop the pulse timer and clear the highlight
+            self.pulse_timer.stop()
+            self.current_line_animation.stop()
+            self.current_line_animation.setStartValue(self._current_line_opacity)
+            self.current_line_animation.setEndValue(0.0)
+            self.current_line_animation.start()
+            return
+
+        # If highlighting is enabled, start the pulsing animation
+        self.current_line_animation.stop()
+        self._pulse_value = 1.0  # Start with full opacity
+        self._pulse_direction = -0.02  # Start decreasing
+        if not self.pulse_timer.isActive():
+            self.pulse_timer.start(30)  # Update every 30ms for smooth pulsing
 
     def resizeEvent(self, event):
         """Handle resize events to update line number area"""
@@ -146,13 +176,30 @@ class CodeEditor(QPlainTextEdit):
                 # Check if this is the current line (where cursor is located)
                 is_current_line = (block_number + 1 == current_line)
 
-                # Draw background for the current line if it's the active line
-                if is_current_line:
-                    # Highlight the current line with the highlight color
+                # Check if line highlighting is enabled in settings
+                highlight_enabled = True
+                if (self.settings_manager and
+                    hasattr(self.settings_manager, 'highlight_current_line')):
+                    highlight_enabled = self.settings_manager.highlight_current_line
+
+                # Draw background for the current line if it's the active line AND highlighting is enabled
+                if is_current_line and highlight_enabled:
+                    # Highlight the current line with the highlight color and animated opacity
                     highlight_color = QColor(self.current_line_color)
-                    highlight_color.setAlpha(100)  # Make it semi-transparent
+                    # Use the animated opacity (convert from 0.0-1.0 to 0-255 alpha)
+                    alpha = int(self.current_line_opacity * 100)  # Use the animated opacity value
+                    highlight_color.setAlpha(alpha)
                     painter.fillRect(0, int(top), int(self.line_numbers.width()),
                                    int(self.fontMetrics().height()), highlight_color)
+                elif is_current_line and not highlight_enabled:
+                    # If current line highlighting is disabled, draw the same as other lines
+                    # Calculate alternating background color based on line number for current line when highlighting is disabled
+                    if (block_number + 1) % 2 == 0:
+                        # Even line numbers get a slightly different background
+                        alt_bg_color = QColor(self.styles.get('DarkTheme', {}).get('Background', '#1A1A1A'))
+                        alt_bg_color.setAlpha(100)  # Make it semi-transparent
+                        painter.fillRect(0, int(top), int(self.line_numbers.width()),
+                                       int(self.fontMetrics().height()), alt_bg_color)
                 else:
                     # Calculate alternating background color based on line number for non-current lines
                     if (block_number + 1) % 2 == 0:
@@ -162,10 +209,20 @@ class CodeEditor(QPlainTextEdit):
                         painter.fillRect(0, int(top), int(self.line_numbers.width()),
                                        int(self.fontMetrics().height()), alt_bg_color)
 
+                # Check if line highlighting is enabled in settings
+                highlight_enabled = True
+                if (self.settings_manager and
+                    hasattr(self.settings_manager, 'highlight_current_line')):
+                    highlight_enabled = self.settings_manager.highlight_current_line
+
                 # Set text color based on whether this is the current line
-                if is_current_line:
-                    # Use the current line highlight color for the text to make it more visible
+                if is_current_line and highlight_enabled:
+                    # Use the current line highlight color for the text when highlighting is enabled
                     text_color = QColor(self.current_line_color)
+                elif is_current_line and not highlight_enabled:
+                    # Use the default line number color when highlighting is disabled
+                    # (per user request: the background should be normal, so should be the text)
+                    text_color = QColor(self.styles.get('DarkTheme', {}).get('StatusDefault', '#999999'))
                 else:
                     # Use foreground color from styles for other line numbers
                     text_color = QColor(self.styles.get('DarkTheme', {}).get('StatusDefault', '#999999'))
@@ -184,6 +241,44 @@ class CodeEditor(QPlainTextEdit):
             top = bottom
             bottom = top + self.blockBoundingRect(block).height()
             block_number += 1
+
+    @pyqtProperty(float)
+    def current_line_opacity(self):
+        # Return the base opacity with pulse effect when highlighting is enabled
+        if (self.settings_manager and
+            hasattr(self.settings_manager, 'highlight_current_line') and
+            self.settings_manager.highlight_current_line):
+            # When pulsing, use the pulse value (with safety check for initialization)
+            if hasattr(self, '_pulse_value'):
+                return self._pulse_value
+            else:
+                # If _pulse_value is not yet initialized, return full opacity
+                return 1.0
+        else:
+            # When not highlighting, return the set opacity value
+            return self._current_line_opacity
+
+    @current_line_opacity.setter
+    def current_line_opacity(self, value):
+        # Only set the base opacity when not using the pulse animation
+        self._current_line_opacity = value
+        self.line_numbers.update()  # Trigger repaint when opacity changes
+
+    def _update_pulse(self):
+        """Update the pulse animation"""
+        # Update pulse value
+        self._pulse_value += self._pulse_direction
+
+        # Reverse direction when reaching limits
+        if self._pulse_value >= 1.0:
+            self._pulse_value = 1.0
+            self._pulse_direction = -0.02  # Start decreasing
+        elif self._pulse_value <= 0.3:  # Minimum opacity for pulsing
+            self._pulse_value = 0.3
+            self._pulse_direction = 0.02  # Start increasing
+
+        # Trigger repaint to update the highlight
+        self.line_numbers.update()
 
     def update_line_numbers_scroll(self, value):
         """Sync line number area with editor scrolling"""
@@ -300,11 +395,35 @@ class CodeEditor(QPlainTextEdit):
                 # Remove the margin for line numbers
                 self.setViewportMargins(0, 0, 0, 0)
 
+    def update_highlight_current_line_setting(self):
+        """Update the line highlighting based on settings change"""
+        if self.settings_manager:
+            highlight_enabled = self.settings_manager.highlight_current_line
+            if highlight_enabled:
+                # If highlighting is enabled, start the pulsing animation
+                self._pulse_value = 1.0  # Start with full opacity
+                self._pulse_direction = -0.02  # Start decreasing
+                if not self.pulse_timer.isActive():
+                    self.pulse_timer.start(30)  # Update every 30ms for smooth pulsing
+            else:
+                # If highlighting is disabled, stop the pulse timer
+                self.pulse_timer.stop()
+                # Clear the highlight with animation
+                self.current_line_animation.stop()
+                self.current_line_animation.setStartValue(self._current_line_opacity)
+                self.current_line_animation.setEndValue(0.0)
+                self.current_line_animation.start()
+
     def update_line_number_styles(self):
         """Update styles for the line number area"""
         secondary_bg = self.styles.get('DarkTheme', {}).get('SecondaryBackground', '#2A2A2A')
         self.current_line_color = self.styles.get('DarkTheme', {}).get('ActiveLineNumberColor', '#C84B31')  # Update the highlight color
         self.line_numbers.setStyleSheet(f"background-color: {secondary_bg};")
+
+    def __del__(self):
+        """Cleanup when the CodeEditor is destroyed"""
+        if self.pulse_timer:
+            self.pulse_timer.stop()
 
     def update_particle_colors(self, styles):
         """Update particle colors from new styles"""

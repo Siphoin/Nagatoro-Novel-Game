@@ -45,6 +45,7 @@ class SettingsManager:
             "auto_save_enabled": True,
             "auto_save_interval": 30,  # в секундах
             "show_line_numbers": True,
+            "highlight_current_line": True,
             "theme": "dark",
             "font_size": 14,
             "font_family": "Consolas"
@@ -201,6 +202,17 @@ class SettingsManager:
     def show_line_numbers(self, value: bool) -> None:
         """Устанавливает состояние отображения номеров строк."""
         self.set_setting("show_line_numbers", value)
+        self.save_settings()
+
+    @property
+    def highlight_current_line(self) -> bool:
+        """Возвращает состояние подсветки текущей строки."""
+        return self.get_setting("highlight_current_line", True)
+
+    @highlight_current_line.setter
+    def highlight_current_line(self, value: bool) -> None:
+        """Устанавливает состояние подсветки текущей строки."""
+        self.set_setting("highlight_current_line", value)
         self.save_settings()
 
     @property
