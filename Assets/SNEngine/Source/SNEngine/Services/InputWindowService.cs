@@ -35,18 +35,6 @@ namespace SNEngine.Services
             prefab.gameObject.SetActive(false);
         }
 
-        public async UniTask<InputWindowResult> GetInput(string keyTitle, Sprite icon)
-        {
-            _inputWindow.ResetState();
-            _inputWindow.SetData(keyTitle, icon);
-            Show();
-
-            var result = await _inputWindow.WaitInputPlayer();
-
-            Hide();
-            return result;
-        }
-
         public void Show()
         {
             _inputWindow.Show();
@@ -57,9 +45,9 @@ namespace SNEngine.Services
             _inputWindow.Hide();
         }
 
-        public void SetData(string keyTitle, Sprite icon)
+        public void SetData(string keyTitle, Sprite icon, string defaultTitle)
         {
-            _inputWindow.SetData(keyTitle, icon);
+            _inputWindow.SetData(keyTitle, icon, defaultTitle);
         }
 
         public async UniTask<InputWindowResult> WaitInputPlayer()

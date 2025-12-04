@@ -19,11 +19,16 @@ namespace SNEngine.InputWindowSystem
 
 
 
-        public void SetData(string keyTitle, Sprite icon)
+        public void SetData(string keyTitle, Sprite icon, string defaultTitle)
         {
             _title.ChangeKey(keyTitle);
             _icon.sprite = icon;
             _icon.SetAdaptiveSize();
+
+            if (!_title.NotCanTranslite)
+            {
+                _title.GetComponent<TextMeshProUGUI>().text = defaultTitle;
+            }
         }
 
         public async UniTask<InputWindowResult> WaitInputPlayer()

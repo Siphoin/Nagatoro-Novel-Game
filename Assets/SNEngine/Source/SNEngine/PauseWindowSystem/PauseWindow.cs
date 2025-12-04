@@ -12,6 +12,7 @@ namespace SNEngine.PauseWindowSystem
     public class PauseWindow : MonoBehaviour, IPauseWindow
     {
         private const string SAVE_GAME_KEY_TITLE = "save_game";
+        private const string DEFAULT_TITLE_SAVE = "New Save";
         [SerializeField] private Button _resumeButton;
         [SerializeField] private Button _settingsButton;
         [SerializeField] private Button _loadSaveButton;
@@ -72,7 +73,7 @@ namespace SNEngine.PauseWindowSystem
 
         private async void SaveCurrentGame()
         {
-            _inputWindowService.SetData(SAVE_GAME_KEY_TITLE, _iconSave);
+            _inputWindowService.SetData(SAVE_GAME_KEY_TITLE, _iconSave, DEFAULT_TITLE_SAVE);
             _inputWindowService.Show();
             var result = await _inputWindowService.WaitInputPlayer();
             _inputWindowService.Hide();
