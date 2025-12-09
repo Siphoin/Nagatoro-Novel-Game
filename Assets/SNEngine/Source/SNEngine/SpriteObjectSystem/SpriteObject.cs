@@ -15,6 +15,15 @@ namespace SNEngine.SpriteObjectSystem
         private SpriteRenderer _spriteRenderer;
         private Material _defaultMaterial;
         private Tween _currentTween;
+        private Color DefaultColor
+        {
+            get
+            {
+                Color color = Color.white;
+                color.a = 0;
+                return color;
+            }
+        }
 
         public bool SpriteIsSeted => _spriteRenderer.sprite != null;
 
@@ -26,6 +35,7 @@ namespace SNEngine.SpriteObjectSystem
             }
 
             _defaultMaterial = _spriteRenderer.sharedMaterial;
+            _spriteRenderer.color = DefaultColor;
         }
 
         public void SetSprite(Sprite sprite)
@@ -40,6 +50,7 @@ namespace SNEngine.SpriteObjectSystem
 
         public void Show()
         {
+
             gameObject.SetActive(true);
         }
 
@@ -53,7 +64,7 @@ namespace SNEngine.SpriteObjectSystem
             _currentTween?.Kill();
 
             _spriteRenderer.sprite = null;
-            _spriteRenderer.color = Color.white;
+            _spriteRenderer.color = DefaultColor;
             _spriteRenderer.flipX = false;
             _spriteRenderer.flipY = false;
             _spriteRenderer.material = _defaultMaterial;

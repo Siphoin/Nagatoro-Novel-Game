@@ -11,6 +11,7 @@ namespace SNEngine.SpriteObjectSystem
 
         public override async void Execute()
         {
+            base.Execute();
             var inputObject = GetInputValue<SpriteObject>(nameof(_input));
             if (inputObject == null)
             {
