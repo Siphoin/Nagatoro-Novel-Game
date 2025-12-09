@@ -15,7 +15,7 @@ namespace SNEngine.Editor
         private const string CHARACTER_SAVE_PATH = "Assets/SNEngine/Source/SNEngine/Resources/Characters";
         private const float PREVIEW_HEIGHT = 880f;
 
-        private enum EditorMode { Creation, Editing }
+        private enum EditorMode { Creation, Editing, FolderImport }
         private EditorMode _selectedMode = EditorMode.Creation;
 
         private Character _character;
@@ -29,9 +29,11 @@ namespace SNEngine.Editor
         private Texture2D _gridTexture;
         private int _selectedEmotionIndex = 0;
         private bool _isDirty = false;
+        private Vector2 _scrollPosition;
 
         private SerializedObject _serializedObject;
         private Character _editingCharacterAsset;
+        private DefaultAsset _importFolder;
 
         [MenuItem("SNEngine/Character Creator")]
         public static void ShowWindow()
@@ -61,7 +63,7 @@ namespace SNEngine.Editor
             {
                 _serializedObject.Dispose();
             }
-            if (_character != null && _selectedMode == EditorMode.Creation && AssetDatabase.GetAssetPath(_character) == string.Empty)
+            if (_character != null && (_selectedMode == EditorMode.Creation || _selectedMode == EditorMode.FolderImport) && AssetDatabase.GetAssetPath(_character) == string.Empty)
             {
                 DestroyImmediate(_character);
             }
@@ -69,10 +71,10 @@ namespace SNEngine.Editor
 
         private void InitializeMode(EditorMode newMode)
         {
-            if (_selectedMode == EditorMode.Editing && _isDirty && _character != null && newMode == EditorMode.Creation)
+            if (_selectedMode == EditorMode.Editing && _isDirty && _character != null && newMode != EditorMode.Editing)
             {
                 if (EditorUtility.DisplayDialog("Unsaved Changes",
-                   "You have unsaved changes in the character being edited. Do you want to save them before switching to creation mode?",
+                   "You have unsaved changes in the character being edited. Do you want to save them before switching modes?",
                    "Save", "Discard"))
                 {
                     SaveCharacterAsset(true);
@@ -86,8 +88,9 @@ namespace SNEngine.Editor
 
             _selectedMode = newMode;
             _isDirty = false;
+            _scrollPosition = Vector2.zero;
 
-            if (_selectedMode == EditorMode.Creation)
+            if (_selectedMode == EditorMode.Creation || _selectedMode == EditorMode.FolderImport)
             {
                 _characterName = "New Character";
                 _description = string.Empty;
@@ -229,7 +232,7 @@ namespace SNEngine.Editor
             EditorGUILayout.BeginHorizontal();
             GUILayout.Space(10);
 
-            EditorMode newMode = (EditorMode)GUILayout.Toolbar((int)_selectedMode, new string[] { "Create New Character", "Edit Existing Character" }, GUILayout.ExpandWidth(true));
+            EditorMode newMode = (EditorMode)GUILayout.Toolbar((int)_selectedMode, new string[] { "Create New", "Edit Existing", "Import Folder" }, GUILayout.ExpandWidth(true));
 
             GUILayout.Space(10);
             EditorGUILayout.EndHorizontal();
@@ -245,15 +248,22 @@ namespace SNEngine.Editor
 
             GUILayout.BeginVertical(EditorStyles.helpBox, GUILayout.Width(position.width * 0.5f), GUILayout.ExpandHeight(true));
 
-            if (_selectedMode == EditorMode.Creation)
+            _scrollPosition = EditorGUILayout.BeginScrollView(_scrollPosition);
+
+            switch (_selectedMode)
             {
-                DrawCreationPanel();
-            }
-            else
-            {
-                DrawEditingPanel();
+                case EditorMode.Creation:
+                    DrawCreationPanel();
+                    break;
+                case EditorMode.Editing:
+                    DrawEditingPanel();
+                    break;
+                case EditorMode.FolderImport:
+                    DrawFolderImportPanel();
+                    break;
             }
 
+            EditorGUILayout.EndScrollView();
             GUILayout.EndVertical();
 
             GUILayout.BeginVertical(EditorStyles.helpBox, GUILayout.ExpandHeight(true));
@@ -268,7 +278,7 @@ namespace SNEngine.Editor
             EditorGUILayout.LabelField("Character Creation", EditorStyles.boldLabel);
             EditorGUILayout.Space();
 
-            DrawConfigurationFields(true);
+            DrawConfigurationFields(true, true);
 
             EditorGUILayout.Space();
             if (_character != null && GUILayout.Button("Create and Save Character Asset"))
@@ -314,7 +324,7 @@ namespace SNEngine.Editor
 
             if (_character != null)
             {
-                DrawConfigurationFields(false);
+                DrawConfigurationFields(false, true);
 
                 EditorGUILayout.Space();
                 if (_character != null && GUILayout.Button("Apply Changes to Asset"))
@@ -330,7 +340,90 @@ namespace SNEngine.Editor
             GUILayout.FlexibleSpace();
         }
 
-        private void DrawConfigurationFields(bool isCreationMode)
+        private void DrawFolderImportPanel()
+        {
+            EditorGUILayout.LabelField("Import Character from Folder", EditorStyles.boldLabel);
+            EditorGUILayout.Space();
+
+            DrawConfigurationFields(true, false);
+
+            EditorGUILayout.Space();
+            EditorGUILayout.LabelField("Sprite Import Settings", EditorStyles.boldLabel);
+
+            _importFolder = (DefaultAsset)EditorGUILayout.ObjectField("Sprites Folder", _importFolder, typeof(DefaultAsset), false);
+
+            if (_importFolder != null)
+            {
+                string path = AssetDatabase.GetAssetPath(_importFolder);
+                if (!Directory.Exists(path))
+                {
+                    EditorGUILayout.HelpBox("Selected object is not a valid folder.", MessageType.Warning);
+                }
+                else
+                {
+                    EditorGUILayout.HelpBox($"Ready to import sprites from:\n{path}", MessageType.Info);
+
+                    EditorGUILayout.Space();
+                    if (GUILayout.Button("Generate and Save Character"))
+                    {
+                        GenerateCharacterFromFolder(path);
+                    }
+                }
+            }
+            else
+            {
+                EditorGUILayout.HelpBox("Please select a folder containing sprite assets.", MessageType.Warning);
+            }
+
+            GUILayout.FlexibleSpace();
+        }
+
+        private void GenerateCharacterFromFolder(string folderPath)
+        {
+            if (_character == null || _serializedObject == null) return;
+
+            string[] guids = AssetDatabase.FindAssets("t:Sprite", new[] { folderPath });
+
+            if (guids.Length == 0)
+            {
+                EditorUtility.DisplayDialog("No Sprites Found", "The selected folder does not contain any sprites.", "OK");
+                return;
+            }
+
+            List<Sprite> sprites = new List<Sprite>();
+            foreach (string guid in guids)
+            {
+                string path = AssetDatabase.GUIDToAssetPath(guid);
+                Sprite sprite = AssetDatabase.LoadAssetAtPath<Sprite>(path);
+                if (sprite != null)
+                {
+                    sprites.Add(sprite);
+                }
+            }
+
+            sprites = sprites.OrderBy(s => s.name).ToList();
+
+            _serializedObject.Update();
+            SerializedProperty emotionsProp = _serializedObject.FindProperty("_emotions");
+            emotionsProp.ClearArray();
+            emotionsProp.arraySize = sprites.Count;
+
+            for (int i = 0; i < sprites.Count; i++)
+            {
+                SerializedProperty element = emotionsProp.GetArrayElementAtIndex(i);
+                SerializedProperty nameProp = element.FindPropertyRelative("_name");
+                SerializedProperty spriteProp = element.FindPropertyRelative("_sprite");
+
+                nameProp.stringValue = sprites[i].name;
+                spriteProp.objectReferenceValue = sprites[i];
+            }
+
+            _serializedObject.ApplyModifiedProperties();
+
+            SaveCharacterAsset(false);
+        }
+
+        private void DrawConfigurationFields(bool isCreationMode, bool showEmotionsList)
         {
             if (_character == null || _serializedObject == null)
             {
@@ -362,17 +455,20 @@ namespace SNEngine.Editor
             SerializedProperty descProp = _serializedObject.FindProperty("_description");
             descProp.stringValue = EditorGUILayout.TextArea(descProp.stringValue, GUILayout.Height(100));
 
-            EditorGUILayout.Space();
-            EditorGUILayout.LabelField("Emotions", EditorStyles.boldLabel);
+            if (showEmotionsList)
+            {
+                EditorGUILayout.Space();
+                EditorGUILayout.LabelField("Emotions", EditorStyles.boldLabel);
 
-            SerializedProperty emotionsProp = _serializedObject.FindProperty("_emotions");
-            if (emotionsProp != null)
-            {
-                EditorGUILayout.PropertyField(emotionsProp, true);
-            }
-            else
-            {
-                EditorGUILayout.HelpBox("Emotion property not found.", MessageType.Error);
+                SerializedProperty emotionsProp = _serializedObject.FindProperty("_emotions");
+                if (emotionsProp != null)
+                {
+                    EditorGUILayout.PropertyField(emotionsProp, true);
+                }
+                else
+                {
+                    EditorGUILayout.HelpBox("Emotion property not found.", MessageType.Error);
+                }
             }
 
             if (EditorGUI.EndChangeCheck())
@@ -430,7 +526,14 @@ namespace SNEngine.Editor
 
                 Debug.Log($"New Character '{defaultFileName}' created successfully at {path}");
 
-                InitializeMode(EditorMode.Creation);
+                if (_selectedMode == EditorMode.FolderImport)
+                {
+                    InitializeMode(EditorMode.FolderImport);
+                }
+                else
+                {
+                    InitializeMode(EditorMode.Creation);
+                }
             }
         }
 
@@ -448,7 +551,14 @@ namespace SNEngine.Editor
             SerializedProperty emotionsProp = _serializedObject.FindProperty("_emotions");
             if (emotionsProp == null || emotionsProp.arraySize == 0)
             {
-                EditorGUILayout.HelpBox("Character has no emotions. Add at least one.", MessageType.Warning);
+                if (_selectedMode == EditorMode.FolderImport)
+                {
+                    EditorGUILayout.HelpBox("Select a folder and import to preview emotions.", MessageType.Info);
+                }
+                else
+                {
+                    EditorGUILayout.HelpBox("Character has no emotions. Add at least one.", MessageType.Warning);
+                }
                 GUILayout.FlexibleSpace();
                 return;
             }

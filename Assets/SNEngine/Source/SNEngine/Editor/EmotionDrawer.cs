@@ -10,7 +10,7 @@ namespace SNEngine.Editor
 
         public override float GetPropertyHeight(SerializedProperty property, GUIContent label)
         {
-            return EditorGUIUtility.singleLineHeight * 2.5f;
+            return EditorGUIUtility.singleLineHeight * 3.5f;
         }
 
         public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
@@ -23,15 +23,22 @@ namespace SNEngine.Editor
             float singleLine = EditorGUIUtility.singleLineHeight;
             float spacing = EditorGUIUtility.standardVerticalSpacing;
 
-            Rect fieldsRect = new Rect(position.x, position.y, position.width - PREVIEW_SIZE - 10, position.height);
+            float initialVerticalOffset = spacing * 3;
 
-            Rect nameRect = new Rect(fieldsRect.x, fieldsRect.y, fieldsRect.width, singleLine);
+            float fieldsWidth = position.width - PREVIEW_SIZE - 10;
+
+            Rect nameRect = new Rect(position.x, position.y + initialVerticalOffset, fieldsWidth, singleLine);
             EditorGUI.PropertyField(nameRect, nameProp, new GUIContent("Name"));
 
-            Rect spriteRect = new Rect(fieldsRect.x, fieldsRect.y + singleLine + spacing, fieldsRect.width, singleLine);
+            Rect spriteRect = new Rect(position.x, nameRect.yMax + spacing, fieldsWidth, singleLine);
             EditorGUI.PropertyField(spriteRect, spriteProp, new GUIContent("Sprite"));
 
-            Rect previewRect = new Rect(position.x + position.width - PREVIEW_SIZE, position.y + (position.height - PREVIEW_SIZE) / 2, PREVIEW_SIZE, PREVIEW_SIZE);
+            Rect previewRect = new Rect(
+                position.x + position.width - PREVIEW_SIZE,
+                position.y + (position.height - PREVIEW_SIZE) / 2,
+                PREVIEW_SIZE,
+                PREVIEW_SIZE
+            );
 
             EditorGUI.DrawRect(previewRect, new Color(0.1f, 0.1f, 0.1f, 0.5f));
 

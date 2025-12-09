@@ -72,12 +72,10 @@ namespace SNEngine.Editor
             }
             EditorGUILayout.EndHorizontal();
 
-            // Получение всех ассетов
             var allDialogueAssets = Resources.LoadAll<NodeGraph>(DialoguesResourcePath)
                 .Where(d => d != null)
                 .ToArray();
 
-            // Фильтрация ассетов
             var filteredAssets = string.IsNullOrEmpty(searchQuery)
                 ? allDialogueAssets
                 : allDialogueAssets.Where(d =>

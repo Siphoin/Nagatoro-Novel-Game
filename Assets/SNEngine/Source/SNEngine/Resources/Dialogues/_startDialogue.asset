@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Dialog On Screen
   m_EditorClassIdentifier: 
   graph: {fileID: 11400000}
-  position: {x: 6680, y: 1048}
+  position: {x: 7208, y: 1192}
   ports:
     keys:
     - _enter
@@ -25,7 +25,7 @@ MonoBehaviour:
         PublicKeyToken=null
       connections:
       - fieldName: _exit
-        node: {fileID: 4313547066753666563}
+        node: {fileID: 4750525505254133311}
         reroutePoints: []
       _direction: 0
       _connectionType: 0
@@ -170,7 +170,7 @@ MonoBehaviour:
   _wait: 0
   _duration: 0
   _ease: 1
-  _target: {fileID: 11400000, guid: 7f230ed60ee36b74cb6adb00a85d76f3, type: 2}
+  _target: {fileID: 11400000, guid: 3fbe0fc2f797098448950afbaacb868c, type: 2}
   _value: 0
 --- !u!114 &-8418874373560053781
 MonoBehaviour:
@@ -259,7 +259,7 @@ MonoBehaviour:
   m_Name: Dialog On Screen
   m_EditorClassIdentifier: 
   graph: {fileID: 11400000}
-  position: {x: 9000, y: 1096}
+  position: {x: 9608, y: 984}
   ports:
     keys:
     - _enter
@@ -397,7 +397,7 @@ MonoBehaviour:
   m_Name: If
   m_EditorClassIdentifier: 
   graph: {fileID: 11400000}
-  position: {x: 8061.548, y: 1252.4459}
+  position: {x: 9016, y: 1224}
   ports:
     keys:
     - _condition
@@ -630,8 +630,8 @@ MonoBehaviour:
     _connectionType: 0
     _typeConstraint: 0
     _dynamic: 0
-  _character: {fileID: 11400000, guid: 7f230ed60ee36b74cb6adb00a85d76f3, type: 2}
-  _emotion: Default
+  _character: {fileID: 11400000, guid: 3fbe0fc2f797098448950afbaacb868c, type: 2}
+  _emotion: Naga_Lean_Bikini_Sidelook_CatClosed
 --- !u!114 &-4249156691259924844
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -774,7 +774,7 @@ MonoBehaviour:
         PublicKeyToken=null
       connections:
       - fieldName: _enter
-        node: {fileID: 4313547066753666563}
+        node: {fileID: 7200519025347683153}
         reroutePoints: []
       _direction: 1
       _connectionType: 0
@@ -803,7 +803,7 @@ MonoBehaviour:
   _wait: 1
   _duration: 2
   _ease: 13
-  _target: {fileID: 11400000, guid: 7f230ed60ee36b74cb6adb00a85d76f3, type: 2}
+  _target: {fileID: 11400000, guid: 3fbe0fc2f797098448950afbaacb868c, type: 2}
   _value: 1
 --- !u!114 &-4061245480722912130
 MonoBehaviour:
@@ -914,7 +914,7 @@ MonoBehaviour:
   m_Name: Dialog On Screen
   m_EditorClassIdentifier: 
   graph: {fileID: 11400000}
-  position: {x: 8744.45, y: 1475.9418}
+  position: {x: 9688, y: 1352}
   ports:
     keys:
     - _enter
@@ -978,7 +978,7 @@ MonoBehaviour:
   m_Name: Jump To Dialogue
   m_EditorClassIdentifier: 
   graph: {fileID: 11400000}
-  position: {x: 9299.707, y: 1208.3157}
+  position: {x: 9976, y: 968}
   ports:
     keys:
     - _enter
@@ -1169,6 +1169,9 @@ MonoBehaviour:
   - {fileID: -7921793883998585222}
   - {fileID: -356101587073925454}
   - {fileID: 3412026277828858608}
+  - {fileID: 7200519025347683153}
+  - {fileID: 4750525505254133311}
+  - {fileID: 3358809910736254797}
   _guid: fd46cc3f5a74466
 --- !u!114 &103410744464918363
 MonoBehaviour:
@@ -1243,7 +1246,7 @@ MonoBehaviour:
   m_Name: Compare Integers
   m_EditorClassIdentifier: 
   graph: {fileID: 11400000}
-  position: {x: 8040, y: 1528}
+  position: {x: 9000, y: 1496}
   ports:
     keys:
     - _a
@@ -1471,7 +1474,7 @@ MonoBehaviour:
   m_Name: Dialog
   m_EditorClassIdentifier: 
   graph: {fileID: 11400000}
-  position: {x: 8616, y: 1064}
+  position: {x: 9272, y: 920}
   ports:
     keys:
     - _enter
@@ -1523,7 +1526,72 @@ MonoBehaviour:
     _dynamic: 0
   _text: Ha! Seems like my senpai is tired~ So tired he fell asleep for more than
     an hour since you got out of the water!
-  _character: {fileID: 11400000, guid: 7f230ed60ee36b74cb6adb00a85d76f3, type: 2}
+  _character: {fileID: 11400000, guid: 3fbe0fc2f797098448950afbaacb868c, type: 2}
+--- !u!114 &3358809910736254797
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d7283671e01df1e4caa957d2b8faf670, type: 3}
+  m_Name: Show Character
+  m_EditorClassIdentifier: 
+  graph: {fileID: 11400000}
+  position: {x: 7816, y: 1256}
+  ports:
+    keys:
+    - _enter
+    - _exit
+    values:
+    - _fieldName: _enter
+      _node: {fileID: 3358809910736254797}
+      _typeQualifiedName: XNode.NodePort, XNode, Version=0.0.0.0, Culture=neutral,
+        PublicKeyToken=null
+      connections:
+      - fieldName: _exit
+        node: {fileID: 5960072646957617889}
+        reroutePoints: []
+      _direction: 0
+      _connectionType: 0
+      _typeConstraint: 0
+      _dynamic: 0
+    - _fieldName: _exit
+      _node: {fileID: 3358809910736254797}
+      _typeQualifiedName: XNode.NodePort, XNode, Version=0.0.0.0, Culture=neutral,
+        PublicKeyToken=null
+      connections:
+      - fieldName: _enter
+        node: {fileID: 3516822066075144152}
+        reroutePoints: []
+      _direction: 1
+      _connectionType: 0
+      _typeConstraint: 0
+      _dynamic: 0
+  _nodeGuid: a59bf73e2ad1464
+  _enabled: 1
+  _enter:
+    _fieldName: 
+    _node: {fileID: 0}
+    _typeQualifiedName: 
+    connections: []
+    _direction: 0
+    _connectionType: 0
+    _typeConstraint: 0
+    _dynamic: 0
+  _exit:
+    _fieldName: 
+    _node: {fileID: 0}
+    _typeQualifiedName: 
+    connections: []
+    _direction: 0
+    _connectionType: 0
+    _typeConstraint: 0
+    _dynamic: 0
+  _character: {fileID: 11400000, guid: 3fbe0fc2f797098448950afbaacb868c, type: 2}
+  _emotion: Naga_Lean_Bikini_Squint_Talking
 --- !u!114 &3412026277828858608
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1537,7 +1605,7 @@ MonoBehaviour:
   m_Name: Jump To Dialogue
   m_EditorClassIdentifier: 
   graph: {fileID: 11400000}
-  position: {x: 9061.889, y: 1547.5558}
+  position: {x: 9976, y: 1432}
   ports:
     keys:
     - _enter
@@ -1598,7 +1666,7 @@ MonoBehaviour:
   m_Name: Dialog
   m_EditorClassIdentifier: 
   graph: {fileID: 11400000}
-  position: {x: 7365.499, y: 1205.7961}
+  position: {x: 8216, y: 1160}
   ports:
     keys:
     - _enter
@@ -1610,7 +1678,7 @@ MonoBehaviour:
         PublicKeyToken=null
       connections:
       - fieldName: _exit
-        node: {fileID: 5960072646957617889}
+        node: {fileID: 3358809910736254797}
         reroutePoints: []
       _direction: 0
       _connectionType: 0
@@ -1649,7 +1717,7 @@ MonoBehaviour:
     _typeConstraint: 0
     _dynamic: 0
   _text: Were you sleeping just now?
-  _character: {fileID: 11400000, guid: 7f230ed60ee36b74cb6adb00a85d76f3, type: 2}
+  _character: {fileID: 11400000, guid: 3fbe0fc2f797098448950afbaacb868c, type: 2}
 --- !u!114 &3578914562095220880
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1730,7 +1798,7 @@ MonoBehaviour:
   m_Name: Dialog
   m_EditorClassIdentifier: 
   graph: {fileID: 11400000}
-  position: {x: 6344, y: 984}
+  position: {x: 6568, y: 952}
   ports:
     keys:
     - _enter
@@ -1742,7 +1810,7 @@ MonoBehaviour:
         PublicKeyToken=null
       connections:
       - fieldName: _exit
-        node: {fileID: -4126024194632492902}
+        node: {fileID: 7200519025347683153}
         reroutePoints: []
       _direction: 0
       _connectionType: 0
@@ -1754,7 +1822,7 @@ MonoBehaviour:
         PublicKeyToken=null
       connections:
       - fieldName: _enter
-        node: {fileID: -8996835315882280018}
+        node: {fileID: 4750525505254133311}
         reroutePoints: []
       _direction: 1
       _connectionType: 0
@@ -1781,7 +1849,7 @@ MonoBehaviour:
     _typeConstraint: 0
     _dynamic: 0
   _text: Senpai!
-  _character: {fileID: 11400000, guid: 7f230ed60ee36b74cb6adb00a85d76f3, type: 2}
+  _character: {fileID: 11400000, guid: 3fbe0fc2f797098448950afbaacb868c, type: 2}
 --- !u!114 &4378183157102779455
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1856,6 +1924,71 @@ MonoBehaviour:
     _typeConstraint: 0
     _dynamic: 0
   _seconds: 2
+--- !u!114 &4750525505254133311
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d7283671e01df1e4caa957d2b8faf670, type: 3}
+  m_Name: Show Character
+  m_EditorClassIdentifier: 
+  graph: {fileID: 11400000}
+  position: {x: 6824, y: 1160}
+  ports:
+    keys:
+    - _enter
+    - _exit
+    values:
+    - _fieldName: _enter
+      _node: {fileID: 4750525505254133311}
+      _typeQualifiedName: XNode.NodePort, XNode, Version=0.0.0.0, Culture=neutral,
+        PublicKeyToken=null
+      connections:
+      - fieldName: _exit
+        node: {fileID: 4313547066753666563}
+        reroutePoints: []
+      _direction: 0
+      _connectionType: 0
+      _typeConstraint: 0
+      _dynamic: 0
+    - _fieldName: _exit
+      _node: {fileID: 4750525505254133311}
+      _typeQualifiedName: XNode.NodePort, XNode, Version=0.0.0.0, Culture=neutral,
+        PublicKeyToken=null
+      connections:
+      - fieldName: _enter
+        node: {fileID: -8996835315882280018}
+        reroutePoints: []
+      _direction: 1
+      _connectionType: 0
+      _typeConstraint: 0
+      _dynamic: 0
+  _nodeGuid: 82daff1592944d8
+  _enabled: 1
+  _enter:
+    _fieldName: 
+    _node: {fileID: 0}
+    _typeQualifiedName: 
+    connections: []
+    _direction: 0
+    _connectionType: 0
+    _typeConstraint: 0
+    _dynamic: 0
+  _exit:
+    _fieldName: 
+    _node: {fileID: 0}
+    _typeQualifiedName: 
+    connections: []
+    _direction: 0
+    _connectionType: 0
+    _typeConstraint: 0
+    _dynamic: 0
+  _character: {fileID: 11400000, guid: 3fbe0fc2f797098448950afbaacb868c, type: 2}
+  _emotion: Naga_Lean_Bikini_Squint_Smirk
 --- !u!114 &5359837484731831320
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2209,7 +2342,7 @@ MonoBehaviour:
   m_Name: Dialog On Screen
   m_EditorClassIdentifier: 
   graph: {fileID: 11400000}
-  position: {x: 6989.768, y: 1133.2397}
+  position: {x: 7512, y: 1176}
   ports:
     keys:
     - _enter
@@ -2233,7 +2366,7 @@ MonoBehaviour:
         PublicKeyToken=null
       connections:
       - fieldName: _enter
-        node: {fileID: 3516822066075144152}
+        node: {fileID: 3358809910736254797}
         reroutePoints: []
       _direction: 1
       _connectionType: 0
@@ -2358,6 +2491,71 @@ MonoBehaviour:
   _duration: 0.32
   _ease: 16
   _value: 0.6
+--- !u!114 &7200519025347683153
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d7283671e01df1e4caa957d2b8faf670, type: 3}
+  m_Name: Show Character
+  m_EditorClassIdentifier: 
+  graph: {fileID: 11400000}
+  position: {x: 6312, y: 1000}
+  ports:
+    keys:
+    - _enter
+    - _exit
+    values:
+    - _fieldName: _enter
+      _node: {fileID: 7200519025347683153}
+      _typeQualifiedName: XNode.NodePort, XNode, Version=0.0.0.0, Culture=neutral,
+        PublicKeyToken=null
+      connections:
+      - fieldName: _exit
+        node: {fileID: -4126024194632492902}
+        reroutePoints: []
+      _direction: 0
+      _connectionType: 0
+      _typeConstraint: 0
+      _dynamic: 0
+    - _fieldName: _exit
+      _node: {fileID: 7200519025347683153}
+      _typeQualifiedName: XNode.NodePort, XNode, Version=0.0.0.0, Culture=neutral,
+        PublicKeyToken=null
+      connections:
+      - fieldName: _enter
+        node: {fileID: 4313547066753666563}
+        reroutePoints: []
+      _direction: 1
+      _connectionType: 0
+      _typeConstraint: 0
+      _dynamic: 0
+  _nodeGuid: 0e456d096b20491
+  _enabled: 1
+  _enter:
+    _fieldName: 
+    _node: {fileID: 0}
+    _typeQualifiedName: 
+    connections: []
+    _direction: 0
+    _connectionType: 0
+    _typeConstraint: 0
+    _dynamic: 0
+  _exit:
+    _fieldName: 
+    _node: {fileID: 0}
+    _typeQualifiedName: 
+    connections: []
+    _direction: 0
+    _connectionType: 0
+    _typeConstraint: 0
+    _dynamic: 0
+  _character: {fileID: 11400000, guid: 3fbe0fc2f797098448950afbaacb868c, type: 2}
+  _emotion: Naga_Lean_Bikini_Sidelook_Talking
 --- !u!114 &7649942430274761241
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2563,7 +2761,7 @@ MonoBehaviour:
   m_Name: Show Variants
   m_EditorClassIdentifier: 
   graph: {fileID: 11400000}
-  position: {x: 7720, y: 1160}
+  position: {x: 8600, y: 1112}
   ports:
     keys:
     - _variants
@@ -2707,7 +2905,7 @@ MonoBehaviour:
   m_Name: Dialog
   m_EditorClassIdentifier: 
   graph: {fileID: 11400000}
-  position: {x: 8398.087, y: 1376.8286}
+  position: {x: 9336, y: 1336}
   ports:
     keys:
     - _enter
@@ -2759,4 +2957,4 @@ MonoBehaviour:
     _dynamic: 0
   _text: Pfft! Did you lose your sense of time? It has been more than an hour since
     you got out of the water!
-  _character: {fileID: 11400000, guid: 7f230ed60ee36b74cb6adb00a85d76f3, type: 2}
+  _character: {fileID: 11400000, guid: 3fbe0fc2f797098448950afbaacb868c, type: 2}

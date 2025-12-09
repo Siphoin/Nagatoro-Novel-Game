@@ -1,98 +1,64 @@
-﻿using UnityEngine;
-using UnityEngine.UI;
-using DG.Tweening;
+﻿using UnityEditor;
+using UnityEngine;
 
-namespace CoreGame.FightSystem.UI
+namespace SNEngine.Editor
 {
-
-    [RequireComponent(typeof(Image))]
-    public class FillSlider : MonoBehaviour
+    public class SNEngineSettingsWindow : EditorWindow
     {
-        [SerializeField]
-        private float _value;
+        private Vector2 _scrollPosition;
 
-        [SerializeField, Min(0)]
-        private float _maxValue = 1;
-
-        [Header("DOTween Settings")]
-        [SerializeField]
-        private float _smoothDuration = 0.3f;
-
-        private Tweener _valueTweener;
-
-        private Image _fillImage;
-
-        public float Value
+        [MenuItem("SNEngine/Settings")]
+        public static void ShowWindow()
         {
-            get => _value;
-            set
-            {
-                _valueTweener?.Kill();
-                _value = Mathf.Clamp(value, 0, _maxValue);
-                UpdateFill();
-            }
+            SNEngineSettingsWindow window = GetWindow<SNEngineSettingsWindow>("SNEngine Settings");
+            window.minSize = new Vector2(350, 250);
         }
 
-        public float MaxValue
+        public void OnGUI()
         {
-            get => _maxValue;
-            set
+            GUILayout.Label("SNEngine Global Editor Settings", new GUIStyle(EditorStyles.largeLabel)
             {
-                _maxValue = Mathf.Max(0, value);
-                _value = Mathf.Clamp(_value, 0, _maxValue);
-                UpdateFill();
-            }
+                fontSize = 18,
+                fontStyle = FontStyle.Bold,
+                alignment = TextAnchor.MiddleCenter,
+                padding = new RectOffset(0, 0, 10, 10)
+            });
+
+            _scrollPosition = EditorGUILayout.BeginScrollView(_scrollPosition);
+
+            DrawNodeSettings();
+
+
+            EditorGUILayout.EndScrollView();
+
+
+            Rect footerRect = new Rect(0, position.height - 20, position.width, 20);
+            EditorGUI.LabelField(footerRect, "Version: 1.0", EditorStyles.centeredGreyMiniLabel);
         }
 
-        private void Awake()
+        private void DrawNodeSettings()
         {
-            _fillImage = GetComponent<Image>();
-            UpdateFill();
-        }
+            EditorGUILayout.Space(5);
 
-        public void SetValueSmoothly(float targetValue, float? duration = null, Ease ease = Ease.OutSine)
-        {
-            float clampedTarget = Mathf.Clamp(targetValue, 0, _maxValue);
-            float finalDuration = duration ?? _smoothDuration;
+            // Секция XNode Settings
+            EditorGUILayout.BeginVertical(EditorStyles.helpBox);
 
-            if (_value.Equals(clampedTarget) && (_valueTweener == null || !_valueTweener.IsActive()))
+            EditorGUILayout.LabelField("XNode/Graph Settings", EditorStyles.boldLabel);
+            EditorGUILayout.Space(5);
+
+            EditorGUI.BeginChangeCheck();
+
+            // Настройка 1: Show Node GUID
+            bool showGuid = SNEngineEditorSettings.ShowNodeGuidInInspector;
+            showGuid = EditorGUILayout.Toggle(new GUIContent("Show Node GUID", "Display the unique identifier (GUID) of the node in the Inspector."), showGuid);
+
+            if (EditorGUI.EndChangeCheck())
             {
-                return;
-            }
-
-            _valueTweener?.Kill();
-
-            _valueTweener = DOTween.To(() => _value,
-                                       x =>
-                                       {
-                                           _value = x;
-                                           UpdateFill();
-                                       },
-                                       clampedTarget,
-                                       finalDuration)
-                               .SetEase(ease);
-
-        }
-
-        private void UpdateFill()
-        {
-            if (!_fillImage)
-            {
-                _fillImage = GetComponent<Image>();
-                if (!_fillImage) return;
+                SNEngineEditorSettings.ShowNodeGuidInInspector = showGuid;
             }
 
-            _value = Mathf.Clamp(_value, 0, _maxValue);
-
-            _fillImage.fillAmount = (_maxValue > 0) ? (_value / _maxValue) : 0;
-        }
-
-        private void OnValidate()
-        {
-            _maxValue = Mathf.Max(0, _maxValue);
-            _value = Mathf.Clamp(_value, 0, _maxValue);
-            UpdateFill();
+            EditorGUILayout.Space(5);
+            EditorGUILayout.EndVertical();
         }
     }
-
 }

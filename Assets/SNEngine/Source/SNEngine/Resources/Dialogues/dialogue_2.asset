@@ -87,7 +87,7 @@ MonoBehaviour:
   m_Name: Dialog
   m_EditorClassIdentifier: 
   graph: {fileID: 11400000}
-  position: {x: 1631.0642, y: 291.27115}
+  position: {x: 1896, y: 216}
   ports:
     keys:
     - _enter
@@ -139,6 +139,71 @@ MonoBehaviour:
     _dynamic: 0
   _text: Where is everyone?
   _character: {fileID: 11400000, guid: 8d73a64e566645f478cfa130a3ba078f, type: 2}
+--- !u!114 &-1483816155576797528
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d7283671e01df1e4caa957d2b8faf670, type: 3}
+  m_Name: Show Character
+  m_EditorClassIdentifier: 
+  graph: {fileID: 11400000}
+  position: {x: 1000, y: 248}
+  ports:
+    keys:
+    - _enter
+    - _exit
+    values:
+    - _fieldName: _enter
+      _node: {fileID: -1483816155576797528}
+      _typeQualifiedName: XNode.NodePort, XNode, Version=0.0.0.0, Culture=neutral,
+        PublicKeyToken=null
+      connections:
+      - fieldName: _exit
+        node: {fileID: -1037974041252314942}
+        reroutePoints: []
+      _direction: 0
+      _connectionType: 0
+      _typeConstraint: 0
+      _dynamic: 0
+    - _fieldName: _exit
+      _node: {fileID: -1483816155576797528}
+      _typeQualifiedName: XNode.NodePort, XNode, Version=0.0.0.0, Culture=neutral,
+        PublicKeyToken=null
+      connections:
+      - fieldName: _enter
+        node: {fileID: 1017485537157892063}
+        reroutePoints: []
+      _direction: 1
+      _connectionType: 0
+      _typeConstraint: 0
+      _dynamic: 0
+  _nodeGuid: c0c1ddde04324e1
+  _enabled: 1
+  _enter:
+    _fieldName: 
+    _node: {fileID: 0}
+    _typeQualifiedName: 
+    connections: []
+    _direction: 0
+    _connectionType: 0
+    _typeConstraint: 0
+    _dynamic: 0
+  _exit:
+    _fieldName: 
+    _node: {fileID: 0}
+    _typeQualifiedName: 
+    connections: []
+    _direction: 0
+    _connectionType: 0
+    _typeConstraint: 0
+    _dynamic: 0
+  _character: {fileID: 11400000, guid: 3fbe0fc2f797098448950afbaacb868c, type: 2}
+  _emotion: Naga_Lean_Bikini_Sidelook_Smirk
 --- !u!114 &-1037974041252314942
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -176,7 +241,7 @@ MonoBehaviour:
         PublicKeyToken=null
       connections:
       - fieldName: _enter
-        node: {fileID: 1017485537157892063}
+        node: {fileID: -1483816155576797528}
         reroutePoints: []
       _direction: 1
       _connectionType: 0
@@ -203,7 +268,7 @@ MonoBehaviour:
     _typeConstraint: 0
     _dynamic: 0
   _text: Jeez senpai, are you that out of shape? Enough to be knocked out!
-  _character: {fileID: 11400000, guid: 7f230ed60ee36b74cb6adb00a85d76f3, type: 2}
+  _character: {fileID: 11400000, guid: 3fbe0fc2f797098448950afbaacb868c, type: 2}
 --- !u!114 &-1012642115470749886
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -285,6 +350,7 @@ MonoBehaviour:
   - {fileID: 1017485537157892063}
   - {fileID: 3617539153465943618}
   - {fileID: -1950077780688134413}
+  - {fileID: -1483816155576797528}
   _guid: f19daba5849f466
 --- !u!114 &1017485537157892063
 MonoBehaviour:
@@ -299,7 +365,7 @@ MonoBehaviour:
   m_Name: Dialog
   m_EditorClassIdentifier: 
   graph: {fileID: 11400000}
-  position: {x: 1024.6495, y: 215.0747}
+  position: {x: 1288, y: 152}
   ports:
     keys:
     - _enter
@@ -311,7 +377,7 @@ MonoBehaviour:
         PublicKeyToken=null
       connections:
       - fieldName: _exit
-        node: {fileID: -1037974041252314942}
+        node: {fileID: -1483816155576797528}
         reroutePoints: []
       _direction: 0
       _connectionType: 0
@@ -364,7 +430,7 @@ MonoBehaviour:
   m_Name: Exit
   m_EditorClassIdentifier: 
   graph: {fileID: 11400000}
-  position: {x: 1960, y: 296}
+  position: {x: 2232, y: 232}
   ports:
     keys:
     - _enter
@@ -474,8 +540,8 @@ MonoBehaviour:
     _connectionType: 0
     _typeConstraint: 0
     _dynamic: 0
-  _character: {fileID: 11400000, guid: 7f230ed60ee36b74cb6adb00a85d76f3, type: 2}
-  _emotion: Default
+  _character: {fileID: 11400000, guid: 3fbe0fc2f797098448950afbaacb868c, type: 2}
+  _emotion: Naga_Lean_Bikini_Squint_Talking
 --- !u!114 &3617539153465943618
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -489,7 +555,7 @@ MonoBehaviour:
   m_Name: Dialog On Screen
   m_EditorClassIdentifier: 
   graph: {fileID: 11400000}
-  position: {x: 1325.8099, y: 247.4589}
+  position: {x: 1592, y: 184}
   ports:
     keys:
     - _enter
