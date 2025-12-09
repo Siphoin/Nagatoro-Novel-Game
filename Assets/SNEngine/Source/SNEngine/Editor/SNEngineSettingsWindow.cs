@@ -48,7 +48,6 @@ namespace SNEngine.Editor
 
             EditorGUI.BeginChangeCheck();
 
-            // Настройка 1: Show Node GUID
             bool showGuid = SNEngineEditorSettings.ShowNodeGuidInInspector;
             showGuid = EditorGUILayout.Toggle(new GUIContent("Show Node GUID", "Display the unique identifier (GUID) of the node in the Inspector."), showGuid);
 
