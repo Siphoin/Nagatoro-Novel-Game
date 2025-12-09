@@ -95,11 +95,6 @@ namespace SiphoinUnityHelpers.XNodeExtensions
             return true;
         }
 
-        public override void OnCopy()
-        {
-            ResetGuid();
-        }
-
 #if UNITY_EDITOR
         protected string GetDefaultName()
         {
@@ -113,6 +108,10 @@ namespace SiphoinUnityHelpers.XNodeExtensions
             UnityEditor.EditorUtility.SetDirty(this);
         }
 
+        public override void OnCopy()
+        {
+            ResetGuid();
+        }
 #endif
 
     }
