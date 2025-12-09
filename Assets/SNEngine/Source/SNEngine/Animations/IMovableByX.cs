@@ -5,6 +5,7 @@ namespace SNEngine.Animations
 {
     public interface IMovableByX
     {
-        UniTask Move(float x, float time, Ease ease);
+        UniTask MoveX(float x, float time, Ease ease);
+        UniTask MoveY(float y, float time, Ease ease);
     }
 }

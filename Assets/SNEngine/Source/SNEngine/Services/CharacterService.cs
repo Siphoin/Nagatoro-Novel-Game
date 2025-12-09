@@ -189,7 +189,7 @@ namespace SNEngine.Services
 
             var characterRender = FindByName(character.name);
 
-            await characterRender.Move(x, time, ease);
+            await characterRender.MoveX(x, time, ease);
         }
 
         public async UniTask MoveCharacter(Character character, CharacterDirection direction, float duration, Ease ease)

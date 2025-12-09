@@ -5,6 +5,7 @@ using DG.Tweening;
 using SNEngine.Extensions;
 using SNEngine.Animations;
 using SNEngine.Repositories;
+using SNEngine.Debugging;
 
 namespace SNEngine.CharacterSystem
 {
@@ -112,7 +113,7 @@ namespace SNEngine.CharacterSystem
         }
 
         #region Animations
-        public async UniTask Move(float x, float time, Ease ease)
+        public async UniTask MoveX(float x, float time, Ease ease)
         {
             time = MathfExtensions.ClampTime(time);
 
@@ -237,6 +238,12 @@ namespace SNEngine.CharacterSystem
             time = MathfExtensions.ClampTime(time);
 
             await _spriteRenderer.DOIllumination(value, time).SetEase(ease);
+        }
+
+        public UniTask MoveY(float y, float time, Ease ease)
+        {
+            NovelGameDebug.LogError($"character not supported move my Y");
+            return UniTask.CompletedTask;
         }
 
         #endregion
