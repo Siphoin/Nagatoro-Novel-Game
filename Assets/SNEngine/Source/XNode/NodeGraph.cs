@@ -62,6 +62,7 @@ namespace XNode {
                 if (nodes[i] == null) continue;
                 Node.graphHotfix = graph;
                 Node node = Instantiate(nodes[i]) as Node;
+
                 node.graph = graph;
                 graph.nodes[i] = node;
             }

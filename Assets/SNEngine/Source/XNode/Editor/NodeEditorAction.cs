@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEditor;
 using UnityEngine;
+using XNode;
 using XNodeEditor.Internal;
 
 namespace XNodeEditor {
@@ -418,6 +419,8 @@ namespace XNodeEditor {
             // Get selected nodes which are part of this graph
             XNode.Node[] selectedNodes = Selection.objects.Select(x => x as XNode.Node).Where(x => x != null && x.graph == graph).ToArray();
             if (selectedNodes == null || selectedNodes.Length == 0) return;
+
+            
             // Get top left node position
             Vector2 topLeftNode = selectedNodes.Select(x => x.position).Aggregate((x, y) => new Vector2(Mathf.Min(x.x, y.x), Mathf.Min(x.y, y.y)));
             InsertDuplicateNodes(selectedNodes, topLeftNode + new Vector2(30, 30));
@@ -480,6 +483,12 @@ namespace XNodeEditor {
             }
             // Select the new nodes
             Selection.objects = newNodes;
+
+            foreach (var item in newNodes.Cast<Node>())
+            {
+                item.OnCopy();
+            }
+
         }
 
         /// <summary> Draw a connection as we are dragging it </summary>

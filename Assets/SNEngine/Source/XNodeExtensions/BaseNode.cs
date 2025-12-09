@@ -95,6 +95,11 @@ namespace SiphoinUnityHelpers.XNodeExtensions
             return true;
         }
 
+        public override void OnCopy()
+        {
+            ResetGuid();
+        }
+
 #if UNITY_EDITOR
         protected string GetDefaultName()
         {

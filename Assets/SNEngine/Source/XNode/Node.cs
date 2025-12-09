@@ -136,7 +136,12 @@ namespace XNode {
             foreach (NodePort port in Ports) port.VerifyConnections();
         }
 
-#region Dynamic Ports
+        public virtual void OnCopy()
+        {
+
+        }
+
+        #region Dynamic Ports
         /// <summary> Convenience function. </summary>
         /// <seealso cref="AddInstancePort"/>
         /// <seealso cref="AddInstanceOutput"/>
