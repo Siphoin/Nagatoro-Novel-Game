@@ -3,11 +3,14 @@ using DG.Tweening;
 using SNEngine.BackgroundSystem.AsyncNodes;
 using SNEngine.Services;
 using UnityEngine;
+using SNEngine.SaveSystem;
 
 namespace SNEngine.BackgroundSystem.Animations.Illumination
 {
-    public class IlluminationBackgroundNode : AsyncBackgroundNode
+    public class IlluminationBackgroundNode : AsyncBackgroundNode, ISaveProgressNode
     {
+        private bool _isLoadFromSaveStub = false;
+
         [Input, Range(0, 1), SerializeField] private float value;
 
         protected override void Play(float duration, Ease ease)
@@ -20,7 +23,11 @@ namespace SNEngine.BackgroundSystem.Animations.Illumination
             {
                 finalValue = GetDataFromPort<float>(nameof(value));
             }
-            Illuminate(finalValue, duration, ease).Forget();
+
+            float playDuration = _isLoadFromSaveStub ? 0f : duration;
+            Ease playEase = _isLoadFromSaveStub ? Ease.Unset : ease;
+
+            Illuminate(finalValue, playDuration, playEase).Forget();
         }
 
         private async UniTask Illuminate(float value, float duration, Ease ease)
@@ -30,6 +37,21 @@ namespace SNEngine.BackgroundSystem.Animations.Illumination
             await backgroundService.Illuminate(duration, value, ease);
 
             StopTask();
+        }
+
+        public object GetDataForSave()
+        {
+            return null;
+        }
+
+        public void SetDataFromSave(object data)
+        {
+            _isLoadFromSaveStub = true;
+        }
+
+        public void ResetSaveBehaviour()
+        {
+            _isLoadFromSaveStub = false;
         }
     }
 }

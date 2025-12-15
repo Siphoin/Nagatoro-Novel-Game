@@ -2,11 +2,14 @@
 using DG.Tweening;
 using SNEngine.Services;
 using UnityEngine;
+using SNEngine.SaveSystem;
 
 namespace SNEngine.CharacterSystem.Animations.Solid
 {
-    public class SolidCharacterNode : AsyncCharacterNode
+    public class SolidCharacterNode : AsyncCharacterNode, ISaveProgressNode
     {
+        private bool _isLoadFromSaveStub = false;
+
         [Input(connectionType = ConnectionType.Override), Range(0, 1), SerializeField] private float _value;
 
         protected override void Play(Character target, float duration, Ease ease)
@@ -19,7 +22,11 @@ namespace SNEngine.CharacterSystem.Animations.Solid
             {
                 value = GetDataFromPort<float>(nameof(_value));
             }
-            Solid(target, value, duration, ease).Forget();
+
+            float playDuration = _isLoadFromSaveStub ? 0f : duration;
+            Ease playEase = _isLoadFromSaveStub ? Ease.Unset : ease;
+
+            Solid(target, value, playDuration, playEase).Forget();
         }
 
         private async UniTask Solid(Character character, float value, float duration, Ease ease)
@@ -29,6 +36,21 @@ namespace SNEngine.CharacterSystem.Animations.Solid
             await serviceCharacters.SolidCharacter(character, value, duration, ease);
 
             StopTask();
+        }
+
+        public object GetDataForSave()
+        {
+            return null;
+        }
+
+        public void SetDataFromSave(object data)
+        {
+            _isLoadFromSaveStub = true;
+        }
+
+        public void ResetSaveBehaviour()
+        {
+            _isLoadFromSaveStub = false;
         }
     }
 }

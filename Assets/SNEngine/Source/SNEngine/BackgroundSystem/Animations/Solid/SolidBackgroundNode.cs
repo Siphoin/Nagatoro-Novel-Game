@@ -3,11 +3,14 @@ using DG.Tweening;
 using SNEngine.BackgroundSystem.AsyncNodes;
 using SNEngine.Services;
 using UnityEngine;
+using SNEngine.SaveSystem;
 
 namespace SNEngine.BackgroundSystem.Animations.Solid
 {
-    public class SolidBackgroundNode : AsyncBackgroundNode
+    public class SolidBackgroundNode : AsyncBackgroundNode, ISaveProgressNode
     {
+        private bool _isLoadFromSaveStub = false;
+
         [Input(connectionType = ConnectionType.Override), Range(0, 1), SerializeField] private float value;
 
         protected override void Play(float duration, Ease ease)
@@ -20,7 +23,11 @@ namespace SNEngine.BackgroundSystem.Animations.Solid
             {
                 finalValue = GetDataFromPort<float>(nameof(value));
             }
-            Solid(finalValue, duration, ease).Forget();
+
+            float playDuration = _isLoadFromSaveStub ? 0f : duration;
+            Ease playEase = _isLoadFromSaveStub ? Ease.Unset : ease;
+
+            Solid(finalValue, playDuration, playEase).Forget();
         }
 
         private async UniTask Solid(float value, float duration, Ease ease)
@@ -30,6 +37,21 @@ namespace SNEngine.BackgroundSystem.Animations.Solid
             await backgroundService.Solid(duration, value, ease);
 
             StopTask();
+        }
+
+        public object GetDataForSave()
+        {
+            return null;
+        }
+
+        public void SetDataFromSave(object data)
+        {
+            _isLoadFromSaveStub = true;
+        }
+
+        public void ResetSaveBehaviour()
+        {
+            _isLoadFromSaveStub = false;
         }
     }
 }

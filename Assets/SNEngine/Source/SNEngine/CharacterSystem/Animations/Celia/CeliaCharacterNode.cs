@@ -2,11 +2,14 @@
 using DG.Tweening;
 using SNEngine.Services;
 using UnityEngine;
+using SNEngine.SaveSystem;
 
 namespace SNEngine.CharacterSystem.Animations.Celia
 {
-    public class CeliaCharacterNode : AsyncCharacterNode
+    public class CeliaCharacterNode : AsyncCharacterNode, ISaveProgressNode
     {
+        private bool _isLoadFromSaveStub = false;
+
         [Input(connectionType = ConnectionType.Override), Range(0, 1), SerializeField] private float _value;
 
         protected override void Play(Character target, float duration, Ease ease)
@@ -19,16 +22,35 @@ namespace SNEngine.CharacterSystem.Animations.Celia
             {
                 value = GetDataFromPort<float>(nameof(_value));
             }
-            Celia(target, value, duration, ease).Forget();
+
+            float playDuration = _isLoadFromSaveStub ? 0f : duration;
+            Ease playEase = _isLoadFromSaveStub ? Ease.Unset : ease;
+
+            Celia(target, value, playDuration, playEase).Forget();
         }
 
         private async UniTask Celia(Character character, float value, float duration, Ease ease)
         {
             var serviceCharacters = NovelGame.Instance.GetService<CharacterService>();
 
-            await serviceCharacters.IlluminateCharacter(character, value, duration, ease);
+            await serviceCharacters.CeliaCharacter(character, value, duration, ease);
 
             StopTask();
+        }
+
+        public object GetDataForSave()
+        {
+            return null;
+        }
+
+        public void SetDataFromSave(object data)
+        {
+            _isLoadFromSaveStub = true;
+        }
+
+        public void ResetSaveBehaviour()
+        {
+            _isLoadFromSaveStub = false;
         }
     }
 }

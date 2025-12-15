@@ -3,11 +3,14 @@ using DG.Tweening;
 using SNEngine.Animations;
 using SNEngine.Services;
 using UnityEngine;
+using SNEngine.SaveSystem;
 
 namespace SNEngine.CharacterSystem.Animations.Fade
 {
-    public class FadeCharacterInOutNode : AnimationInOutNode<Character>
+    public class FadeCharacterInOutNode : AnimationInOutNode<Character>, ISaveProgressNode
     {
+        private bool _isLoadFromSaveStub = false;
+
         [Input(connectionType = ConnectionType.Override), Range(0, 1), SerializeField] private float _value;
 
         protected override void Play(Character target, float duration, AnimationBehaviourType type, Ease ease)
@@ -21,7 +24,10 @@ namespace SNEngine.CharacterSystem.Animations.Fade
                 value = GetDataFromPort<float>(nameof(_value));
             }
 
-            Fade(target, type, value, ease).Forget();
+            float playDuration = _isLoadFromSaveStub ? 0f : duration;
+            Ease playEase = _isLoadFromSaveStub ? Ease.Unset : ease;
+
+            Fade(target, type, playDuration, playEase).Forget();
         }
 
         private async UniTask Fade(Character character, AnimationBehaviourType animationBehaviour, float duration, Ease ease)
@@ -31,6 +37,21 @@ namespace SNEngine.CharacterSystem.Animations.Fade
             await serviceCharacters.FadeCharacter(character, animationBehaviour, duration, ease);
 
             StopTask();
+        }
+
+        public object GetDataForSave()
+        {
+            return null;
+        }
+
+        public void SetDataFromSave(object data)
+        {
+            _isLoadFromSaveStub = true;
+        }
+
+        public void ResetSaveBehaviour()
+        {
+            _isLoadFromSaveStub = false;
         }
     }
 }

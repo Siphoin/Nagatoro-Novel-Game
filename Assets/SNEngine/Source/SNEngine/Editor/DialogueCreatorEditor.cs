@@ -47,6 +47,13 @@ public static class DialogueCreatorEditor
 
             if (dialogueGraph != null)
             {
+                if (dialogueGraph is BaseGraph baseGraph)
+                {
+#if UNITY_EDITOR
+                    RegenerateGraphGuid(baseGraph);
+#endif
+                }
+
                 RegenerateAllNodeGuids(dialogueGraph);
 
                 EditorUtility.SetDirty(dialogueGraph);
@@ -67,7 +74,18 @@ public static class DialogueCreatorEditor
         }
     }
 
-    // НОВЫЙ МЕТОД ДЛЯ ПЕРЕИМЕНОВАНИЯ
+    private static void RegenerateGraphGuid(BaseGraph graph)
+    {
+        var regenerateMethod = typeof(BaseGraph).GetMethod(RegenerateMethodName,
+            BindingFlags.NonPublic | BindingFlags.Instance);
+
+        if (regenerateMethod != null)
+        {
+            regenerateMethod.Invoke(graph, null);
+            EditorUtility.SetDirty(graph);
+        }
+    }
+
     public static bool RenameDialogueAsset(NodeGraph graph, string newName)
     {
         string assetPath = AssetDatabase.GetAssetPath(graph);

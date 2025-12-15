@@ -4,14 +4,20 @@ using SNEngine.Animations;
 using SNEngine.Services;
 using SNEngine.BackgroundSystem.AsyncNodes;
 using UnityEngine;
+using SNEngine.SaveSystem;
 
 namespace SNEngine.BackgroundSystem.Animations.Dissolve
 {
-    public class DissolveBackgroundNode : DissolveBackgroundNodeBase
+    public class DissolveBackgroundNode : DissolveBackgroundNodeBase, ISaveProgressNode
     {
+        private bool _isLoadFromSaveStub = false;
+
         protected override void Play(float duration, AnimationBehaviourType type, Ease ease, Texture2D texture)
         {
-            Dissolve(duration, type, ease, texture).Forget();
+            float playDuration = _isLoadFromSaveStub ? 0f : duration;
+            Ease playEase = _isLoadFromSaveStub ? Ease.Unset : ease;
+
+            Dissolve(playDuration, type, playEase, texture).Forget();
         }
 
         private async UniTask Dissolve(float duration, AnimationBehaviourType type, Ease ease, Texture2D texture)
@@ -21,6 +27,21 @@ namespace SNEngine.BackgroundSystem.Animations.Dissolve
             await backgroundService.Dissolve(duration, type, ease, texture);
 
             StopTask();
+        }
+
+        public object GetDataForSave()
+        {
+            return null;
+        }
+
+        public void SetDataFromSave(object data)
+        {
+            _isLoadFromSaveStub = true;
+        }
+
+        public void ResetSaveBehaviour()
+        {
+            _isLoadFromSaveStub = false;
         }
     }
 }
