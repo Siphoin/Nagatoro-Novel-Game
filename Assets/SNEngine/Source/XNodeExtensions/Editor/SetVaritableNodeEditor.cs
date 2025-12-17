@@ -1,73 +1,39 @@
 ﻿#if UNITY_EDITOR
-using UnityEditor;
-using UnityEngine;
 using XNodeEditor;
 using SiphoinUnityHelpers.XNodeExtensions.Varitables.Set;
-using System;
-using System.Linq;
+using SiphoinUnityHelpers.XNodeExtensions.Varitables.Collection;
 
 namespace SiphoinUnityHelpers.XNodeExtensions.Editor
 {
-    [CustomNodeEditor(typeof(SetVaritableNode<int>))]
+    [CustomNodeEditor(typeof(SetVaritableNode<>))]
     public class SetVaritableNodeEditor : NodeEditor
     {
         public override void OnBodyGUI()
         {
-            serializedObject.Update();
-            var inputPort = target.GetInputPort("_varitable");
-
-            if (inputPort != null && !inputPort.IsConnected)
-            {
-                var guidProp = serializedObject.FindProperty("_targetGuid");
-                GUILayout.Space(10);
-                EditorGUILayout.BeginVertical(GUI.skin.box);
-
-                string currentGuid = guidProp?.stringValue;
-                string displayName = "Select Variable";
-
-                if (!string.IsNullOrEmpty(currentGuid) && target.graph is BaseGraph baseGraph)
-                {
-                    var linkedNode = baseGraph.GetNodeByGuid(currentGuid) as VaritableNode;
-                    if (linkedNode != null)
-                    {
-                        displayName = $"Target: {linkedNode.Name}";
-                    }
-                }
-
-                if (GUILayout.Button(displayName, EditorStyles.miniButton))
-                {
-                    Type genericType = GetGenericType(target.GetType());
-
-                    VaritableSelectorWindow.Open(target.graph as BaseGraph, genericType, (selectedNode) =>
-                    {
-                        var innerProp = serializedObject.FindProperty("_targetGuid");
-                        if (innerProp != null)
-                        {
-                            innerProp.stringValue = selectedNode.GUID;
-                            serializedObject.ApplyModifiedProperties();
-                        }
-                    });
-                }
-
-                EditorGUILayout.EndVertical();
-            }
-            base.OnBodyGUI();
-
-            serializedObject.ApplyModifiedProperties();
-        }
-
-        private Type GetGenericType(Type type)
-        {
-            while (type != null && type != typeof(object))
-            {
-                if (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(SetVaritableNode<>))
-                {
-                    return type.GetGenericArguments()[0];
-                }
-                type = type.BaseType;
-            }
-            return null;
+            XNodeEditorHelpers.DrawSetVaritableBody(this, serializedObject);
         }
     }
+
+    [CustomNodeEditor(typeof(SetIntNode))] public class SetIntNodeEditor : SetVaritableNodeEditor { }
+    [CustomNodeEditor(typeof(SetUintNode))] public class SetUintNodeEditor : SetVaritableNodeEditor { }
+    [CustomNodeEditor(typeof(SetStringNode))] public class SetStringNodeEditor : SetVaritableNodeEditor { }
+    [CustomNodeEditor(typeof(SetFloatNode))] public class SetFloatNodeEditor : SetVaritableNodeEditor { }
+    [CustomNodeEditor(typeof(SetDoubleNode))] public class SetDoubleNodeEditor : SetVaritableNodeEditor { }
+    [CustomNodeEditor(typeof(SetBoolNode))] public class SetBoolNodeEditor : SetVaritableNodeEditor { }
+    [CustomNodeEditor(typeof(SetColorNode))] public class SetColorNodeEditor : SetVaritableNodeEditor { }
+    [CustomNodeEditor(typeof(SetVector2Node))] public class SetVector2NodeEditor : SetVaritableNodeEditor { }
+    [CustomNodeEditor(typeof(SetVector3Node))] public class SetVector3NodeEditor : SetVaritableNodeEditor { }
+    [CustomNodeEditor(typeof(SetQuaternionNode))] public class SetQuaternionNodeEditor : SetVaritableNodeEditor { }
+
+    [CustomNodeEditor(typeof(IntNode))] public class SetIntCollectionNodeEditor : SetVaritableNodeEditor { }
+    [CustomNodeEditor(typeof(UintNode))] public class SetUintCollectionNodeEditor : SetVaritableNodeEditor { }
+    [CustomNodeEditor(typeof(StringNode))] public class SetStringCollectionNodeEditor : SetVaritableNodeEditor { }
+    [CustomNodeEditor(typeof(FloatNode))] public class SetFloatCollectionNodeEditor : SetVaritableNodeEditor { }
+    [CustomNodeEditor(typeof(DoubleNode))] public class SetDoubleCollectionNodeEditor : SetVaritableNodeEditor { }
+    [CustomNodeEditor(typeof(BoolNode))] public class SetBoolCollectionNodeEditor : SetVaritableNodeEditor { }
+    [CustomNodeEditor(typeof(ColorNode))] public class SetColorCollectionNodeEditor : SetVaritableNodeEditor { }
+    [CustomNodeEditor(typeof(Vector2Node))] public class SetVector2CollectionNodeEditor : SetVaritableNodeEditor { }
+    [CustomNodeEditor(typeof(Vector3Node))] public class SetVector3CollectionNodeEditor : SetVaritableNodeEditor { }
+    [CustomNodeEditor(typeof(QuaternionNode))] public class SetQuaternionCollectionNodeEditor : SetVaritableNodeEditor { }
 }
 #endif

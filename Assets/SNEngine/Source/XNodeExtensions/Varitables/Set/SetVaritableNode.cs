@@ -4,7 +4,7 @@ namespace SiphoinUnityHelpers.XNodeExtensions.Varitables.Set
 {
     public abstract class SetVaritableNode<T> : BaseNodeInteraction
     {
-        [Input(ShowBackingValue.Never), SerializeField] private T _varitable;
+        [Input(ShowBackingValue.Never, ConnectionType.Override), SerializeField] private T _varitable;
 
         [Input, SerializeField] private T _value;
 

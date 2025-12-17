@@ -129,18 +129,20 @@ namespace SiphoinUnityHelpers.XNodeExtensions.Editor
         {
             if (_requiredType == null) return true;
 
-            var nodeType = node.GetType();
-            var baseType = nodeType;
-            while (baseType != null && baseType != typeof(object))
+            Type nodeType = node.GetType();
+            while (nodeType != null && nodeType != typeof(object))
             {
-                if (baseType.IsGenericType && baseType.GetGenericTypeDefinition() == typeof(VaritableNode<>))
+                if (nodeType.IsGenericType)
                 {
-                    var genericArg = baseType.GetGenericArguments()[0];
-                    return genericArg == _requiredType || _requiredType.IsAssignableFrom(genericArg);
+                    Type def = nodeType.GetGenericTypeDefinition();
+                    if (def == typeof(VaritableNode<>) || def == typeof(VaritableCollectionNode<>))
+                    {
+                        Type nodeVarType = nodeType.GetGenericArguments()[0];
+                        return _requiredType.IsAssignableFrom(nodeVarType);
+                    }
                 }
-                baseType = baseType.BaseType;
+                nodeType = nodeType.BaseType;
             }
-
             return false;
         }
     }

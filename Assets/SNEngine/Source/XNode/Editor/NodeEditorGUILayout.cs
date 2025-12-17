@@ -10,7 +10,27 @@ using UnityEngine;
 namespace XNodeEditor {
     /// <summary> xNode-specific version of <see cref="EditorGUILayout"/> </summary>
     public static class NodeEditorGUILayout {
+        public struct PropertyEditorTag
+        {
+            public string name;
+        }
 
+        public static IEnumerable<PropertyEditorTag> GetFilteredFields(SerializedObject serializedObject)
+        {
+            SerializedProperty iterator = serializedObject.GetIterator();
+            bool enterChildren = true;
+            while (iterator.NextVisible(enterChildren))
+            {
+                enterChildren = false;
+
+                if (iterator.name == "m_Script") continue;
+                if (iterator.name == "graph") continue;
+                if (iterator.name == "position") continue;
+                if (iterator.name == "ports") continue;
+
+                yield return new PropertyEditorTag { name = iterator.name };
+            }
+        }
         private static readonly Dictionary<UnityEngine.Object, Dictionary<string, ReorderableList>> reorderableListCache = new Dictionary<UnityEngine.Object, Dictionary<string, ReorderableList>>();
         private static int reorderableListIndex = -1;
 
