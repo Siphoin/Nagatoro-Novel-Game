@@ -2,13 +2,13 @@
 using UnityEditor;
 using UnityEngine;
 using XNodeEditor;
-using SNEngine.BackgroundSystem;
+using SiphoinUnityHelpers.XNodeExtensions.Varitables;
 using SiphoinUnityHelpers.Editor;
 
 namespace SNEngine.Editor
 {
-    [CustomNodeEditor(typeof(SetBackgroundNode))]
-    public class SetBackgroundNodeEditor : NodeEditor
+    [CustomNodeEditor(typeof(SpriteNode))]
+    public class SpriteNodeEditor : NodeEditor
     {
         public override void OnBodyGUI()
         {
@@ -16,27 +16,33 @@ namespace SNEngine.Editor
 
             foreach (var tag in NodeEditorGUILayout.GetFilteredFields(serializedObject))
             {
-                if (tag.name == "_sprite") continue;
+                if (tag.name == "_value") continue;
                 NodeEditorGUILayout.PropertyField(serializedObject.FindProperty(tag.name));
             }
 
-            GUILayout.Space(10);
+            GUILayout.Space(5);
 
-            SerializedProperty spriteProp = serializedObject.FindProperty("_sprite");
-            Sprite currentSprite = spriteProp.objectReferenceValue as Sprite;
+            SerializedProperty valueProp = serializedObject.FindProperty("_value");
+            Sprite currentSprite = valueProp.objectReferenceValue as Sprite;
 
             Color prevBg = GUI.backgroundColor;
             GUI.backgroundColor = currentSprite != null ? new Color(0.4f, 0.75f, 0.45f) : new Color(0.75f, 0.4f, 0.4f);
 
             EditorGUILayout.BeginVertical(GUI.skin.box);
 
-            Rect rect = GUILayoutUtility.GetRect(10, currentSprite != null ? 100 : 40);
+            Rect rect = GUILayoutUtility.GetRect(10, currentSprite != null ? 70 : 30);
 
-            string btnText = currentSprite != null ? "" : "Select Background";
-
-            if (GUI.Button(rect, btnText))
+            if (GUI.Button(rect, currentSprite == null ? "Select Sprite" : ""))
             {
-                OpenSelector();
+                SpriteSelectorWindow.Open((selected) => {
+                    var so = new SerializedObject(target);
+                    var p = so.FindProperty("_value");
+                    if (p != null)
+                    {
+                        p.objectReferenceValue = selected;
+                        so.ApplyModifiedProperties();
+                    }
+                }, SpriteSelectorWindow.SpriteCategory.All);
             }
 
             if (currentSprite != null)
@@ -47,7 +53,7 @@ namespace SNEngine.Editor
                     GUI.DrawTexture(rect, preview, ScaleMode.ScaleToFit);
                 }
 
-                Rect labelRect = new Rect(rect.x, rect.yMax - 18, rect.width, 18);
+                Rect labelRect = new Rect(rect.x, rect.yMax - 16, rect.width, 16);
                 EditorGUI.DrawRect(labelRect, new Color(0, 0, 0, 0.6f));
                 GUI.Label(labelRect, currentSprite.name, EditorStyles.centeredGreyMiniLabel);
             }
@@ -56,19 +62,6 @@ namespace SNEngine.Editor
 
             GUI.backgroundColor = prevBg;
             serializedObject.ApplyModifiedProperties();
-        }
-
-        private void OpenSelector()
-        {
-            SpriteSelectorWindow.Open((selected) => {
-                var so = new SerializedObject(target);
-                var p = so.FindProperty("_sprite");
-                if (p != null)
-                {
-                    p.objectReferenceValue = selected;
-                    so.ApplyModifiedProperties();
-                }
-            }, SpriteSelectorWindow.SpriteCategory.Backgrounds);
         }
     }
 }

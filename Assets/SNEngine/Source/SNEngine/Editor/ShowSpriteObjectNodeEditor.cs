@@ -2,13 +2,13 @@
 using UnityEditor;
 using UnityEngine;
 using XNodeEditor;
-using SNEngine.BackgroundSystem;
+using SNEngine.SpriteObjectSystem;
 using SiphoinUnityHelpers.Editor;
 
 namespace SNEngine.Editor
 {
-    [CustomNodeEditor(typeof(SetBackgroundNode))]
-    public class SetBackgroundNodeEditor : NodeEditor
+    [CustomNodeEditor(typeof(ShowSpriteObjectNode))]
+    public class ShowSpriteObjectNodeEditor : NodeEditor
     {
         public override void OnBodyGUI()
         {
@@ -30,9 +30,9 @@ namespace SNEngine.Editor
 
             EditorGUILayout.BeginVertical(GUI.skin.box);
 
-            Rect rect = GUILayoutUtility.GetRect(10, currentSprite != null ? 100 : 40);
+            Rect rect = GUILayoutUtility.GetRect(10, currentSprite != null ? 80 : 32);
 
-            string btnText = currentSprite != null ? "" : "Select Background";
+            string btnText = currentSprite != null ? "" : "Select Sprite";
 
             if (GUI.Button(rect, btnText))
             {
@@ -47,7 +47,7 @@ namespace SNEngine.Editor
                     GUI.DrawTexture(rect, preview, ScaleMode.ScaleToFit);
                 }
 
-                Rect labelRect = new Rect(rect.x, rect.yMax - 18, rect.width, 18);
+                Rect labelRect = new Rect(rect.x, rect.yMax - 16, rect.width, 16);
                 EditorGUI.DrawRect(labelRect, new Color(0, 0, 0, 0.6f));
                 GUI.Label(labelRect, currentSprite.name, EditorStyles.centeredGreyMiniLabel);
             }
@@ -68,7 +68,7 @@ namespace SNEngine.Editor
                     p.objectReferenceValue = selected;
                     so.ApplyModifiedProperties();
                 }
-            }, SpriteSelectorWindow.SpriteCategory.Backgrounds);
+            }, SpriteSelectorWindow.SpriteCategory.All);
         }
     }
 }
