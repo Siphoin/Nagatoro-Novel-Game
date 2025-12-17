@@ -70,7 +70,20 @@ namespace SNEngine.SelectVariantsSystem
 
         public void Hide()
         {
+            HideButtons();
             gameObject.SetActive(false);
+        }
+
+        private void HideButtons()
+        {
+            var buttons = _pool.Objects;
+
+            foreach (var button in buttons)
+            {
+                button.OnSelect -= OnSelectVariant;
+
+                button.Hide();
+            }
         }
 
         public void SetData(IEnumerable<string> data, AnimationButtonsType animationType)
@@ -108,15 +121,7 @@ namespace SNEngine.SelectVariantsSystem
         private void OnSelectVariant(int index)
         {
             NovelGameDebug.Log($"user selected button variant by index {index}");
-
-            var buttons = _pool.Objects;
-
-            foreach (var button in buttons)
-            {
-                button.OnSelect -= OnSelectVariant;
-
-                button.Hide();
-            }
+            HideButtons();
 
             OnSelect?.Invoke(index);
 
@@ -158,6 +163,11 @@ namespace SNEngine.SelectVariantsSystem
             Show();
 
             SetData(variants, animationType);
+        }
+
+        public void ResetState()
+        {
+            Hide();
         }
     }
 }

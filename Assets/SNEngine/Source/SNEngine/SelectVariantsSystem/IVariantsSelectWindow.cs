@@ -1,6 +1,6 @@
 ﻿namespace SNEngine.SelectVariantsSystem
 {
-    public interface IVariantsSelectWindow : IShowable, IHidden, IShowerVariants, ISelectableVariant
+    public interface IVariantsSelectWindow : IShowable, IHidden, IShowerVariants, ISelectableVariant, IResetable
     {
     }
 }
