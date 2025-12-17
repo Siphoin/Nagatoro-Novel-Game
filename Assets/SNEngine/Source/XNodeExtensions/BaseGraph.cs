@@ -1,14 +1,9 @@
 ﻿using Cysharp.Threading.Tasks;
-using SiphoinUnityHelpers.XNodeExtensions.AsyncNodes;
-using SiphoinUnityHelpers.XNodeExtensions.Attributes;
 using SiphoinUnityHelpers.XNodeExtensions.Debugging;
-using SiphoinUnityHelpers.XNodeExtensions.Exceptions;
 using SNEngine.AsyncNodes;
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using UnityEngine;
 using XNode;
 
@@ -177,6 +172,7 @@ namespace SiphoinUnityHelpers.XNodeExtensions
         {
             List<BaseNodeInteraction> executableNodes = nodes
                 .OfType<BaseNodeInteraction>()
+                .Where(x => x.Enabled)
                 .ToList();
 
             var allInteractionNodes = executableNodes
@@ -291,17 +287,9 @@ namespace SiphoinUnityHelpers.XNodeExtensions
 
 
 
-    public BaseNode GetNodeByGuid (string guid)
+        public BaseNode GetNodeByGuid(string guid)
         {
-            foreach (var node in from item in nodes
-                                 let node = item as BaseNode
-                                 where node.GUID == guid
-                                 select node)
-            {
-                return node;
-            }
-
-            return null;
+            return nodes.OfType<BaseNode>().FirstOrDefault(n => n.GUID == guid);
         }
 
         private async UniTask ExecuteProcess ()
