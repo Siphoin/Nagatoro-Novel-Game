@@ -172,7 +172,6 @@ namespace SiphoinUnityHelpers.XNodeExtensions
         {
             List<BaseNodeInteraction> executableNodes = nodes
                 .OfType<BaseNodeInteraction>()
-                .Where(x => x.Enabled)
                 .ToList();
 
             var allInteractionNodes = executableNodes

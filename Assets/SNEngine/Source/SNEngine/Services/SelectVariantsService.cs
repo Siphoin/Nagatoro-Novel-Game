@@ -59,11 +59,5 @@ namespace SNEngine.Services
 
             _window.Hide();
         }
-
-        public override void ResetState()
-        {
-            _window.OnSelect -= OnSelectVariant;
-            _window.ResetState();
-        }
     }
 }
