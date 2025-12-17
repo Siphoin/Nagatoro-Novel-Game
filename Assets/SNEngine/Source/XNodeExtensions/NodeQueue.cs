@@ -10,6 +10,11 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using UnityEngine;
+using XNode;
+
+#if UNITY_EDITOR
+using UnityEditor;
+#endif
 
 namespace SiphoinUnityHelpers.XNodeExtensions
 {
@@ -32,6 +37,22 @@ namespace SiphoinUnityHelpers.XNodeExtensions
 
         public IEnumerable<AsyncNode> AsyncNodes => _asyncNodes;
         public IEnumerable<ExitNode> ExitNodes => _exitNodes;
+
+#if UNITY_EDITOR
+        [InitializeOnLoadMethod]
+        private static void InitEditorTracker()
+        {
+            EditorApplication.playModeStateChanged += LogPlayModeState;
+        }
+
+        private static void LogPlayModeState(PlayModeStateChange state)
+        {
+            if (state == PlayModeStateChange.ExitingPlayMode || state == PlayModeStateChange.EnteredEditMode)
+            {
+                NodeHighlighter.ClearAllHighlights();
+            }
+        }
+#endif
 
         public NodeQueue(BaseGraph parentGraph, IEnumerable<BaseNodeInteraction> nodes)
         {
@@ -107,7 +128,9 @@ namespace SiphoinUnityHelpers.XNodeExtensions
                 if (node is IIncludeWaitingNode asyncNode)
                 {
                     XNodeExtensionsDebug.Log($"Wait node <b>{node.name}</b> GUID: <b>{node.GUID}</b>");
+                    NodeHighlighter.HighlightNode(node, Color.green);
                     await XNodeExtensionsUniTask.WaitAsyncNode(asyncNode, _cancellationTokenSource);
+                    NodeHighlighter.RemoveHighlight(node);
                 }
 
                 _index = Mathf.Clamp(_index + 1, 0, _nodes.Count - 1);
@@ -125,6 +148,7 @@ namespace SiphoinUnityHelpers.XNodeExtensions
 
         public void Exit()
         {
+            NodeHighlighter.ClearAllHighlights();
             _index = 0;
             StopAsyncNodes();
             _cancellationTokenSource?.Cancel();

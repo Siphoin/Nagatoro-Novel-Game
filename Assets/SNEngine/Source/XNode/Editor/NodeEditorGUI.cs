@@ -522,8 +522,9 @@ namespace XNodeEditor
                 GUILayout.BeginArea(new Rect(nodePos, new Vector2(nodeEditor.GetWidth(), 4000)));
 
                 bool selected = selectionCache.Contains(graph.nodes[n]);
+                bool highlighted = XNode.NodeHighlighter.IsNodeHighlighted(node);
 
-                if (selected)
+                if (selected || highlighted)
                 {
                     GUIStyle style = new GUIStyle(nodeEditor.GetBodyStyle());
                     GUIStyle highlightStyle = new GUIStyle(nodeEditor.GetBodyHighlightStyle());
@@ -531,7 +532,16 @@ namespace XNodeEditor
                     style.padding = new RectOffset();
                     GUI.color = nodeEditor.GetTint();
                     GUILayout.BeginVertical(style);
-                    GUI.color = NodeEditorPreferences.GetSettings().highlightColor;
+                    if (selected)
+                    {
+                        // Use the default selection highlight color
+                        GUI.color = NodeEditorPreferences.GetSettings().highlightColor;
+                    }
+                    else
+                    {
+                        // Use custom highlight color from NodeHighlighter
+                        GUI.color = XNode.NodeHighlighter.GetHighlightColor(node);
+                    }
                     GUILayout.BeginVertical(new GUIStyle(highlightStyle));
                 }
                 else
@@ -572,7 +582,7 @@ namespace XNodeEditor
                     }
                 }
 
-                if (selected) GUILayout.EndVertical();
+                if (selected || highlighted) GUILayout.EndVertical();
 
                 // Hover logic
                 if (e.type != EventType.Layout)
