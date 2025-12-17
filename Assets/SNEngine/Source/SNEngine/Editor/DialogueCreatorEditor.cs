@@ -117,37 +117,9 @@ public static class DialogueCreatorEditor
 
     public static void OpenGraph(NodeGraph graph)
     {
-        var nodeEditorWindowType = typeof(EditorWindow).Assembly.GetType(NodeEditorWindowTypeName);
+        if (graph == null) return;
 
-        if (nodeEditorWindowType == null)
-        {
-            var assemblies = System.AppDomain.CurrentDomain.GetAssemblies();
-            nodeEditorWindowType = assemblies
-                .Select(a => a.GetType(NodeEditorWindowTypeName))
-                .FirstOrDefault(t => t != null);
-        }
-
-        if (nodeEditorWindowType == null)
-        {
-            Debug.LogError($"[DialogueCreator] Failed to find type {NodeEditorWindowTypeName}. Ensure XNodeEditor is imported.");
-            return;
-        }
-
-        var openMethod = nodeEditorWindowType.GetMethod("Open", BindingFlags.Public | BindingFlags.Static | BindingFlags.FlattenHierarchy);
-
-        if (openMethod == null)
-        {
-            openMethod = nodeEditorWindowType.GetMethod("Init", BindingFlags.Public | BindingFlags.Static | BindingFlags.FlattenHierarchy);
-        }
-
-        if (openMethod != null)
-        {
-            openMethod.Invoke(null, new object[] { graph });
-        }
-        else
-        {
-            Debug.LogError($"[DialogueCreator] Neither 'Open' nor 'Init' method found in {NodeEditorWindowTypeName} to open the graph.");
-        }
+        XNodeEditor.NodeEditorWindow.Open(graph);
     }
 
     private static string GetUniqueDialogueAssetName()
