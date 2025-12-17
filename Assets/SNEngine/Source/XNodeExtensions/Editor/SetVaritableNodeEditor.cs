@@ -22,7 +22,6 @@ namespace SiphoinUnityHelpers.XNodeExtensions.Editor
     [CustomNodeEditor(typeof(SetBoolNode))] public class SetBoolNodeEditor : SetVaritableNodeEditor { }
     [CustomNodeEditor(typeof(SetColorNode))] public class SetColorNodeEditor : SetVaritableNodeEditor { }
     [CustomNodeEditor(typeof(SetVector2Node))] public class SetVector2NodeEditor : SetVaritableNodeEditor { }
-    [CustomNodeEditor(typeof(SetVector3Node))] public class SetVector3NodeEditor : SetVaritableNodeEditor { }
     [CustomNodeEditor(typeof(SetQuaternionNode))] public class SetQuaternionNodeEditor : SetVaritableNodeEditor { }
 
     [CustomNodeEditor(typeof(IntNode))] public class SetIntCollectionNodeEditor : SetVaritableNodeEditor { }
@@ -33,7 +32,6 @@ namespace SiphoinUnityHelpers.XNodeExtensions.Editor
     [CustomNodeEditor(typeof(BoolNode))] public class SetBoolCollectionNodeEditor : SetVaritableNodeEditor { }
     [CustomNodeEditor(typeof(ColorNode))] public class SetColorCollectionNodeEditor : SetVaritableNodeEditor { }
     [CustomNodeEditor(typeof(Vector2Node))] public class SetVector2CollectionNodeEditor : SetVaritableNodeEditor { }
-    [CustomNodeEditor(typeof(Vector3Node))] public class SetVector3CollectionNodeEditor : SetVaritableNodeEditor { }
     [CustomNodeEditor(typeof(QuaternionNode))] public class SetQuaternionCollectionNodeEditor : SetVaritableNodeEditor { }
 }
 #endif
