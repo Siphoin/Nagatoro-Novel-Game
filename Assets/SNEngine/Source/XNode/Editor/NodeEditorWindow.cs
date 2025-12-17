@@ -202,6 +202,21 @@ namespace XNodeEditor {
             NodeEditorWindow w = GetWindow(typeof(NodeEditorWindow), false, "xNode", true) as NodeEditorWindow;
             w.wantsMouseMove = true;
             w.graph = graph;
+
+            // Позиционировать окно к стартовой ноде (нода с индексом 0)
+            if (graph.nodes.Count > 0) {
+                XNode.Node startNode = graph.nodes[0];
+                if (startNode != null) {
+                    // Установить позицию просмотра к стартовой ноде
+                    Vector2 nodeSize = w.nodeSizes.ContainsKey(startNode) ? w.nodeSizes[startNode] / 2 : Vector2.zero;
+                    w.panOffset = -startNode.position - nodeSize;
+                }
+            } else {
+                // Если нод нет, сбросить позицию и зум
+                w.zoom = 1;
+                w.panOffset = Vector2.zero;
+            }
+
             return w;
         }
 
