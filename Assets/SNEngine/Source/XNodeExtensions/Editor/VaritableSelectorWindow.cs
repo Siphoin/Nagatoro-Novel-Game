@@ -44,15 +44,10 @@ namespace SiphoinUnityHelpers.XNodeExtensions.Editor
                 _localNodes.AddRange(_targetGraph.nodes.OfType<VaritableNode>().Where(IsCompatibleType));
             }
 
-            string[] guids = AssetDatabase.FindAssets($"t:{nameof(VaritableContainerGraph)}");
-            foreach (string guid in guids)
+            var globalContainer = Resources.Load<VaritableContainerGraph>("VaritableContainerGraph");
+            if (globalContainer != null && globalContainer != _targetGraph)
             {
-                string path = AssetDatabase.GUIDToAssetPath(guid);
-                var container = AssetDatabase.LoadAssetAtPath<VaritableContainerGraph>(path);
-                if (container != null && container != _targetGraph)
-                {
-                    _globalNodes.AddRange(container.nodes.OfType<VaritableNode>().Where(IsCompatibleType));
-                }
+                _globalNodes.AddRange(globalContainer.nodes.OfType<VaritableNode>().Where(IsCompatibleType));
             }
         }
 
