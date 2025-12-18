@@ -14,6 +14,7 @@ namespace SiphoinUnityHelpers.XNodeExtensions.Editor
         }
     }
 
+    // Базовые типы
     [CustomNodeEditor(typeof(SetIntNode))] public class SetIntNodeEditor : SetVaritableNodeEditor { }
     [CustomNodeEditor(typeof(SetUintNode))] public class SetUintNodeEditor : SetVaritableNodeEditor { }
     [CustomNodeEditor(typeof(SetStringNode))] public class SetStringNodeEditor : SetVaritableNodeEditor { }
@@ -24,6 +25,12 @@ namespace SiphoinUnityHelpers.XNodeExtensions.Editor
     [CustomNodeEditor(typeof(SetVector2Node))] public class SetVector2NodeEditor : SetVaritableNodeEditor { }
     [CustomNodeEditor(typeof(SetQuaternionNode))] public class SetQuaternionNodeEditor : SetVaritableNodeEditor { }
 
+    // Unity-типы
+    [CustomNodeEditor(typeof(SetTransformNode))] public class SetTransformNodeEditor : SetVaritableNodeEditor { }
+    [CustomNodeEditor(typeof(SetUlongNode))] public class SetUlongNodeEditor : SetVaritableNodeEditor { }
+
+
+    // Коллекции
     [CustomNodeEditor(typeof(IntNode))] public class SetIntCollectionNodeEditor : SetVaritableNodeEditor { }
     [CustomNodeEditor(typeof(UintNode))] public class SetUintCollectionNodeEditor : SetVaritableNodeEditor { }
     [CustomNodeEditor(typeof(StringNode))] public class SetStringCollectionNodeEditor : SetVaritableNodeEditor { }

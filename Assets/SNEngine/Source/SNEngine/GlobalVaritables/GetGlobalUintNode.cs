@@ -1,7 +1,7 @@
 ﻿namespace SNEngine.GlobalVaritables
 {
     [NodeTint("#524a4a")]
-    public class GetGlobalIntNode : GetGlobalVaritableNode<int>
+    public class GetGlobalUintNode : GetGlobalVaritableNode<uint>
     {
     }
 

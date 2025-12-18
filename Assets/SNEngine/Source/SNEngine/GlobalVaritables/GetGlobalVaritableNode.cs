@@ -8,7 +8,7 @@ using XNode;
 
 namespace SNEngine.GlobalVaritables
 {
-    public abstract class GetVaritableValueNode<T> : BaseNode
+    public abstract class GetGlobalVaritableNode<T> : BaseNode
     {
         [SerializeField, HideInInspector] private string _guidVaritable;
         [Output] private T _result;

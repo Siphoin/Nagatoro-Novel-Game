@@ -121,7 +121,7 @@ MonoBehaviour:
   _color:
     serializedVersion: 2
     rgba: 4294967295
-  _value: 579
+  _value: 0
 --- !u!114 &11400000
 MonoBehaviour:
   m_ObjectHideFlags: 0
