@@ -1,5 +1,38 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
+--- !u!114 &-5363993175773739794
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e9252662679f7e14d96f63060a564443, type: 3}
+  m_Name: <color=#FFFFFF>Quaternion Varitable (Quaternion)</color>
+  m_EditorClassIdentifier: 
+  graph: {fileID: 11400000}
+  position: {x: 252.19922, y: 653.74}
+  ports:
+    keys:
+    - _value
+    values:
+    - _fieldName: _value
+      _node: {fileID: -5363993175773739794}
+      _typeQualifiedName: UnityEngine.Quaternion, UnityEngine.CoreModule, Version=0.0.0.0,
+        Culture=neutral, PublicKeyToken=null
+      connections: []
+      _direction: 1
+      _connectionType: 0
+      _typeConstraint: 0
+      _dynamic: 0
+  _nodeGuid: d88e13541b58498
+  _name: Quaternion Varitable
+  _color:
+    serializedVersion: 2
+    rgba: 4294967295
+  _value: {x: 0, y: 0, z: 0, w: 0}
 --- !u!114 &-355433451951788520
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -79,6 +112,8 @@ MonoBehaviour:
   - {fileID: 3614649554844878695}
   - {fileID: 7560040985966242324}
   - {fileID: -355433451951788520}
+  - {fileID: -5363993175773739794}
+  - {fileID: 6888241018038683808}
   _guid: a12a8e40cdc241c
 --- !u!114 &992714648617222659
 MonoBehaviour:
@@ -273,6 +308,39 @@ MonoBehaviour:
   _varitable: {fileID: 0}
   _value: {fileID: 21300000, guid: 73ab1582bc293394ea87fee81e1c9ee5, type: 3}
   _targetGuid: bcb7d66466474b9
+--- !u!114 &6888241018038683808
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0b4660529a35bb04a9d48562384662f0, type: 3}
+  m_Name: <color=#FFFFFF>Vector 2 Varitable (Vector 2)</color>
+  m_EditorClassIdentifier: 
+  graph: {fileID: 11400000}
+  position: {x: 536, y: 808}
+  ports:
+    keys:
+    - _value
+    values:
+    - _fieldName: _value
+      _node: {fileID: 6888241018038683808}
+      _typeQualifiedName: UnityEngine.Vector2, UnityEngine.CoreModule, Version=0.0.0.0,
+        Culture=neutral, PublicKeyToken=null
+      connections: []
+      _direction: 1
+      _connectionType: 0
+      _typeConstraint: 0
+      _dynamic: 0
+  _nodeGuid: c1498fe42287474
+  _name: Vector 2 Varitable
+  _color:
+    serializedVersion: 2
+    rgba: 4294967295
+  _value: {x: 0.58, y: 0}
 --- !u!114 &7560040985966242324
 MonoBehaviour:
   m_ObjectHideFlags: 0
