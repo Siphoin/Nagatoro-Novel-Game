@@ -3,11 +3,6 @@ using System.Collections.Generic;
 using UnityEngine;
 using SNEngine.Debugging;
 using System.Linq;
-using UnityEditor.VersionControl;
-
-
-
-
 
 #if UNITY_EDITOR
 using UnityEditor;
@@ -21,36 +16,36 @@ namespace SNEngine.Serialization
         public abstract object GetAsset(string guid);
         public abstract void Add(object asset);
     }
+
     public abstract partial class BaseAssetLibrary<T> : BaseAssetLibrary where T : UnityEngine.Object
     {
-
         [SerializeField] private List<Entry> _entries = new List<Entry>();
 
         public IReadOnlyList<Entry> Entries => _entries;
 
         public override void Add(object asset)
         {
-            var targetType = GetTypeAsset();
+            if (asset == null) return;
 
+            var targetType = GetTypeAsset();
             if (asset.GetType() != targetType)
             {
-                NovelGameDebug.LogError($"invalid type asset for library {GetType().Name} Type: {asset.GetType().Name}");
-                return;
-            }
-            if (asset is null)
-            {
+                NovelGameDebug.LogError($"Invalid type asset for library {GetType().Name}. Expected: {targetType.Name}, Got: {asset.GetType().Name}");
                 return;
             }
 
-            string guid = string.Empty;
             T convertedAsset = asset as T;
+            if (convertedAsset == null) return;
+
+            string guid = string.Empty;
 
 #if UNITY_EDITOR
             string path = AssetDatabase.GetAssetPath(convertedAsset);
-            if (!string.IsNullOrEmpty(path))
+            if (string.IsNullOrEmpty(path))
             {
-                guid = AssetDatabase.AssetPathToGUID(path);
+                return;
             }
+            guid = AssetDatabase.AssetPathToGUID(path);
 #endif
 
             if (string.IsNullOrEmpty(guid))
@@ -69,37 +64,29 @@ namespace SNEngine.Serialization
 
         public override object GetAsset(string guid)
         {
-            var entity = Entries.FirstOrDefault(x => x.Guid == guid);
-            if (entity is null)
-            {
-                return null;
-            }
-
-            else
-            {
-                return entity.Asset;
-            }
+            var entity = _entries.FirstOrDefault(x => x.Guid == guid);
+            return entity?.Asset;
         }
 
         public string GetGuid(T asset)
         {
-            var entity = Entries.FirstOrDefault(x => x.Asset == asset);
-            if (entity is null)
-            {
-                return null;
-            }
-
-            else
-            {
-                return entity.Guid;
-            }
+            var entity = _entries.FirstOrDefault(x => x.Asset == asset);
+            return entity?.Guid;
         }
-             
 
-        public override Type GetTypeAsset ()
+        public override Type GetTypeAsset()
         {
-            return typeof(T); 
+            return typeof(T);
         }
-    }
 
+#if UNITY_EDITOR
+        protected virtual void OnValidate()
+        {
+            if (_entries.RemoveAll(e => e.Asset == null) > 0)
+            {
+                EditorUtility.SetDirty(this);
+            }
+        }
+#endif
+    }
 }

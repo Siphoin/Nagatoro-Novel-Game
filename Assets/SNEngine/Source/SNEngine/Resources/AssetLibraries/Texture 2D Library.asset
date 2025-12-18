@@ -9,8 +9,8 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 4dbd75370e6c1da40a3781cdfb59b5d9, type: 3}
-  m_Name: Audio Clip Library
+  m_Script: {fileID: 11500000, guid: 8303f7fd82a28f447aa00d73ead42792, type: 3}
+  m_Name: Texture 2D Library
   m_EditorClassIdentifier: 
-  _guidSO: de65e4d70628440
+  _guidSO: d62afa47da8f45a
   _entries: []

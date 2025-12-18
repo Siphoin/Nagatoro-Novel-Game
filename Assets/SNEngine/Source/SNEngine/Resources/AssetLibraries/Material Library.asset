@@ -9,8 +9,8 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 4dbd75370e6c1da40a3781cdfb59b5d9, type: 3}
-  m_Name: Audio Clip Library
+  m_Script: {fileID: 11500000, guid: d5fe8022ec156d24aba212757f328d44, type: 3}
+  m_Name: Material Library
   m_EditorClassIdentifier: 
-  _guidSO: de65e4d70628440
+  _guidSO: f2e418ed0c3e4d6
   _entries: []
