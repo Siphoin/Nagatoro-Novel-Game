@@ -12,4 +12,5 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4a1a36cc478ddfa4ea67783eaadb1105, type: 3}
   m_Name: Sprite Library
   m_EditorClassIdentifier: 
+  _guidSO: a9b6428f-7e7b-493b-86cd-0106b479c71d
   _entries: []
