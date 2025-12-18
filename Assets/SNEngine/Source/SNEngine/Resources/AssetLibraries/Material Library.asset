@@ -13,4 +13,12 @@ MonoBehaviour:
   m_Name: Material Library
   m_EditorClassIdentifier: 
   _guidSO: f2e418ed0c3e4d6
-  _entries: []
+  _entries:
+  - <Guid>k__BackingField: eb9f05eaa765ac94ca22642e47526364
+    <Asset>k__BackingField: {fileID: 2100000, guid: eb9f05eaa765ac94ca22642e47526364, type: 2}
+  - <Guid>k__BackingField: 261475ca96238f64d8a4520a2ed5bc36
+    <Asset>k__BackingField: {fileID: 2100000, guid: 261475ca96238f64d8a4520a2ed5bc36, type: 2}
+  - <Guid>k__BackingField: da575845bf964db428da1f65223bc1a1
+    <Asset>k__BackingField: {fileID: 2100000, guid: da575845bf964db428da1f65223bc1a1, type: 2}
+  - <Guid>k__BackingField: 79459efec17a4d00a321bdcc27bbc385
+    <Asset>k__BackingField: {fileID: 2100000, guid: 79459efec17a4d00a321bdcc27bbc385, type: 2}

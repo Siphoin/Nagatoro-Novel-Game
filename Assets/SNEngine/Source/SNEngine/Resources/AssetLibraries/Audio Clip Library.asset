@@ -13,4 +13,6 @@ MonoBehaviour:
   m_Name: Audio Clip Library
   m_EditorClassIdentifier: 
   _guidSO: de65e4d70628440
-  _entries: []
+  _entries:
+  - <Guid>k__BackingField: 6dd45ecf241c7074488970b91c31109c
+    <Asset>k__BackingField: {fileID: 8300000, guid: 6dd45ecf241c7074488970b91c31109c, type: 3}

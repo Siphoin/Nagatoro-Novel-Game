@@ -1,6 +1,6 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
---- !u!114 &-5363993175773739794
+--- !u!114 &-8645427508545503197
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -9,30 +9,116 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: e9252662679f7e14d96f63060a564443, type: 3}
-  m_Name: <color=#FFFFFF>Quaternion Varitable (Quaternion)</color>
+  m_Script: {fileID: 11500000, guid: d14c9983a945bc045bc861306b4988e1, type: 3}
+  m_Name: <color=#FFFFFF>Prefab Varitable (Prefab)</color>
   m_EditorClassIdentifier: 
   graph: {fileID: 11400000}
-  position: {x: 252.19922, y: 653.74}
+  position: {x: 367.81802, y: 731.80975}
   ports:
     keys:
     - _value
     values:
     - _fieldName: _value
-      _node: {fileID: -5363993175773739794}
-      _typeQualifiedName: UnityEngine.Quaternion, UnityEngine.CoreModule, Version=0.0.0.0,
+      _node: {fileID: -8645427508545503197}
+      _typeQualifiedName: UnityEngine.GameObject, UnityEngine.CoreModule, Version=0.0.0.0,
         Culture=neutral, PublicKeyToken=null
       connections: []
       _direction: 1
       _connectionType: 0
       _typeConstraint: 0
       _dynamic: 0
-  _nodeGuid: d88e13541b58498
-  _name: Quaternion Varitable
+  _nodeGuid: e5899badf53743c
+  _name: Prefab Varitable
   _color:
     serializedVersion: 2
     rgba: 4294967295
-  _value: {x: 0, y: 0, z: 0, w: 0}
+  _value: {fileID: 1213106801707016, guid: 77c185820dd1a464eac89cae3abccddf, type: 3}
+--- !u!114 &-2302647354542719101
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b6bb056881588094eb8d5b5482d5a012, type: 3}
+  m_Name: Set Material
+  m_EditorClassIdentifier: 
+  graph: {fileID: 11400000}
+  position: {x: 1384, y: 376}
+  ports:
+    keys:
+    - _varitable
+    - _value
+    - _enter
+    - _exit
+    values:
+    - _fieldName: _varitable
+      _node: {fileID: -2302647354542719101}
+      _typeQualifiedName: UnityEngine.Material, UnityEngine.CoreModule, Version=0.0.0.0,
+        Culture=neutral, PublicKeyToken=null
+      connections: []
+      _direction: 0
+      _connectionType: 1
+      _typeConstraint: 0
+      _dynamic: 0
+    - _fieldName: _value
+      _node: {fileID: -2302647354542719101}
+      _typeQualifiedName: UnityEngine.Material, UnityEngine.CoreModule, Version=0.0.0.0,
+        Culture=neutral, PublicKeyToken=null
+      connections: []
+      _direction: 0
+      _connectionType: 0
+      _typeConstraint: 0
+      _dynamic: 0
+    - _fieldName: _enter
+      _node: {fileID: -2302647354542719101}
+      _typeQualifiedName: XNode.NodePort, XNode, Version=0.0.0.0, Culture=neutral,
+        PublicKeyToken=null
+      connections:
+      - fieldName: _exit
+        node: {fileID: 7560040985966242324}
+        reroutePoints: []
+      _direction: 0
+      _connectionType: 0
+      _typeConstraint: 0
+      _dynamic: 0
+    - _fieldName: _exit
+      _node: {fileID: -2302647354542719101}
+      _typeQualifiedName: XNode.NodePort, XNode, Version=0.0.0.0, Culture=neutral,
+        PublicKeyToken=null
+      connections:
+      - fieldName: _enter
+        node: {fileID: 6956488445852963551}
+        reroutePoints: []
+      _direction: 1
+      _connectionType: 0
+      _typeConstraint: 0
+      _dynamic: 0
+  _nodeGuid: 6b00283f8bf44cf
+  _enabled: 1
+  _enter:
+    _fieldName: 
+    _node: {fileID: 0}
+    _typeQualifiedName: 
+    connections: []
+    _direction: 0
+    _connectionType: 0
+    _typeConstraint: 0
+    _dynamic: 0
+  _exit:
+    _fieldName: 
+    _node: {fileID: 0}
+    _typeQualifiedName: 
+    connections: []
+    _direction: 0
+    _connectionType: 0
+    _typeConstraint: 0
+    _dynamic: 0
+  _varitable: {fileID: 0}
+  _value: {fileID: 2100000, guid: 261475ca96238f64d8a4520a2ed5bc36, type: 2}
+  _targetGuid: 
 --- !u!114 &-355433451951788520
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -46,7 +132,7 @@ MonoBehaviour:
   m_Name: Exit
   m_EditorClassIdentifier: 
   graph: {fileID: 11400000}
-  position: {x: 1399.4268, y: 420.3726}
+  position: {x: 1960, y: 456}
   ports:
     keys:
     - _enter
@@ -58,7 +144,7 @@ MonoBehaviour:
         PublicKeyToken=null
       connections:
       - fieldName: _exit
-        node: {fileID: 7560040985966242324}
+        node: {fileID: 6956488445852963551}
         reroutePoints: []
       _direction: 0
       _connectionType: 0
@@ -112,8 +198,9 @@ MonoBehaviour:
   - {fileID: 3614649554844878695}
   - {fileID: 7560040985966242324}
   - {fileID: -355433451951788520}
-  - {fileID: -5363993175773739794}
-  - {fileID: 6888241018038683808}
+  - {fileID: -2302647354542719101}
+  - {fileID: 6956488445852963551}
+  - {fileID: -8645427508545503197}
   _guid: a12a8e40cdc241c
 --- !u!114 &992714648617222659
 MonoBehaviour:
@@ -308,7 +395,7 @@ MonoBehaviour:
   _varitable: {fileID: 0}
   _value: {fileID: 21300000, guid: 73ab1582bc293394ea87fee81e1c9ee5, type: 3}
   _targetGuid: bcb7d66466474b9
---- !u!114 &6888241018038683808
+--- !u!114 &6956488445852963551
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -317,30 +404,71 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 0b4660529a35bb04a9d48562384662f0, type: 3}
-  m_Name: <color=#FFFFFF>Vector 2 Varitable (Vector 2)</color>
+  m_Script: {fileID: 11500000, guid: 337c6d555fab91d4e80dee944007aac8, type: 3}
+  m_Name: Wait
   m_EditorClassIdentifier: 
   graph: {fileID: 11400000}
-  position: {x: 536, y: 808}
+  position: {x: 1656, y: 408}
   ports:
     keys:
-    - _value
+    - _seconds
+    - _enter
+    - _exit
     values:
-    - _fieldName: _value
-      _node: {fileID: 6888241018038683808}
-      _typeQualifiedName: UnityEngine.Vector2, UnityEngine.CoreModule, Version=0.0.0.0,
-        Culture=neutral, PublicKeyToken=null
+    - _fieldName: _seconds
+      _node: {fileID: 6956488445852963551}
+      _typeQualifiedName: System.Single, mscorlib, Version=4.0.0.0, Culture=neutral,
+        PublicKeyToken=b77a5c561934e089
       connections: []
+      _direction: 0
+      _connectionType: 1
+      _typeConstraint: 0
+      _dynamic: 0
+    - _fieldName: _enter
+      _node: {fileID: 6956488445852963551}
+      _typeQualifiedName: XNode.NodePort, XNode, Version=0.0.0.0, Culture=neutral,
+        PublicKeyToken=null
+      connections:
+      - fieldName: _exit
+        node: {fileID: -2302647354542719101}
+        reroutePoints: []
+      _direction: 0
+      _connectionType: 0
+      _typeConstraint: 0
+      _dynamic: 0
+    - _fieldName: _exit
+      _node: {fileID: 6956488445852963551}
+      _typeQualifiedName: XNode.NodePort, XNode, Version=0.0.0.0, Culture=neutral,
+        PublicKeyToken=null
+      connections:
+      - fieldName: _enter
+        node: {fileID: -355433451951788520}
+        reroutePoints: []
       _direction: 1
       _connectionType: 0
       _typeConstraint: 0
       _dynamic: 0
-  _nodeGuid: c1498fe42287474
-  _name: Vector 2 Varitable
-  _color:
-    serializedVersion: 2
-    rgba: 4294967295
-  _value: {x: 0.58, y: 0}
+  _nodeGuid: f42d3fb9940d436
+  _enabled: 1
+  _enter:
+    _fieldName: 
+    _node: {fileID: 0}
+    _typeQualifiedName: 
+    connections: []
+    _direction: 0
+    _connectionType: 0
+    _typeConstraint: 0
+    _dynamic: 0
+  _exit:
+    _fieldName: 
+    _node: {fileID: 0}
+    _typeQualifiedName: 
+    connections: []
+    _direction: 0
+    _connectionType: 0
+    _typeConstraint: 0
+    _dynamic: 0
+  _seconds: 67
 --- !u!114 &7560040985966242324
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -388,7 +516,7 @@ MonoBehaviour:
         PublicKeyToken=null
       connections:
       - fieldName: _enter
-        node: {fileID: -355433451951788520}
+        node: {fileID: -2302647354542719101}
         reroutePoints: []
       _direction: 1
       _connectionType: 0
@@ -414,7 +542,7 @@ MonoBehaviour:
     _connectionType: 0
     _typeConstraint: 0
     _dynamic: 0
-  _seconds: 5
+  _seconds: 2
 --- !u!114 &8006022809616543931
 MonoBehaviour:
   m_ObjectHideFlags: 0

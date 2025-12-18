@@ -13,4 +13,8 @@ MonoBehaviour:
   m_Name: Texture 2D Library
   m_EditorClassIdentifier: 
   _guidSO: d62afa47da8f45a
-  _entries: []
+  _entries:
+  - <Guid>k__BackingField: a3383aa241154c842a9455c5bb36bdfd
+    <Asset>k__BackingField: {fileID: 2800000, guid: a3383aa241154c842a9455c5bb36bdfd, type: 3}
+  - <Guid>k__BackingField: fd747002266e1b24b80fa6eee4c38e2b
+    <Asset>k__BackingField: {fileID: 2800000, guid: fd747002266e1b24b80fa6eee4c38e2b, type: 3}

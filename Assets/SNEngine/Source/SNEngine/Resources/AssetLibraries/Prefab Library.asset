@@ -1,0 +1,24 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d45869f8dec2c0b42b60b931a36fde51, type: 3}
+  m_Name: Prefab Library
+  m_EditorClassIdentifier: 
+  _guidSO: ed1f2dd115124b3
+  _entries:
+  - <Guid>k__BackingField: e88028d1a034f95459fb6b6742bbd4c8
+    <Asset>k__BackingField: {fileID: 2950653977471528254, guid: e88028d1a034f95459fb6b6742bbd4c8, type: 3}
+  - <Guid>k__BackingField: a70bc83d65b97084c8d96eda0e8dbe01
+    <Asset>k__BackingField: {fileID: 1360602948535223359, guid: a70bc83d65b97084c8d96eda0e8dbe01, type: 3}
+  - <Guid>k__BackingField: b2da6b27df236b144b3516ed8e7d36ac
+    <Asset>k__BackingField: {fileID: 3734445388003485314, guid: b2da6b27df236b144b3516ed8e7d36ac, type: 3}
+  - <Guid>k__BackingField: 77c185820dd1a464eac89cae3abccddf
+    <Asset>k__BackingField: {fileID: 1213106801707016, guid: 77c185820dd1a464eac89cae3abccddf, type: 3}
