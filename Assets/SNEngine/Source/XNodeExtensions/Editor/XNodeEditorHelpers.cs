@@ -6,22 +6,59 @@ using System;
 using System.Linq;
 using SiphoinUnityHelpers.XNodeExtensions.Varitables.Set;
 using SNEngine.Graphs;
+using SNEngine.GlobalVaritables;
 
 namespace SiphoinUnityHelpers.XNodeExtensions.Editor
 {
     public static class XNodeEditorHelpers
     {
+        public static void DrawGetGlobalVaritableBody(NodeEditor editor, SerializedObject serializedObject)
+        {
+            serializedObject.Update();
+
+            foreach (var tag in NodeEditorGUILayout.GetFilteredFields(serializedObject))
+            {
+                if (tag.name == "_guidVaritable" || tag.name == "_result") continue;
+
+                SerializedProperty prop = serializedObject.FindProperty(tag.name);
+                if (prop != null) NodeEditorGUILayout.PropertyField(prop);
+            }
+
+            DrawSelector(editor, serializedObject, "_guidVaritable", VaritableSelectorWindow.SelectorMode.GlobalOnly);
+
+            XNode.NodePort resultPort = editor.target.GetOutputPort("_result");
+            if (resultPort != null)
+            {
+                NodeEditorGUILayout.PortField(new GUIContent("Value"), resultPort);
+            }
+
+            serializedObject.ApplyModifiedProperties();
+        }
+
         public static void DrawSetVaritableBody(NodeEditor editor, SerializedObject serializedObject)
         {
             serializedObject.Update();
 
-            bool isCollectionStorage = editor.target.GetType().IsSubclassOf(typeof(VaritableNode)) &&
-                                      !editor.target.GetType().Name.StartsWith("Set");
-
             foreach (var tag in NodeEditorGUILayout.GetFilteredFields(serializedObject))
             {
-                if (tag.name == "_varitable" || tag.name == "_targetGuid" || tag.name == "_enumerable") continue;
-                if (tag.name == "_elements" && !isCollectionStorage) continue;
+                if (tag.name == "_targetGuid") continue;
+
+                if (tag.name == "_varitable")
+                {
+                    XNode.NodePort p = editor.target.GetInputPort("_varitable");
+                    if (p != null)
+                    {
+                        if (p.IsConnected)
+                        {
+                            NodeEditorGUILayout.PropertyField(serializedObject.FindProperty(tag.name));
+                        }
+                        else
+                        {
+                            DrawSelector(editor, serializedObject, "_targetGuid", VaritableSelectorWindow.SelectorMode.All);
+                        }
+                    }
+                    continue;
+                }
 
                 SerializedProperty prop = serializedObject.FindProperty(tag.name);
                 if (prop != null)
@@ -30,55 +67,44 @@ namespace SiphoinUnityHelpers.XNodeExtensions.Editor
                 }
             }
 
-            var inputPort = editor.target.GetInputPort("_varitable");
+            serializedObject.ApplyModifiedProperties();
+        }
 
-            if (inputPort != null && !inputPort.IsConnected)
+        private static void DrawSelector(NodeEditor editor, SerializedObject serializedObject, string propertyName, VaritableSelectorWindow.SelectorMode mode)
+        {
+            var guidProp = serializedObject.FindProperty(propertyName);
+            if (guidProp == null) return;
+
+            GUILayout.Space(4);
+            string currentGuid = guidProp.stringValue;
+            string displayName = "Select Variable";
+            Color buttonColor = new Color(0.25f, 0.25f, 0.25f);
+
+            if (!string.IsNullOrEmpty(currentGuid))
             {
-                var guidProp = serializedObject.FindProperty("_targetGuid");
-                GUILayout.Space(8);
-
-                string currentGuid = guidProp?.stringValue;
-                string displayName = "Select Variable";
-                Color buttonColor = new Color(0.25f, 0.25f, 0.25f);
-
-                if (!string.IsNullOrEmpty(currentGuid))
+                VaritableNode linkedNode = FindVariableByGuid(editor.target.graph as BaseGraph, currentGuid);
+                if (linkedNode != null)
                 {
-                    VaritableNode linkedNode = FindVariableByGuid(editor.target.graph as BaseGraph, currentGuid);
-
-                    if (linkedNode != null)
-                    {
-                        displayName = linkedNode.Name;
-                        buttonColor = linkedNode.Color;
-                    }
-                    else
-                    {
-                        displayName = "<Missing>";
-                        buttonColor = new Color(0.5f, 0.2f, 0.2f);
-                    }
+                    displayName = linkedNode.Name;
+                    buttonColor = linkedNode.Color;
                 }
-
-                Color prevColor = GUI.backgroundColor;
-                GUI.backgroundColor = buttonColor;
-
-                if (GUILayout.Button(displayName, GUILayout.Height(30)))
-                {
-                    Type genericType = GetGenericType(editor.target.GetType());
-                    VaritableSelectorWindow.Open(editor.target.graph as BaseGraph, genericType, (selectedNode) =>
-                    {
-                        var innerSerialized = new SerializedObject(editor.target);
-                        var innerProp = innerSerialized.FindProperty("_targetGuid");
-                        if (innerProp != null)
-                        {
-                            innerProp.stringValue = selectedNode.GUID;
-                            innerSerialized.ApplyModifiedProperties();
-                        }
-                    });
-                }
-
-                GUI.backgroundColor = prevColor;
+                else displayName = "<Missing>";
             }
 
-            serializedObject.ApplyModifiedProperties();
+            Color prevColor = GUI.backgroundColor;
+            GUI.backgroundColor = buttonColor;
+
+            if (GUILayout.Button(displayName, GUILayout.Height(24)))
+            {
+                Type genericType = GetGenericType(editor.target.GetType());
+                VaritableSelectorWindow.Open(editor.target.graph as BaseGraph, genericType, (selectedNode) =>
+                {
+                    var so = new SerializedObject(editor.target);
+                    so.FindProperty(propertyName).stringValue = selectedNode.GUID;
+                    so.ApplyModifiedProperties();
+                }, mode);
+            }
+            GUI.backgroundColor = prevColor;
         }
 
         private static VaritableNode FindVariableByGuid(BaseGraph currentGraph, string guid)
@@ -89,18 +115,12 @@ namespace SiphoinUnityHelpers.XNodeExtensions.Editor
                 if (localNode != null) return localNode;
             }
 
-            string[] guids = AssetDatabase.FindAssets($"t:{nameof(VaritableContainerGraph)}");
-            foreach (string assetGuid in guids)
+            var containers = Resources.LoadAll<VaritableContainerGraph>("");
+            foreach (var container in containers)
             {
-                string path = AssetDatabase.GUIDToAssetPath(assetGuid);
-                var container = AssetDatabase.LoadAssetAtPath<VaritableContainerGraph>(path);
-                if (container != null)
-                {
-                    var globalNode = container.nodes.OfType<VaritableNode>().FirstOrDefault(n => n.GUID == guid);
-                    if (globalNode != null) return globalNode;
-                }
+                var node = container.nodes.OfType<VaritableNode>().FirstOrDefault(n => n.GUID == guid);
+                if (node != null) return node;
             }
-
             return null;
         }
 
@@ -111,7 +131,9 @@ namespace SiphoinUnityHelpers.XNodeExtensions.Editor
                 if (type.IsGenericType)
                 {
                     Type def = type.GetGenericTypeDefinition();
-                    if (def == typeof(SetVaritableNode<>) || def == typeof(VaritableCollectionNode<>))
+                    if (def == typeof(SetVaritableNode<>) ||
+                        def.Name.StartsWith("GetVaritableValueNode") ||
+                        def.Name.StartsWith("GetVaritableValueFromGlobalContainerNode"))
                     {
                         return type.GetGenericArguments()[0];
                     }

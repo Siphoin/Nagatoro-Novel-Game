@@ -10,11 +10,13 @@ namespace SiphoinUnityHelpers.XNodeExtensions.Editor
 {
     public class VaritableSelectorWindow : EditorWindow
     {
+        public enum SelectorMode { All, LocalOnly, GlobalOnly }
         private enum Category { Local, Global }
 
         private BaseGraph _targetGraph;
         private Action<VaritableNode> _onSelect;
         private Type _requiredType;
+        private SelectorMode _mode = SelectorMode.All;
 
         private Category _currentCategory = Category.Local;
         private string _searchQuery = "";
@@ -23,12 +25,13 @@ namespace SiphoinUnityHelpers.XNodeExtensions.Editor
         private List<VaritableNode> _localNodes = new List<VaritableNode>();
         private List<VaritableNode> _globalNodes = new List<VaritableNode>();
 
-        public static void Open(BaseGraph graph, Type requiredType, Action<VaritableNode> onSelect)
+        public static void Open(BaseGraph graph, Type requiredType, Action<VaritableNode> onSelect, SelectorMode mode = SelectorMode.All)
         {
             var window = GetWindow<VaritableSelectorWindow>(true, "Variable Selector", true);
             window._targetGraph = graph;
             window._requiredType = requiredType;
             window._onSelect = onSelect;
+            window._mode = mode;
             window.minSize = new Vector2(350, 450);
             window.RefreshCache();
             window.ShowAuxWindow();
@@ -54,7 +57,12 @@ namespace SiphoinUnityHelpers.XNodeExtensions.Editor
         private void OnGUI()
         {
             DrawHeader();
-            DrawCategoryToggles();
+
+            if (_mode == SelectorMode.All)
+            {
+                DrawCategoryToggles();
+            }
+
             DrawSearchBar();
 
             EditorGUILayout.Space(5);
@@ -91,7 +99,20 @@ namespace SiphoinUnityHelpers.XNodeExtensions.Editor
 
         private void DrawVariableList()
         {
-            var sourceList = _currentCategory == Category.Local ? _localNodes : _globalNodes;
+            List<VaritableNode> sourceList;
+
+            switch (_mode)
+            {
+                case SelectorMode.LocalOnly:
+                    sourceList = _localNodes;
+                    break;
+                case SelectorMode.GlobalOnly:
+                    sourceList = _globalNodes;
+                    break;
+                default:
+                    sourceList = _currentCategory == Category.Local ? _localNodes : _globalNodes;
+                    break;
+            }
 
             var nodes = sourceList
                 .Where(n => string.IsNullOrEmpty(_searchQuery) || n.Name.IndexOf(_searchQuery, StringComparison.OrdinalIgnoreCase) >= 0)
@@ -100,7 +121,13 @@ namespace SiphoinUnityHelpers.XNodeExtensions.Editor
 
             if (nodes.Count == 0)
             {
-                EditorGUILayout.HelpBox($"No {(_currentCategory == Category.Local ? "local" : "global")} variables found.", MessageType.Info);
+                string message = "variables found.";
+                if (_mode == SelectorMode.LocalOnly || (_mode == SelectorMode.All && _currentCategory == Category.Local))
+                    message = "No local " + message;
+                else
+                    message = "No global " + message;
+
+                EditorGUILayout.HelpBox(message, MessageType.Info);
                 return;
             }
 
@@ -146,7 +173,10 @@ namespace SiphoinUnityHelpers.XNodeExtensions.Editor
                 EditorGUILayout.BeginVertical(GUILayout.Height(rowHeight));
                 GUILayout.FlexibleSpace();
                 EditorGUILayout.LabelField(node.Name, EditorStyles.boldLabel);
-                EditorGUILayout.LabelField(_currentCategory == Category.Global ? $"Container: {node.graph.name}" : node.GetType().Name, EditorStyles.miniLabel);
+
+                bool isGlobal = _mode == SelectorMode.GlobalOnly || (_mode == SelectorMode.All && _currentCategory == Category.Global);
+                EditorGUILayout.LabelField(isGlobal ? $"Container: {node.graph.name}" : node.GetType().Name, EditorStyles.miniLabel);
+
                 GUILayout.FlexibleSpace();
                 EditorGUILayout.EndVertical();
 
