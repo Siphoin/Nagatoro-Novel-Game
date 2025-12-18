@@ -1,5 +1,6 @@
 ﻿using Cysharp.Threading.Tasks;
 using SiphoinUnityHelpers.XNodeExtensions.Debugging;
+using SiphoinUnityHelpers.XNodeExtensions.Extensions;
 using SNEngine.AsyncNodes;
 using System;
 using System.Collections.Generic;
@@ -66,7 +67,7 @@ namespace SiphoinUnityHelpers.XNodeExtensions
 
         private void ResetGUID()
         {
-            _guid = Guid.NewGuid().ToString("N").Substring(0, 15);
+            _guid = Guid.NewGuid().ToShortGUID();
         }
 
         private void Awake()

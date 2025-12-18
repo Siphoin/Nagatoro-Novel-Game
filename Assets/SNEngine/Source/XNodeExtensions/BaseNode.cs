@@ -1,5 +1,6 @@
 ﻿using SiphoinUnityHelpers.Attributes;
 using SiphoinUnityHelpers.XNodeExtensions.Attributes;
+using SiphoinUnityHelpers.XNodeExtensions.Extensions;
 using SNEngine.AsyncNodes;
 using System;
 using System.Collections;
@@ -38,7 +39,7 @@ namespace SiphoinUnityHelpers.XNodeExtensions
 
         private void ResetGUID()
         {
-            _nodeGuid = Guid.NewGuid().ToString("N").Substring(0, 15);
+            _nodeGuid = Guid.NewGuid().ToShortGUID();
         }
 
 #endif
@@ -104,7 +105,7 @@ namespace SiphoinUnityHelpers.XNodeExtensions
         [ContextMenu("Reset GUID")]
         private void ResetGuid()
         {
-            _nodeGuid = Guid.NewGuid().ToString("N").Substring(0, 15);
+            _nodeGuid = Guid.NewGuid().ToShortGUID();
             UnityEditor.EditorUtility.SetDirty(this);
         }
 
