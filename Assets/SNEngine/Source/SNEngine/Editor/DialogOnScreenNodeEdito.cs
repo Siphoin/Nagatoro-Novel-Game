@@ -14,7 +14,6 @@ namespace SNEngine.Editor
         public override void OnBodyGUI()
         {
             serializedObject.Update();
-            DrawPort("_enter");
 
             foreach (var tag in NodeEditorGUILayout.GetFilteredFields(serializedObject))
             {
@@ -25,15 +24,9 @@ namespace SNEngine.Editor
             DrawDialogueField();
 
             GUILayout.Space(10);
-            DrawPort("_exit");
             serializedObject.ApplyModifiedProperties();
         }
 
-        private void DrawPort(string fieldName)
-        {
-            XNode.NodePort port = target.GetPort(fieldName);
-            if (port != null) NodeEditorGUILayout.PortField(port);
-        }
 
         private void DrawDialogueField()
         {

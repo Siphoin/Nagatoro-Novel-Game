@@ -9,7 +9,7 @@ namespace SiphoinUnityHelpers.XNodeExtensions
 {
     public abstract class BaseNodeInteraction : BaseNode
     {
-        [SerializeField, ReadOnly(ReadOnlyMode.OnEditor), NodeControlExecuteField] private bool _enabled;
+        [SerializeField, ReadOnly(ReadOnlyMode.OnEditor), NodeControlExecuteField, HideInInspector] private bool _enabled;
 
         public bool Enabled => _enabled;
 
