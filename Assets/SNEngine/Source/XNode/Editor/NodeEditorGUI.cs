@@ -35,6 +35,9 @@ namespace XNodeEditor
             DrawTooltip();
             graphEditor.OnGUI();
 
+            // Draw transparent title in top-left corner
+            DrawTitle();
+
             // Run and reset onLateGUI
             if (onLateGUI != null)
             {
@@ -43,6 +46,37 @@ namespace XNodeEditor
             }
 
             GUI.matrix = m;
+        }
+
+        private GUIStyle _titleStyle;
+        private void DrawTitle()
+        {
+            if (graph != null)
+            {
+                string title = graph.name;
+                System.Reflection.MethodInfo methodInfo = graph.GetType().GetMethod("GetWindowTitle",
+                    System.Reflection.BindingFlags.Public |
+                    System.Reflection.BindingFlags.Instance |
+                    System.Reflection.BindingFlags.FlattenHierarchy);
+
+                if (methodInfo != null)
+                {
+                    object result = methodInfo.Invoke(graph, null);
+                    if (result != null) title = result.ToString();
+                }
+
+                if (_titleStyle == null)
+                {
+                    _titleStyle = new GUIStyle(EditorStyles.label);
+                    _titleStyle.normal.textColor = new Color(1f, 1f, 1f, 0.35f);
+                    _titleStyle.fontSize = 24;
+                    _titleStyle.fontStyle = FontStyle.Bold;
+                }
+
+                Rect titleRect = new Rect(10, topPadding + 5, 800, 40);
+
+                GUI.Label(titleRect, title, _titleStyle);
+            }
         }
 
         public static void BeginZoomed(Rect rect, float zoom, float topPadding)
