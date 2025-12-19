@@ -44,7 +44,8 @@ namespace SNEngine.Editor
             DialogueGraph currentDialogue = dialogueProp.objectReferenceValue as DialogueGraph;
 
             Color prevBg = GUI.backgroundColor;
-            GUI.backgroundColor = currentDialogue != null ? new Color(0.2f, 0.4f, 0.6f) : new Color(0.75f, 0.4f, 0.4f);
+
+            GUI.backgroundColor = currentDialogue != null ? new Color(0.4f, 0.1f, 0.1f) : new Color(0.75f, 0.4f, 0.4f);
 
             EditorGUILayout.BeginVertical(GUI.skin.box);
 
