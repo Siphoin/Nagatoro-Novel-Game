@@ -13,6 +13,8 @@ namespace XNodeEditor
     {
         public static NodeEditorWindow current;
 
+        private static Dictionary<XNode.NodeGraph, NodeEditorWindow> _graphWindows = new Dictionary<XNode.NodeGraph, NodeEditorWindow>();
+
         public Dictionary<XNode.NodePort, Rect> portConnectionPoints { get { return _portConnectionPoints; } }
         private Dictionary<XNode.NodePort, Rect> _portConnectionPoints = new Dictionary<XNode.NodePort, Rect>();
         [SerializeField] private NodePortReference[] _references = new NodePortReference[0];
@@ -49,6 +51,11 @@ namespace XNodeEditor
 
         private void OnDisable()
         {
+            if (graph != null && _graphWindows.ContainsKey(graph) && _graphWindows[graph] == this)
+            {
+                _graphWindows.Remove(graph);
+            }
+
             int count = portConnectionPoints.Count;
             _references = new NodePortReference[count];
             _rects = new Rect[count];
@@ -72,6 +79,11 @@ namespace XNodeEditor
                     if (nodePort != null)
                         _portConnectionPoints.Add(nodePort, _rects[i]);
                 }
+            }
+
+            if (graph != null && !_graphWindows.ContainsKey(graph))
+            {
+                _graphWindows[graph] = this;
             }
         }
 
@@ -242,10 +254,25 @@ namespace XNodeEditor
         {
             if (!graph) return null;
 
-            NodeEditorWindow w = GetWindow(typeof(NodeEditorWindow), false, windowTitle, true) as NodeEditorWindow;
+            if (_graphWindows.ContainsKey(graph) && _graphWindows[graph] != null)
+            {
+                NodeEditorWindow existingWindow = _graphWindows[graph];
+                existingWindow.Focus();
+                return existingWindow;
+            }
+
+            NodeEditorWindow w = CreateInstance<NodeEditorWindow>();
             w.titleContent = new GUIContent(windowTitle);
             w.wantsMouseMove = true;
+            w.Show();
+
+            if (w.graph != null && _graphWindows.ContainsKey(w.graph) && _graphWindows[w.graph] == w)
+            {
+                _graphWindows.Remove(w.graph);
+            }
+
             w.graph = graph;
+            _graphWindows[graph] = w;
 
             if (graph.nodes.Count > 0)
             {
@@ -267,10 +294,29 @@ namespace XNodeEditor
 
         public static void RepaintAll()
         {
-            NodeEditorWindow[] windows = Resources.FindObjectsOfTypeAll<NodeEditorWindow>();
-            for (int i = 0; i < windows.Length; i++)
+            CleanupNullWindows();
+
+            foreach (var window in _graphWindows.Values)
             {
-                windows[i].Repaint();
+                if (window != null)
+                    window.Repaint();
+            }
+        }
+
+        private static void CleanupNullWindows()
+        {
+            var keysToRemove = new List<XNode.NodeGraph>();
+            foreach (var kvp in _graphWindows)
+            {
+                if (kvp.Value == null)
+                {
+                    keysToRemove.Add(kvp.Key);
+                }
+            }
+
+            foreach (var key in keysToRemove)
+            {
+                _graphWindows.Remove(key);
             }
         }
     }
