@@ -15,6 +15,9 @@ namespace SiphoinUnityHelpers.Editor
         private Vector2 _scrollPos;
         private List<string> _allPrefabPaths = new List<string>();
 
+        private Texture2D _fallbackIcon;
+        private const string FALLBACK_ICON_PATH = "Assets/SNEngine/Source/SNEngine/Editor/Sprites/prefab_editor_icon.png";
+
         public static void Open(Action<GameObject> onSelect)
         {
             var window = GetWindow<PrefabSelectorWindow>(true, "Prefab Selector", true);
@@ -24,11 +27,26 @@ namespace SiphoinUnityHelpers.Editor
             window.ShowAuxWindow();
         }
 
+        private void OnEnable()
+        {
+            LoadResources();
+        }
+
+        private void LoadResources()
+        {
+            if (_fallbackIcon == null)
+            {
+                _fallbackIcon = AssetDatabase.LoadAssetAtPath<Texture2D>(FALLBACK_ICON_PATH);
+            }
+        }
+
         private void RefreshCache()
         {
+            LoadResources();
+
             string[] guids = AssetDatabase.FindAssets("t:Prefab");
             _allPrefabPaths = guids.Select(AssetDatabase.GUIDToAssetPath)
-                .Where(path => !path.Contains("/Editor/"))
+                .Where(path => !path.Contains("/Editor/") && !path.StartsWith("Packages/"))
                 .OrderBy(Path.GetFileName)
                 .ToList();
         }
@@ -82,7 +100,6 @@ namespace SiphoinUnityHelpers.Editor
             foreach (var path in filteredPaths)
             {
                 string fileName = Path.GetFileNameWithoutExtension(path);
-
                 string directoryPath = Path.GetDirectoryName(path);
                 string relativePath = directoryPath.Replace("Assets/", "").Replace("Assets\\", "");
                 if (string.IsNullOrEmpty(relativePath)) relativePath = "Root";
@@ -102,7 +119,11 @@ namespace SiphoinUnityHelpers.Editor
 
                 GameObject prefab = AssetDatabase.LoadAssetAtPath<GameObject>(path);
                 Texture icon = AssetPreview.GetAssetPreview(prefab);
-                if (icon == null) icon = EditorGUIUtility.IconContent("Prefab Icon").image;
+
+                if (icon == null)
+                {
+                    icon = _fallbackIcon != null ? _fallbackIcon : EditorGUIUtility.IconContent("Prefab Icon").image;
+                }
 
                 Rect iconRect = GUILayoutUtility.GetRect(26, 26);
                 if (icon != null) GUI.DrawTexture(iconRect, icon, ScaleMode.ScaleToFit);

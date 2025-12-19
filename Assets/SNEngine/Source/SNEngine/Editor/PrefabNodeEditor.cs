@@ -10,9 +10,17 @@ namespace SNEngine.Editor
     [CustomNodeEditor(typeof(PrefabNode))]
     public class PrefabNodeEditor : NodeEditor
     {
+        private Texture2D _fallbackIcon;
+        private const string FALLBACK_ICON_PATH = "Assets/SNEngine/Source/SNEngine/Editor/Sprites/prefab_editor_icon.png";
+
         public override void OnBodyGUI()
         {
             serializedObject.Update();
+
+            if (_fallbackIcon == null)
+            {
+                _fallbackIcon = AssetDatabase.LoadAssetAtPath<Texture2D>(FALLBACK_ICON_PATH);
+            }
 
             foreach (var tag in NodeEditorGUILayout.GetFilteredFields(serializedObject))
             {
@@ -47,7 +55,11 @@ namespace SNEngine.Editor
             if (currentPrefab != null)
             {
                 Texture preview = AssetPreview.GetAssetPreview(currentPrefab);
-                if (preview == null) preview = EditorGUIUtility.IconContent("Prefab Icon").image;
+
+                if (preview == null || AssetPreview.IsLoadingAssetPreview(currentPrefab.GetInstanceID()))
+                {
+                    preview = _fallbackIcon != null ? _fallbackIcon : EditorGUIUtility.IconContent("Prefab Icon").image;
+                }
 
                 if (preview != null) GUI.DrawTexture(rect, preview, ScaleMode.ScaleToFit);
 

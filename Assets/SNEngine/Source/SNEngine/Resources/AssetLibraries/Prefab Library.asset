@@ -13,4 +13,8 @@ MonoBehaviour:
   m_Name: Prefab Library
   m_EditorClassIdentifier: 
   _guidSO: 5aef92797480480
-  _entries: []
+  _entries:
+  - <Guid>k__BackingField: 7c5ba1f39d4367b43b05496b59078766
+    <Asset>k__BackingField: {fileID: 6743892235325902364, guid: 7c5ba1f39d4367b43b05496b59078766, type: 3}
+  - <Guid>k__BackingField: adbef2fe5d9d89546be81b3801b9df26
+    <Asset>k__BackingField: {fileID: 3717108197051325983, guid: adbef2fe5d9d89546be81b3801b9df26, type: 3}
