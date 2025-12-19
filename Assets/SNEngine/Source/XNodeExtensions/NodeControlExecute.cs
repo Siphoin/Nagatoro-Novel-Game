@@ -53,11 +53,6 @@ namespace SiphoinUnityHelpers.XNodeExtensions
 
             _cancellationTokenSource = null;
         }
-        // ...
-
-        public override bool CanSkip()
-        {
-            return false;
-        }
+        
     }
 }

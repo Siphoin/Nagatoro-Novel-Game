@@ -10,7 +10,6 @@ namespace SNEngine.Editor
     public class DialogOnScreenNodeEditor : NodeEditor
     {
         private GUIStyle _wrappedTextStyle;
-        private GUIStyle _textAreaBoxStyle;
 
         public override void OnBodyGUI()
         {
@@ -26,7 +25,7 @@ namespace SNEngine.Editor
 
             DrawDynamicTextArea();
 
-            GUILayout.Space(5);
+            GUILayout.Space(10);
             DrawPort("_exit");
 
             serializedObject.ApplyModifiedProperties();
@@ -46,8 +45,6 @@ namespace SNEngine.Editor
                 _wrappedTextStyle.wordWrap = true;
                 _wrappedTextStyle.fontSize = 12;
                 _wrappedTextStyle.padding = new RectOffset(8, 8, 8, 8);
-                _wrappedTextStyle.normal.background = null;
-                _wrappedTextStyle.focused.background = null;
             }
 
             SerializedProperty textProp = serializedObject.FindProperty("_text");
@@ -55,23 +52,26 @@ namespace SNEngine.Editor
 
             EditorGUILayout.LabelField("Text Content", EditorStyles.boldLabel);
 
-            // ФИКС: Рассчитываем примерную высоту на основе длины строки
-            // 150 - примерная ширина ноды, 15 - высота одной строки
-            float charWidth = 7f;
-            float nodeWidth = 200f;
-            int charsPerLine = Mathf.Max(1, Mathf.FloorToInt(nodeWidth / charWidth));
-            int lineCount = Mathf.Max(3, (textProp.stringValue.Length / charsPerLine) + 1);
-            float calculatedHeight = lineCount * 18f; // 18 пикселей на строку
+            float nodeWidth = 200;
+            if (NodeEditorWindow.current != null)
+            {
+                nodeWidth = NodeEditorWindow.current.nodeSizes.ContainsKey(target)
+                    ? NodeEditorWindow.current.nodeSizes[target].x
+                    : 200;
+            }
+
+            float availableWidth = nodeWidth - 30;
+            float height = _wrappedTextStyle.CalcHeight(new GUIContent(textProp.stringValue), availableWidth);
+
+            float extraPadding = 20f;
+            float finalHeight = Mathf.Max(60f, height + extraPadding);
 
             GUILayout.BeginVertical(EditorStyles.helpBox);
-
-            // Принудительно задаем высоту через MinHeight
             textProp.stringValue = EditorGUILayout.TextArea(
                 textProp.stringValue,
                 _wrappedTextStyle,
-                GUILayout.MinHeight(calculatedHeight)
+                GUILayout.Height(finalHeight)
             );
-
             GUILayout.EndVertical();
         }
 

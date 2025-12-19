@@ -20,16 +20,13 @@ namespace SNEngine.Editor
 
             foreach (var tag in NodeEditorGUILayout.GetFilteredFields(serializedObject))
             {
-                if (tag.name == "_character" || tag.name == "_text") continue;
+                if (tag.name == "_character" || tag.name == "_text" || tag.name == "m_Script") continue;
                 NodeEditorGUILayout.PropertyField(serializedObject.FindProperty(tag.name));
             }
 
             GUILayout.Space(5);
-
             DrawDynamicTextArea();
-
             GUILayout.Space(10);
-
             DrawCharacterSelector(node);
 
             serializedObject.ApplyModifiedProperties();
@@ -47,29 +44,40 @@ namespace SNEngine.Editor
                 _wrappedTextStyle.focused.background = null;
             }
 
-            if (_textAreaBoxStyle == null)
-            {
-                _textAreaBoxStyle = new GUIStyle(EditorStyles.helpBox);
-            }
-
             SerializedProperty textProp = serializedObject.FindProperty("_text");
             if (textProp == null) return;
 
             EditorGUILayout.LabelField("Dialogue Text", EditorStyles.boldLabel);
 
-            float charWidth = 7f;
-            float nodeWidth = 200f;
-            int charsPerLine = Mathf.Max(1, Mathf.FloorToInt(nodeWidth / charWidth));
-            int lineCount = Mathf.Max(3, (textProp.stringValue.Length / charsPerLine) + 1);
-            float calculatedHeight = lineCount * 18f;
+            float nodeWidth = 200;
+            if (NodeEditorWindow.current != null && NodeEditorWindow.current.nodeSizes.ContainsKey(target))
+            {
+                nodeWidth = NodeEditorWindow.current.nodeSizes[target].x;
+            }
 
-            GUILayout.BeginVertical(_textAreaBoxStyle);
+            float availableWidth = nodeWidth - 30;
+            float contentHeight = _wrappedTextStyle.CalcHeight(new GUIContent(textProp.stringValue), availableWidth);
+            float finalHeight = Mathf.Max(60f, contentHeight + 15f);
 
-            textProp.stringValue = EditorGUILayout.TextArea(
+            GUILayout.BeginVertical(EditorStyles.helpBox);
+
+            Event e = Event.current;
+            if (e.isKey && (e.keyCode == KeyCode.Return || e.keyCode == KeyCode.KeypadEnter))
+            {
+                if (GUI.GetNameOfFocusedControl() == "DialogueField")
+                {
+                    e.Use();
+                }
+            }
+
+            GUI.SetNextControlName("DialogueField");
+            string rawText = EditorGUILayout.TextArea(
                 textProp.stringValue,
                 _wrappedTextStyle,
-                GUILayout.MinHeight(calculatedHeight)
+                GUILayout.Height(finalHeight)
             );
+
+            textProp.stringValue = rawText.Replace("\n", "").Replace("\r", "");
 
             GUILayout.EndVertical();
         }

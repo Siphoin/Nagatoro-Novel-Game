@@ -15,19 +15,14 @@ namespace SNEngine.Editor
         {
             serializedObject.Update();
 
-            // 1. Вход сверху
             DrawPort("_enter");
-
-            // 2. Параметры
             DrawCompactSettings();
 
             GUILayout.Space(10);
             EditorGUILayout.LabelField("Choice Variants", EditorStyles.boldLabel);
 
-            // 3. Список вариантов
             DrawDynamicVariants();
 
-            // 4. Результат и выход
             DrawOutputResult();
             DrawPort("_exit");
 
@@ -43,7 +38,11 @@ namespace SNEngine.Editor
         private void DrawCompactSettings()
         {
             SerializedProperty animType = serializedObject.FindProperty("_typeAnimation");
-            EditorGUILayout.PropertyField(animType);
+
+            float prevLabelWidth = EditorGUIUtility.labelWidth;
+            EditorGUIUtility.labelWidth = 100;
+            NodeEditorGUILayout.PropertyField(animType, new GUIContent("Type Animation"));
+            EditorGUIUtility.labelWidth = prevLabelWidth;
 
             GUILayout.Space(5);
             GUILayout.BeginVertical(EditorStyles.helpBox);
@@ -66,6 +65,7 @@ namespace SNEngine.Editor
         private void DrawDynamicVariants()
         {
             SerializedProperty variantsProp = serializedObject.FindProperty("_variants");
+            int indexToDelete = -1;
 
             if (_variantBoxStyle == null)
             {
@@ -75,7 +75,6 @@ namespace SNEngine.Editor
                 _textInputStyle = new GUIStyle(EditorStyles.textArea);
                 _textInputStyle.wordWrap = true;
                 _textInputStyle.richText = false;
-                // Убираем стандартную рамку TextArea, чтобы выглядело чище
                 _textInputStyle.normal.background = null;
                 _textInputStyle.focused.background = null;
             }
@@ -95,14 +94,10 @@ namespace SNEngine.Editor
 
                 if (GUILayout.Button("✕", EditorStyles.miniButton, GUILayout.Width(18), GUILayout.Height(14)))
                 {
-                    variantsProp.DeleteArrayElementAtIndex(i);
-                    serializedObject.ApplyModifiedProperties();
-                    return;
+                    indexToDelete = i;
                 }
                 EditorGUILayout.EndHorizontal();
 
-                // ВАЖНО: Просто рисуем TextArea без указания высоты. 
-                // GUILayout сам расширит helpBox под текст.
                 element.stringValue = EditorGUILayout.TextArea(
                     element.stringValue,
                     _textInputStyle,
@@ -111,6 +106,11 @@ namespace SNEngine.Editor
 
                 GUILayout.EndVertical();
                 GUILayout.Space(4);
+            }
+
+            if (indexToDelete != -1)
+            {
+                variantsProp.DeleteArrayElementAtIndex(indexToDelete);
             }
 
             if (GUILayout.Button("+ Add New Choice", GUILayout.Height(22)))

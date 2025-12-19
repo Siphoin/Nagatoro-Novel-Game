@@ -37,7 +37,7 @@ namespace SiphoinUnityHelpers.XNodeExtensions.NodesControlExecutes
 #if UNITY_EDITOR
         private void OnValidate()
         {
-                name = string.IsNullOrEmpty(_name) ? GetDefaultName() : $"{_name} ({GetDefaultName()})";
+            name = string.IsNullOrEmpty(_name) ? GetDefaultName() : $"{_name} ({GetDefaultName()})";
         }
 #endif
     }
