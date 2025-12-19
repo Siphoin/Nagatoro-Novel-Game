@@ -66,6 +66,7 @@ namespace SNEngine.Editor
                     }
                 }
                 GUI.backgroundColor = Color.white;
+                GUILayout.Space(5);
             }
             else
             {
@@ -75,7 +76,8 @@ namespace SNEngine.Editor
 
         private void DrawGuidInfo()
         {
-            SerializedProperty guidProp = serializedObject.FindProperty("Guid");
+            SerializedProperty guidProp = serializedObject.FindProperty("_guid");
+
             if (guidProp != null)
             {
                 EditorGUILayout.BeginHorizontal(EditorStyles.helpBox);
