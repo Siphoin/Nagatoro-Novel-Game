@@ -14,6 +14,7 @@ using UnityEngine;
 using XNode;
 namespace SNEngine.SelectVariantsSystem
 {
+    
     public class ShowVariantsNode : AsyncNode, ILocalizationNode, ISaveProgressNode
     {
 
