@@ -1,11 +1,12 @@
-﻿using UnityEditor;
-using UnityEngine;
-using XNode;
+﻿using SiphoinUnityHelpers.XNodeExtensions;
+using SNEngine.Graphs;
 using System.IO;
 using System.Linq;
-using System.Text.RegularExpressions;
 using System.Reflection;
-using SiphoinUnityHelpers.XNodeExtensions;
+using System.Text.RegularExpressions;
+using UnityEditor;
+using UnityEngine;
+using XNode;
 
 public static class DialogueCreatorEditor
 {
@@ -71,6 +72,39 @@ public static class DialogueCreatorEditor
         else
         {
             Debug.LogError($"[DialogueCreator] Failed to copy asset from {TemplatePath} to {newAssetPath}");
+        }
+    }
+
+    public static void DuplicateDialogue(DialogueGraph sourceGraph, string newName)
+    {
+        if (sourceGraph == null) return;
+
+        string sourcePath = AssetDatabase.GetAssetPath(sourceGraph);
+        string finalAssetName = newName.EndsWith(".asset") ? newName : $"{newName}.asset";
+        string newAssetPath = Path.Combine(TargetFolderPath, finalAssetName);
+
+        if (File.Exists(Path.Combine(Application.dataPath, newAssetPath.Replace("Assets/", ""))))
+        {
+            Debug.LogError($"[DialogueCreator] Asset already exists at: {newAssetPath}");
+            return;
+        }
+
+        if (AssetDatabase.CopyAsset(sourcePath, newAssetPath))
+        {
+            AssetDatabase.Refresh();
+            DialogueGraph newGraph = AssetDatabase.LoadAssetAtPath<DialogueGraph>(newAssetPath);
+
+            if (newGraph != null)
+            {
+                RegenerateGraphGuid(newGraph);
+
+                RegenerateAllNodeGuids(newGraph);
+
+                EditorUtility.SetDirty(newGraph);
+                AssetDatabase.SaveAssets();
+
+                Debug.Log($"[DialogueCreator] Dialogue duplicated: {finalAssetName}");
+            }
         }
     }
 

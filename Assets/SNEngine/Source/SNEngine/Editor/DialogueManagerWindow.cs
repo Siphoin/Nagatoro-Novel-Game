@@ -12,7 +12,7 @@ namespace SNEngine.Editor
     public class DialogueManagerWindow : EditorWindow
     {
         private const string DialoguesResourcePath = "Dialogues";
-        private const string TargetFolderPath = "Assets/SNEngine/Source/SNEngine/Resources/Dialogues";
+        private const string StartDialogueName = "_startDialogue";
         private string _newDialogueName = "NewDialogue";
         private string _searchQuery = "";
         private Vector2 _scrollPosition;
@@ -23,62 +23,49 @@ namespace SNEngine.Editor
         public static void ShowWindow()
         {
             var window = GetWindow<DialogueManagerWindow>("Dialogue Manager");
-            window.minSize = new Vector2(400, 300);
+            window.minSize = new Vector2(500, 400);
         }
 
         private void OnGUI()
         {
-            EditorGUILayout.Space(5);
-
-            DrawHeader();
-            DrawCreationSection();
+            DrawTopPanel();
+            EditorGUILayout.Space(2);
+            DrawSearchBar();
             DrawListSection();
-
-            EditorGUILayout.Space(10);
         }
 
-        private void DrawHeader()
+        private void DrawTopPanel()
         {
-            EditorGUILayout.LabelField("Dialogue Management", EditorStyles.boldLabel);
-            EditorGUILayout.Space(5);
-        }
-
-        private void DrawCreationSection()
-        {
-            GUI.backgroundColor = new Color(0.85f, 0.85f, 0.85f, 1f);
-            EditorGUILayout.BeginVertical(GUI.skin.box);
-            GUI.backgroundColor = Color.white;
-
-            EditorGUILayout.LabelField("Create New Dialogue", EditorStyles.boldLabel);
-
+            EditorGUILayout.BeginVertical(EditorStyles.helpBox);
             EditorGUILayout.BeginHorizontal();
-            EditorGUILayout.LabelField("Name:", GUILayout.Width(45));
-            _newDialogueName = EditorGUILayout.TextField(_newDialogueName);
-            if (GUILayout.Button("Create Asset", GUILayout.Width(100), GUILayout.Height(20)))
+            EditorGUILayout.LabelField("Create:", EditorStyles.miniLabel, GUILayout.Width(45));
+            _newDialogueName = EditorGUILayout.TextField(_newDialogueName, GUILayout.Height(18));
+            if (GUILayout.Button("Create Asset", EditorStyles.miniButton, GUILayout.Width(90)))
             {
                 CreateNewDialogue();
             }
             EditorGUILayout.EndHorizontal();
-
             EditorGUILayout.EndVertical();
-            EditorGUILayout.Space(10);
         }
 
-        private void DrawListSection()
+        private void DrawSearchBar()
         {
-            EditorGUILayout.LabelField("Existing Dialogues", EditorStyles.boldLabel);
-
             EditorGUILayout.BeginHorizontal(EditorStyles.toolbar);
             _searchQuery = EditorGUILayout.TextField(_searchQuery, EditorStyles.toolbarSearchField);
-            if (GUILayout.Button("X", EditorStyles.toolbarButton, GUILayout.Width(20)))
+            if (GUILayout.Button("Clear", EditorStyles.toolbarButton, GUILayout.Width(45)))
             {
                 _searchQuery = "";
                 GUI.FocusControl(null);
             }
             EditorGUILayout.EndHorizontal();
+        }
 
+        private void DrawListSection()
+        {
             var allDialogueAssets = Resources.LoadAll<DialogueGraph>(DialoguesResourcePath)
                 .Where(d => d != null)
+                .OrderBy(d => d.name != StartDialogueName)
+                .ThenBy(d => d.name)
                 .ToArray();
 
             var filteredAssets = string.IsNullOrEmpty(_searchQuery)
@@ -86,107 +73,128 @@ namespace SNEngine.Editor
                 : allDialogueAssets.Where(d =>
                     d.name.IndexOf(_searchQuery, System.StringComparison.OrdinalIgnoreCase) >= 0).ToArray();
 
-            if (filteredAssets.Length == 0)
-            {
-                EditorGUILayout.HelpBox(
-                    string.IsNullOrEmpty(_searchQuery)
-                        ? "No dialogues found in Resources/Dialogues."
-                        : "No dialogues match the search query.", MessageType.Info);
-                return;
-            }
-
             _scrollPosition = EditorGUILayout.BeginScrollView(_scrollPosition);
 
+            GUILayout.Space(5);
             for (int i = 0; i < filteredAssets.Length; i++)
             {
-                DrawDialogueItem(filteredAssets[i]);
+                DrawDialogueItem(filteredAssets[i], i % 2 == 0);
+                GUILayout.Space(2);
             }
 
             EditorGUILayout.EndScrollView();
         }
 
-        private void DrawDialogueItem(DialogueGraph graph)
+        private void DrawDialogueItem(DialogueGraph graph, bool isEven)
         {
-            if (graph == null) return;
+            float rowHeight = 50f;
+            bool isStart = graph.name == StartDialogueName;
 
-            EditorGUILayout.BeginHorizontal(EditorStyles.toolbar);
+            Rect rect = EditorGUILayout.BeginHorizontal(EditorStyles.helpBox, GUILayout.Height(rowHeight));
 
-            Texture2D icon = AssetPreview.GetMiniThumbnail(graph);
-            GUILayout.Label(icon, GUILayout.Width(20), GUILayout.Height(20));
+            if (isStart)
+                EditorGUI.DrawRect(rect, new Color(1f, 0.8f, 0f, 0.1f));
+            else if (isEven)
+                EditorGUI.DrawRect(rect, new Color(1f, 1f, 1f, 0.03f));
 
-            EditorGUILayout.LabelField(graph.name, EditorStyles.boldLabel, GUILayout.Height(20), GUILayout.ExpandWidth(true));
+            GUILayout.Space(5);
+
+            EditorGUILayout.BeginVertical(GUILayout.Width(40), GUILayout.Height(rowHeight));
+            GUILayout.FlexibleSpace();
+            Texture icon = AssetPreview.GetMiniThumbnail(graph);
+            Rect iconRect = GUILayoutUtility.GetRect(36, 36);
+            if (icon) GUI.DrawTexture(iconRect, icon, ScaleMode.ScaleToFit);
+            if (isStart)
+            {
+                Rect starRect = new Rect(iconRect.xMax - 12, iconRect.yMax - 12, 14, 14);
+                GUI.Label(starRect, EditorGUIUtility.IconContent("Favorite"));
+            }
+            GUILayout.FlexibleSpace();
+            EditorGUILayout.EndVertical();
+
+            GUILayout.Space(10);
+
+            EditorGUILayout.BeginVertical(GUILayout.Height(rowHeight));
+            GUILayout.FlexibleSpace();
+
+            EditorGUILayout.BeginHorizontal();
+            float nameWidth = EditorStyles.boldLabel.CalcSize(new GUIContent(graph.name)).x;
+            EditorGUILayout.LabelField(graph.name, EditorStyles.boldLabel, GUILayout.Width(nameWidth + 4));
+
+            if (isStart)
+            {
+                GUIStyle entryStyle = new GUIStyle(EditorStyles.miniLabel);
+                entryStyle.normal.textColor = new Color(1f, 0.7f, 0f);
+                entryStyle.alignment = TextAnchor.MiddleLeft;
+                EditorGUILayout.LabelField("[ENTRY POINT]", entryStyle, GUILayout.Height(18));
+            }
+            EditorGUILayout.EndHorizontal();
+
+            GUIStyle pathStyle = new GUIStyle(EditorStyles.miniLabel);
+            pathStyle.normal.textColor = new Color(0.6f, 0.6f, 0.6f);
+            EditorGUILayout.LabelField("Resources/Dialogues", pathStyle);
+
+            GUILayout.FlexibleSpace();
+            EditorGUILayout.EndVertical();
+
+            GUILayout.FlexibleSpace();
+
+            EditorGUILayout.BeginVertical(GUILayout.Height(rowHeight));
+            GUILayout.FlexibleSpace();
+            EditorGUILayout.BeginHorizontal();
 
             if (Application.isPlaying)
             {
-                GUI.backgroundColor = new Color(0.5f, 1f, 0.5f);
-                if (GUILayout.Button("▶️ Play", EditorStyles.miniButton, GUILayout.Width(50), GUILayout.Height(20)))
-                {
-                    PlayDialogue(graph);
-                }
+                GUI.backgroundColor = Color.green;
+                if (GUILayout.Button("Play", GUILayout.Width(45), GUILayout.Height(22))) PlayDialogue(graph);
                 GUI.backgroundColor = Color.white;
+                GUILayout.Space(4);
             }
 
-            if (GUILayout.Button("Rename", EditorStyles.miniButton, GUILayout.Width(70), GUILayout.Height(20)))
+            if (GUILayout.Button("Open", GUILayout.Width(50), GUILayout.Height(22))) OpenGraphInEditor(graph);
+            GUILayout.Space(4);
+            if (GUILayout.Button("Rename", GUILayout.Width(65), GUILayout.Height(22)))
             {
-                Selection.activeObject = graph;
-                EditorGUIUtility.PingObject(graph);
-                Debug.Log($"[Dialogue Manager] Asset '{graph.name}' selected. Press F2 in the Project window to rename it.");
+                Event.current.Use();
+                DialogueRenameWindow.OpenWindow(graph);
+                GUIUtility.ExitGUI();
             }
-
-            if (GUILayout.Button("Open", EditorStyles.miniButton, GUILayout.Width(60), GUILayout.Height(20)))
+            GUILayout.Space(4);
+            if (GUILayout.Button("Copy", GUILayout.Width(50), GUILayout.Height(22)))
             {
-                OpenGraphInEditor(graph);
+                Event.current.Use();
+                DialogueDuplicateWindow.Open(graph);
+                GUIUtility.ExitGUI();
             }
+            GUILayout.Space(4);
 
-            GUI.backgroundColor = Color.red;
-            if (GUILayout.Button("Delete", EditorStyles.miniButton, GUILayout.Width(60), GUILayout.Height(20)))
+            GUI.backgroundColor = new Color(1f, 0.35f, 0.35f);
+            if (GUILayout.Button("Delete", GUILayout.Width(60), GUILayout.Height(22)))
             {
-                if (EditorUtility.DisplayDialog("Confirm Deletion",
-                    $"Are you sure you want to delete dialogue '{graph.name}'?", "Yes", "No"))
-                {
+                if (EditorUtility.DisplayDialog("Delete", $"Delete {graph.name}?", "Yes", "No"))
                     DeleteDialogue(graph);
-                }
             }
             GUI.backgroundColor = Color.white;
 
+            EditorGUILayout.EndHorizontal();
+            GUILayout.FlexibleSpace();
+            EditorGUILayout.EndVertical();
+
+            GUILayout.Space(5);
             EditorGUILayout.EndHorizontal();
         }
 
         private void CreateNewDialogue()
         {
-            if (string.IsNullOrWhiteSpace(_newDialogueName))
-            {
-                EditorUtility.DisplayDialog("Error", "Dialogue name cannot be empty.", "OK");
-                return;
-            }
-
-            string uniqueAssetName = _newDialogueName.EndsWith(".asset") ? _newDialogueName : $"{_newDialogueName}.asset";
-            string existingPath = Path.Combine(TargetFolderPath, uniqueAssetName);
-
-            if (File.Exists(existingPath))
-            {
-                EditorUtility.DisplayDialog("Error", $"Dialogue '{_newDialogueName}' already exists.", "OK");
-                return;
-            }
-
+            if (string.IsNullOrWhiteSpace(_newDialogueName)) return;
             DialogueCreatorEditor.CreateNewDialogueAssetFromName(_newDialogueName);
-
-            Repaint();
+            AssetDatabase.Refresh();
         }
 
         private void DeleteDialogue(NodeGraph graph)
         {
-            string assetPath = AssetDatabase.GetAssetPath(graph);
-            if (string.IsNullOrEmpty(assetPath))
-            {
-                Debug.LogError($"Could not find asset path for: {graph.name}");
-                return;
-            }
-
-            AssetDatabase.DeleteAsset(assetPath);
+            AssetDatabase.DeleteAsset(AssetDatabase.GetAssetPath(graph));
             AssetDatabase.Refresh();
-
-            Repaint();
         }
 
         private void OpenGraphInEditor(NodeGraph graph)
@@ -197,19 +205,8 @@ namespace SNEngine.Editor
 
         private void PlayDialogue(DialogueGraph graph)
         {
-            if (graph == null) return;
-
-            if (!Application.isPlaying)
-            {
-                EditorUtility.DisplayDialog("Error", "Enter Play Mode to run the dialogue.", "OK");
-                return;
-            }
-
-            if (_dialogueService is null)
-            {
-                _dialogueService = NovelGame.Instance.GetService<DialogueService>();
-            }
-
+            if (!Application.isPlaying) return;
+            if (_dialogueService is null) _dialogueService = NovelGame.Instance.GetService<DialogueService>();
             NovelGame.Instance.ResetStateServices();
             NovelGame.Instance.GetService<MainMenuService>().Hide();
             _dialogueService.StopCurrentDialogue();
