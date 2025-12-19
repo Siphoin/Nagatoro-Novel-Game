@@ -11,5 +11,10 @@ namespace SNEngine.Audio.Music
             var input = GetInputValue(nameof(_input), _input);
             MusicPlayer.SetPlaylist(input);
         }
+
+        public override bool CanSkip()
+        {
+            return false;
+        }
     }
 }
