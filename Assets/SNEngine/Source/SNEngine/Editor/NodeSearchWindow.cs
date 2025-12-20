@@ -19,6 +19,9 @@ namespace SNEngine.Editor
         private List<BaseNode> _allNodes = new List<BaseNode>();
         private List<BaseNode> _filteredNodes = new List<BaseNode>();
 
+        // Cached icon texture for all nodes
+        private Texture2D _nodeIconTexture;
+
         // Virtualization variables
         private const float ROW_HEIGHT = 48f;
         private int _startIndex = 0;
@@ -28,6 +31,7 @@ namespace SNEngine.Editor
         {
             var window = GetWindow<NodeSearchWindow>(true, "Node Search", true);
             window._targetGraph = targetGraph;
+            window.LoadNodeIcon();
             window.minSize = new Vector2(400, 500);
             window.RefreshCache();
             window.ApplyFilter();
@@ -74,6 +78,12 @@ namespace SNEngine.Editor
             // Reset indices for virtualization
             _startIndex = 0;
             _endIndex = Mathf.Min(10, _filteredNodes.Count); // Start with first 10 items
+        }
+
+        private void LoadNodeIcon()
+        {
+            // Try loading from Assets path
+            _nodeIconTexture = AssetDatabase.LoadAssetAtPath<Texture2D>("Assets/SNEngine/Source/SNEngine/Editor/Sprites/node_editor_icon.png");
         }
 
         private void OnGUI()
@@ -170,15 +180,18 @@ namespace SNEngine.Editor
                 GUI.BeginGroup(rowRect);
 
                 Rect iconRect = new Rect(10, (ROW_HEIGHT - 28) / 2, 28, 28);
-                
-                // Get icon for the node type
-                Texture icon = EditorGUIUtility.ObjectContent(node, node.GetType()).image;
-                if (icon == null)
-                {
-                    icon = EditorGUIUtility.IconContent("cs Script Icon").image;
-                }
 
-                if (icon != null) GUI.DrawTexture(iconRect, icon, ScaleMode.ScaleToFit);
+                // Use the specific node editor icon for all nodes
+                if (_nodeIconTexture != null)
+                {
+                    GUI.DrawTexture(iconRect, _nodeIconTexture, ScaleMode.ScaleToFit);
+                }
+                else
+                {
+                    // Fallback to generic script icon if the custom icon is not loaded
+                    Texture fallbackIcon = EditorGUIUtility.IconContent("cs Script Icon").image;
+                    if (fallbackIcon != null) GUI.DrawTexture(iconRect, fallbackIcon, ScaleMode.ScaleToFit);
+                }
 
                 // Calculate available text width
                 float textWidth = rowRect.width - 140;

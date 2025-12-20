@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: <color=#712A2A>sssss (Int)</color>
   m_EditorClassIdentifier: 
   graph: {fileID: 11400000}
-  position: {x: -154, y: -32.5}
+  position: {x: -120, y: -24}
   ports:
     keys:
     - _value

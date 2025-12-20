@@ -103,13 +103,16 @@ namespace SNEngine.Editor
 
         private void DrawSeparator()
         {
-            // Create a toolbar-style button at the top
+            GUILayout.Space(5);
+
+            EditorGUILayout.BeginHorizontal();
+            GUILayout.Space(5);
+
             EditorGUILayout.BeginHorizontal(EditorStyles.toolbar);
+            GUILayout.FlexibleSpace();
+            EditorGUILayout.EndHorizontal();
 
-            GUILayout.Space(5); // Add some left padding
-
-            GUILayout.FlexibleSpace(); // Push everything else to the left
-
+            GUILayout.Space(5);
             EditorGUILayout.EndHorizontal();
         }
 
