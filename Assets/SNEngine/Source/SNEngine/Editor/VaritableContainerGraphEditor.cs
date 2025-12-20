@@ -56,6 +56,9 @@ namespace SNEngine.Editor
 
         public override void OnGUI()
         {
+            // Draw toolbar buttons at the top
+            DrawSeparator();
+
             NodeEditorWindow window = NodeEditorWindow.current;
             if (window == null) return;
 
@@ -98,18 +101,30 @@ namespace SNEngine.Editor
             }
         }
 
+        private void DrawSeparator()
+        {
+            // Create a toolbar-style button at the top
+            EditorGUILayout.BeginHorizontal(EditorStyles.toolbar);
+
+            GUILayout.Space(5); // Add some left padding
+
+            GUILayout.FlexibleSpace(); // Push everything else to the left
+
+            EditorGUILayout.EndHorizontal();
+        }
+
         private void DrawVariableRow(NodeEditorWindow window, VaritableNode node, int index)
         {
             float rowHeight = 36f;
             Rect rowRect = EditorGUILayout.GetControlRect(false, rowHeight);
 
-            // Чередование цвета подложки
+            // пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
             if (index % 2 != 0)
             {
                 EditorGUI.DrawRect(rowRect, new Color(0, 0, 0, 0.15f));
             }
 
-            // Подсветка при наведении
+            // пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
             if (rowRect.Contains(Event.current.mousePosition))
             {
                 EditorGUI.DrawRect(rowRect, new Color(1, 1, 1, 0.08f));
@@ -120,11 +135,11 @@ namespace SNEngine.Editor
                 }
             }
 
-            // Цветная полоска (маркер типа)
+            // пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ (пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ)
             Rect colorStrip = new Rect(rowRect.x + 2, rowRect.y + 4, 3, rowRect.height - 8);
             EditorGUI.DrawRect(colorStrip, node.Color);
 
-            // Иконка
+            // пїЅпїЅпїЅпїЅпїЅпїЅ
             GUIContent iconContent = EditorGUIUtility.ObjectContent(null, node.GetType());
             Texture nodeIcon = iconContent.image;
             if (nodeIcon == null) nodeIcon = EditorGUIUtility.IconContent("cs Script Icon").image;
@@ -132,7 +147,7 @@ namespace SNEngine.Editor
             Rect iconRect = new Rect(rowRect.x + 12, rowRect.y + (rowHeight - 24) / 2, 24, 24);
             if (nodeIcon != null) GUI.DrawTexture(iconRect, nodeIcon, ScaleMode.ScaleToFit);
 
-            // Текст
+            // пїЅпїЅпїЅпїЅпїЅ
             Rect labelRect = new Rect(iconRect.xMax + 8, rowRect.y, rowRect.width - iconRect.xMax - 15, rowHeight);
             GUIStyle labelStyle = new GUIStyle(EditorStyles.label);
             labelStyle.alignment = TextAnchor.MiddleLeft;
