@@ -13,6 +13,8 @@ namespace SNEngine.Audio.Music
         AudioClip CurrentTrack { get; }
 
         void SetPlaylist(IEnumerable<AudioClip> playlist);
+        void Play();
+        void ClearPlaylist();
         void Pause();
         void UnPause();
         UniTask StopAsync(float fadeDuration = 1f);

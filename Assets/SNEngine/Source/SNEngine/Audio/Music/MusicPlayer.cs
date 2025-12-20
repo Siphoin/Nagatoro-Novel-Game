@@ -16,6 +16,7 @@ namespace SNEngine.Audio.Music
         [SerializeField] private AudioSourceController _controller; // Добавили ссылку
         private CancellationTokenSource _fadeCts;
         private Queue<AudioClip> _currentQueue;
+        private List<AudioClip> _originalPlaylist;
 
         private float _internalVolume = 1f;
         public float Volume
@@ -43,7 +44,7 @@ namespace SNEngine.Audio.Music
             get => _loop;
             set
             {
-                if (_currentQueue.Count > 1 && value)
+                if (_originalPlaylist?.Count > 1 && value)
                 {
                     NovelGameDebug.LogError("Looping works only for a single track playlist.");
                     _loop = false;
@@ -76,13 +77,24 @@ namespace SNEngine.Audio.Music
         {
             if (playlist is null) return;
 
-            _currentQueue.Clear();
-            foreach (var clip in playlist)
-            {
-                _currentQueue.Enqueue(clip);
-            }
+            _originalPlaylist = new List<AudioClip>(playlist);
+            _currentQueue = new Queue<AudioClip>(_originalPlaylist);
+        }
 
-            PlayNextTrackAsync().Forget();
+        public void Play()
+        {
+            if (_originalPlaylist != null && _originalPlaylist.Count > 0)
+            {
+                _currentQueue = new Queue<AudioClip>(_originalPlaylist);
+                PlayNextTrackAsync().Forget();
+            }
+        }
+
+        public void ClearPlaylist()
+        {
+            _originalPlaylist = null;
+            _currentQueue.Clear();
+            _audioSource.Stop();
         }
 
         public void Pause() => _audioSource.Pause();
@@ -118,15 +130,18 @@ namespace SNEngine.Audio.Music
                 while (_audioSource.isPlaying)
                     await UniTask.Yield(PlayerLoopTiming.Update, this.GetCancellationTokenOnDestroy());
 
-                if (_loop && _currentQueue.Count == 0)
+                if (_loop && _currentQueue.Count == 0 && _originalPlaylist?.Count == 1)
                 {
-                    _currentQueue.Enqueue(clip);
+                    // For single track looping, re-add the same clip
+                    _currentQueue.Enqueue(_originalPlaylist[0]);
                     PlayNextTrackAsync().Forget();
                 }
-                else
+                else if (_currentQueue.Count > 0)
                 {
+                    // Continue with next track in queue
                     PlayNextTrackAsync().Forget();
                 }
+                // If no more tracks and not looping, just stop
             }
             catch (OperationCanceledException) { }
         }
@@ -185,6 +200,7 @@ namespace SNEngine.Audio.Music
             Mute = false;
             Loop = false;
             _currentQueue.Clear();
+            _originalPlaylist = null;
         }
     }
 }
