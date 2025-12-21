@@ -1,8 +1,8 @@
 ﻿using UnityEngine;
 
-namespace SNEngine.GlobalVaritables
+namespace SNEngine.GlobalVariables
 {
-    public class GetGlobalTransformNode : GetGlobalVaritableNode<Transform>
+    public class GetGlobalTransformNode : GetGlobalVariableNode<Transform>
     {
     }
 

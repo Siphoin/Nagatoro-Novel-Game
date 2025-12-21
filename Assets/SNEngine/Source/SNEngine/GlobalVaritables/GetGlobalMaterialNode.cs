@@ -1,8 +1,8 @@
 ﻿using UnityEngine;
 
-namespace SNEngine.GlobalVaritables
+namespace SNEngine.GlobalVariables
 {
-    public class GetGlobalMaterialNode : GetGlobalVaritableNode<Material>
+    public class GetGlobalMaterialNode : GetGlobalVariableNode<Material>
     {
     }
 

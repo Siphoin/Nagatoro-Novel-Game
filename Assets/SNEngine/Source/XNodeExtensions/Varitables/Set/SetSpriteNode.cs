@@ -1,11 +1,11 @@
 ﻿using SNEngine.Serialisation;
 using UnityEngine;
 
-namespace SiphoinUnityHelpers.XNodeExtensions.Varitables.Set
+namespace SiphoinUnityHelpers.XNodeExtensions.Variables.Set
 {
-    public class SetSpriteNode : SetVaritableNode<Sprite>
+    public class SetSpriteNode : SetVariableNode<Sprite>
     {
-        protected override void OnSetTargetValueChanged(VaritableNode<Sprite> targetNode, Sprite newValue)
+        protected override void OnSetTargetValueChanged(VariableNode<Sprite> targetNode, Sprite newValue)
         {
             SNEngineSerialization.AddAssetToLibrary<SpriteLibrary>(newValue);
         }

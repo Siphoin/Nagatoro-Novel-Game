@@ -4,7 +4,7 @@ using UnityEngine;
 using XNode;
 using System.Collections;
 
-namespace SiphoinUnityHelpers.XNodeExtensions.Varitables.Collection
+namespace SiphoinUnityHelpers.XNodeExtensions.Variables.Collection
 {
     public abstract class CollectionOperationNode<TOutput> : BaseNode
     {

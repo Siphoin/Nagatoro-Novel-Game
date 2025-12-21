@@ -1,8 +1,8 @@
 ﻿using UnityEngine;
 
-namespace SNEngine.GlobalVaritables
+namespace SNEngine.GlobalVariables
 {
-    public class GetGlobalColorNode : GetGlobalVaritableNode<Color>
+    public class GetGlobalColorNode : GetGlobalVariableNode<Color>
     {
     }
 

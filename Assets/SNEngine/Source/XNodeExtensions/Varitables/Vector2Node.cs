@@ -2,10 +2,10 @@
 using SNEngine.Debugging;
 using UnityEngine;
 
-namespace SiphoinUnityHelpers.XNodeExtensions.Varitables
+namespace SiphoinUnityHelpers.XNodeExtensions.Variables
 {
     [NodeTint("#494a52")]
-    public class Vector2Node : VaritableNode<Vector2>
+    public class Vector2Node : VariableNode<Vector2>
     {
         public override void SetValue(object value)
         {

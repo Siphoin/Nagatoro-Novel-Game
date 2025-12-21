@@ -1,9 +1,9 @@
 ﻿using SNEngine.Serialisation;
 using UnityEngine;
 
-namespace SiphoinUnityHelpers.XNodeExtensions.Varitables.Textures
+namespace SiphoinUnityHelpers.XNodeExtensions.Variables.Textures
 {
-    public class TextureNode : UnityVaritableNode<Texture, TextureLibrary>
+    public class TextureNode : UnityVariableNode<Texture, TextureLibrary>
     {
         protected override void OnValueChanged(Texture oldValue, Texture newValue)
         {

@@ -1,4 +1,4 @@
-﻿using SiphoinUnityHelpers.XNodeExtensions.Varitables;
+﻿using SiphoinUnityHelpers.XNodeExtensions.Variables;
 
 namespace SNEngine.Localization
 {

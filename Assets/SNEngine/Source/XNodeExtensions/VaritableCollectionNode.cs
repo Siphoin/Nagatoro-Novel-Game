@@ -12,7 +12,7 @@ using SiphoinUnityHelpers.XNodeExtensions.Debugging;
 
 namespace SiphoinUnityHelpers.XNodeExtensions
 {
-    public abstract class VaritableCollectionNode<T> : VaritableNode
+    public abstract class VariableCollectionNode<T> : VariableNode
     {
         private List<T> _startValue;
 

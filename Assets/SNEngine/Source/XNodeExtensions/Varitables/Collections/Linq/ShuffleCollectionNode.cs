@@ -4,7 +4,7 @@ using UnityEngine;
 using XNode;
 using System.Linq;
 
-namespace SiphoinUnityHelpers.XNodeExtensions.Varitables.Collection.Linq
+namespace SiphoinUnityHelpers.XNodeExtensions.Variables.Collection.Linq
 {
     public class ShuffleCollectionNode : BaseNode
     {

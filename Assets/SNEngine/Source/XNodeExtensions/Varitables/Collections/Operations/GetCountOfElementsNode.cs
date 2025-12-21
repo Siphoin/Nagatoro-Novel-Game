@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace SiphoinUnityHelpers.XNodeExtensions.Varitables.Collection.Operations
+namespace SiphoinUnityHelpers.XNodeExtensions.Variables.Collection.Operations
 {
     public class GetCountOfElementsNode : CollectionOperationNode<int>
     {

@@ -2,10 +2,10 @@
 using UnityEngine;
 using XNode;
 
-namespace SiphoinUnityHelpers.XNodeExtensions.Varitables
+namespace SiphoinUnityHelpers.XNodeExtensions.Variables
 {
     [NodeTint("#524c49")]
-    public class PrefabNode : UnityVaritableNode<GameObject, PrefabLibrary>
+    public class PrefabNode : UnityVariableNode<GameObject, PrefabLibrary>
     {
         protected override void OnValueChanged(GameObject oldValue, GameObject newValue)
         {

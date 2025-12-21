@@ -1,8 +1,8 @@
 ﻿using UnityEngine;
 
-namespace SiphoinUnityHelpers.XNodeExtensions.Varitables.Collection
+namespace SiphoinUnityHelpers.XNodeExtensions.Variables.Collection
 {
-    public class MaterialNode : VaritableCollectionNode<Material>
+    public class MaterialNode : VariableCollectionNode<Material>
     {
     }
 }

@@ -17,7 +17,7 @@ namespace SiphoinUnityHelpers.XNodeExtensions
 
         private NodeQueue _queue;
 
-        private IDictionary<string, VaritableNode> _varitables;
+        private IDictionary<string, VariableNode> _Variables;
 
         public event Action OnEndExecute;
 
@@ -30,7 +30,7 @@ namespace SiphoinUnityHelpers.XNodeExtensions
 
         protected NodeQueue Queue => _queue;
 
-        public IDictionary<string, VaritableNode> Varitables => _varitables;
+        public IDictionary<string, VariableNode> Variables => _Variables;
 
         public IReadOnlyDictionary<string, BaseNode> AllNodes
         {
@@ -100,7 +100,7 @@ namespace SiphoinUnityHelpers.XNodeExtensions
 #endif
             var queue = new List<BaseNodeInteraction>();
             var normalizeNodes = TopologicalSortInteractionNodes();
-            BuidVaritableNodes();
+            BuidVariableNodes();
 
             for (int i = 0; normalizeNodes.Count > i; i++)
             {
@@ -114,39 +114,39 @@ namespace SiphoinUnityHelpers.XNodeExtensions
 
         }
 
-        protected void BuidVaritableNodes()
+        protected void BuidVariableNodes()
         {
-            if (_varitables is null)
+            if (_Variables is null)
             {
-                Dictionary<string, VaritableNode> nodes = new Dictionary<string, VaritableNode>();
+                Dictionary<string, VariableNode> nodes = new Dictionary<string, VariableNode>();
 
                 foreach (var node in this.nodes)
                 {
-                    if (node is VaritableNode)
+                    if (node is VariableNode)
                     {
-                        VaritableNode varitableNode = node as VaritableNode;
-                        nodes.Add(varitableNode.Name, varitableNode);
+                        VariableNode VariableNode = node as VariableNode;
+                        nodes.Add(VariableNode.Name, VariableNode);
                     }
                 }
 
-                _varitables = nodes;
+                _Variables = nodes;
             }
         }
 
-        public T GetValueFromVaritable<T>(string name)
+        public T GetValueFromVariable<T>(string name)
         {
-            var node = _varitables[name];
+            var node = _Variables[name];
 
             if (node is null)
             {
-                throw new NullReferenceException($"Varitable Node with name not found");
+                throw new NullReferenceException($"Variable Node with name not found");
             }
 
             var value = node.GetCurrentValue();
 
             if (value.GetType() != typeof(T))
             {
-                throw new InvalidCastException($"varitable node {node.Name} have type {value.GetType()}. Argument type {typeof(T)}");
+                throw new InvalidCastException($"Variable node {node.Name} have type {value.GetType()}. Argument type {typeof(T)}");
             }
 
             return (T)value;
@@ -237,7 +237,7 @@ namespace SiphoinUnityHelpers.XNodeExtensions
 #if UNITY_EDITOR
             FixDuplicateGUIDs();
 #endif
-            BuidVaritableNodes();
+            BuidVariableNodes();
 
         var allInteractionNodes = nodes
             .OfType<BaseNodeInteraction>()
@@ -319,18 +319,18 @@ namespace SiphoinUnityHelpers.XNodeExtensions
 
             OnEndExecute?.Invoke();
 
-            ResetVaritables();
+            ResetVariables();
 
             XNodeExtensionsDebug.Log($"graph {name} end execute");
         }
 
-        private void ResetVaritables()
+        private void ResetVariables()
         {
-            foreach (var node in nodes.Where(node => node is VaritableNode))
+            foreach (var node in nodes.Where(node => node is VariableNode))
             {
-                VaritableNode varitableNode = node as VaritableNode;
+                VariableNode VariableNode = node as VariableNode;
 
-                varitableNode.ResetValue();
+                VariableNode.ResetValue();
             }
         }
     }

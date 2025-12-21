@@ -4,9 +4,9 @@ using UnityEngine;
 using XNodeEditor;
 using System;
 using System.Linq;
-using SiphoinUnityHelpers.XNodeExtensions.Varitables.Set;
+using SiphoinUnityHelpers.XNodeExtensions.Variables.Set;
 using SNEngine.Graphs;
-using SNEngine.GlobalVaritables;
+using SNEngine.GlobalVariables;
 
 namespace SiphoinUnityHelpers.XNodeExtensions.Editor
 {
@@ -24,7 +24,7 @@ namespace SiphoinUnityHelpers.XNodeExtensions.Editor
                 if (prop != null) NodeEditorGUILayout.PropertyField(prop);
             }
 
-            DrawSelector(editor, serializedObject, "_guidVaritable", VaritableSelectorWindow.SelectorMode.GlobalOnly);
+            DrawSelector(editor, serializedObject, "_guidVaritable", VariableselectorWindow.SelectorMode.GlobalOnly);
 
             XNode.NodePort resultPort = editor.target.GetOutputPort("_result");
             if (resultPort != null)
@@ -54,7 +54,7 @@ namespace SiphoinUnityHelpers.XNodeExtensions.Editor
                         }
                         else
                         {
-                            DrawSelector(editor, serializedObject, "_targetGuid", VaritableSelectorWindow.SelectorMode.All);
+                            DrawSelector(editor, serializedObject, "_targetGuid", VariableselectorWindow.SelectorMode.All);
                         }
                     }
                     continue;
@@ -70,7 +70,7 @@ namespace SiphoinUnityHelpers.XNodeExtensions.Editor
             serializedObject.ApplyModifiedProperties();
         }
 
-        private static void DrawSelector(NodeEditor editor, SerializedObject serializedObject, string propertyName, VaritableSelectorWindow.SelectorMode mode)
+        private static void DrawSelector(NodeEditor editor, SerializedObject serializedObject, string propertyName, VariableselectorWindow.SelectorMode mode)
         {
             var guidProp = serializedObject.FindProperty(propertyName);
             if (guidProp == null) return;
@@ -82,7 +82,7 @@ namespace SiphoinUnityHelpers.XNodeExtensions.Editor
 
             if (!string.IsNullOrEmpty(currentGuid))
             {
-                VaritableNode linkedNode = FindVariableByGuid(editor.target.graph as BaseGraph, currentGuid);
+                VariableNode linkedNode = FindVariableByGuid(editor.target.graph as BaseGraph, currentGuid);
                 if (linkedNode != null)
                 {
                     displayName = linkedNode.Name;
@@ -97,7 +97,7 @@ namespace SiphoinUnityHelpers.XNodeExtensions.Editor
             if (GUILayout.Button(displayName, GUILayout.Height(24)))
             {
                 Type genericType = GetGenericType(editor.target.GetType());
-                VaritableSelectorWindow.Open(editor.target.graph as BaseGraph, genericType, (selectedNode) =>
+                VariableselectorWindow.Open(editor.target.graph as BaseGraph, genericType, (selectedNode) =>
                 {
                     var so = new SerializedObject(editor.target);
                     so.FindProperty(propertyName).stringValue = selectedNode.GUID;
@@ -107,18 +107,18 @@ namespace SiphoinUnityHelpers.XNodeExtensions.Editor
             GUI.backgroundColor = prevColor;
         }
 
-        private static VaritableNode FindVariableByGuid(BaseGraph currentGraph, string guid)
+        private static VariableNode FindVariableByGuid(BaseGraph currentGraph, string guid)
         {
             if (currentGraph != null)
             {
-                var localNode = currentGraph.GetNodeByGuid(guid) as VaritableNode;
+                var localNode = currentGraph.GetNodeByGuid(guid) as VariableNode;
                 if (localNode != null) return localNode;
             }
 
-            var containers = Resources.LoadAll<VaritableContainerGraph>("");
+            var containers = Resources.LoadAll<VariableContainerGraph>("");
             foreach (var container in containers)
             {
-                var node = container.nodes.OfType<VaritableNode>().FirstOrDefault(n => n.GUID == guid);
+                var node = container.nodes.OfType<VariableNode>().FirstOrDefault(n => n.GUID == guid);
                 if (node != null) return node;
             }
             return null;
@@ -131,7 +131,7 @@ namespace SiphoinUnityHelpers.XNodeExtensions.Editor
                 if (type.IsGenericType)
                 {
                     Type def = type.GetGenericTypeDefinition();
-                    if (def == typeof(SetVaritableNode<>) ||
+                    if (def == typeof(SetVariableNode<>) ||
                         def.Name.StartsWith("GetVaritableValueNode") ||
                         def.Name.StartsWith("GetVaritableValueFromGlobalContainerNode"))
                     {

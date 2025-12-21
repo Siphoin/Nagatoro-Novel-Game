@@ -1,9 +1,9 @@
 ﻿using UnityEngine;
 
-namespace SNEngine.GlobalVaritables
+namespace SNEngine.GlobalVariables
 {
     [NodeTint("#524949")]
-    public class GetGlobalQuaternionNode : GetGlobalVaritableNode<Quaternion>
+    public class GetGlobalQuaternionNode : GetGlobalVariableNode<Quaternion>
     {
     }
 

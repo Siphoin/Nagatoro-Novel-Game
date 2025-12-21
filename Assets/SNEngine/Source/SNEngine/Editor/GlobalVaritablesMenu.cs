@@ -5,13 +5,13 @@ using SNEngine.Debugging;
 
 namespace SNEngine.Editor
 {
-    public static class GlobalVaritablesMenu
+    public static class GlobalVariablesMenu
     {
-        [MenuItem("SNEngine/Open Global Varitables Window")]
-        public static void OpenGlobalVaritables()
+        [MenuItem("SNEngine/Open Global Variables Window")]
+        public static void OpenGlobalVariables()
         {
             string path = "Assets/SNEngine/Source/SNEngine/Resources/VaritableContainerGraph.asset";
-            VaritableContainerGraph graph = AssetDatabase.LoadAssetAtPath<VaritableContainerGraph>(path);
+            VariableContainerGraph graph = AssetDatabase.LoadAssetAtPath<VariableContainerGraph>(path);
 
             if (graph != null)
             {
@@ -19,7 +19,7 @@ namespace SNEngine.Editor
             }
             else
             {
-               NovelGameDebug.LogError($"[SNEngine] Global varitables not found: {path}");
+               NovelGameDebug.LogError($"[SNEngine] Global Variables not found: {path}");
             }
         }
     }

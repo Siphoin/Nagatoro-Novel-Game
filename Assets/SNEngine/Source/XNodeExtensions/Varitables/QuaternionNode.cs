@@ -2,10 +2,10 @@
 using SNEngine.Debugging;
 using UnityEngine;
 
-namespace SiphoinUnityHelpers.XNodeExtensions.Varitables
+namespace SiphoinUnityHelpers.XNodeExtensions.Variables
 {
     [NodeTint("#524949")]
-    public class QuaternionNode : VaritableNode<Quaternion>
+    public class QuaternionNode : VariableNode<Quaternion>
     {
         public override void SetValue(object value)
         {

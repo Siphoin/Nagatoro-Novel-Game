@@ -13,16 +13,16 @@ namespace SNEngine
         
         public static string ParseWithProperties (string text, BaseGraph graph) 
         {
-            var varitables = graph.Varitables;
+            var Variables = graph.Variables;
 
            var characters = NovelGame.Instance.GetRepository<CharacterRepository>().Characters;
 
-            var globalVaritables = NovelGame.Instance.GetService<VaritablesContainerService>().GlobalVaritables;
+            var globalVariables = NovelGame.Instance.GetService<VariablesContainerService>().GlobalVariables;
 
             var dictonaries = new Dictionary<string, object>
              {
-            { "[Property=", varitables },
-            { "[GlobalProperty=", globalVaritables },
+            { "[Property=", Variables },
+            { "[GlobalProperty=", globalVariables },
             {"[Character=", characters }
 
              };
@@ -33,9 +33,9 @@ namespace SNEngine
 
                 foreach (DictionaryEntry item in dictionary)
                 {
-                    if (item.Value is VaritableNode)
+                    if (item.Value is VariableNode)
                     {
-                        VaritableNode node = item.Value as VaritableNode;
+                        VariableNode node = item.Value as VariableNode;
 
                         string attribute = $"{pair.Key}{node.Name}]";
           

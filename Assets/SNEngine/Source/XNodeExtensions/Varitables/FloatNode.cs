@@ -1,10 +1,10 @@
 ﻿using UnityEngine;
 using XNode;
 
-namespace SiphoinUnityHelpers.XNodeExtensions.Varitables
+namespace SiphoinUnityHelpers.XNodeExtensions.Variables
 {
     [NodeTint("#524949")]
-    public class FloatNode : VaritableNode<float>
+    public class FloatNode : VariableNode<float>
     {
         public override void SetValue(object value)
         {

@@ -1,7 +1,7 @@
-﻿namespace SiphoinUnityHelpers.XNodeExtensions.Varitables.Set
+﻿namespace SiphoinUnityHelpers.XNodeExtensions.Variables.Set
 {
     [NodeTint("#524949")]
-    public class SetFloatNode : SetVaritableNode<float>
+    public class SetFloatNode : SetVariableNode<float>
     {
     }
 }

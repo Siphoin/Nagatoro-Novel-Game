@@ -3,15 +3,15 @@ using SNEngine.Serialisation;
 using SNEngine.Serialization;
 using Newtonsoft.Json.Linq;
 
-namespace SiphoinUnityHelpers.XNodeExtensions.Varitables
+namespace SiphoinUnityHelpers.XNodeExtensions.Variables
 {
-    public abstract class UnityVaritableNode<T, TLibrary> : VaritableNode<T> where T : UnityEngine.Object where TLibrary : BaseAssetLibrary<T>
+    public abstract class UnityVariableNode<T, TLibrary> : VariableNode<T> where T : UnityEngine.Object where TLibrary : BaseAssetLibrary<T>
     {
         public override void SetValue(object value)
         {
             if (value is null)
             {
-                NovelGameDebug.LogError($"Unity Varitable Node error: value is null. Error from node {GUID}");
+                NovelGameDebug.LogError($"Unity Variable Node error: value is null. Error from node {GUID}");
                 return;
             }
 
@@ -39,12 +39,12 @@ namespace SiphoinUnityHelpers.XNodeExtensions.Varitables
                 }
                 else
                 {
-                    NovelGameDebug.LogError($"Unity Varitable Node error: JObject does not contain a valid GUID. Error from node {GUID}");
+                    NovelGameDebug.LogError($"Unity Variable Node error: JObject does not contain a valid GUID. Error from node {GUID}");
                 }
                 return;
             }
 
-            NovelGameDebug.LogError($"Unity Varitable Node error: value invalid. Type: {value.GetType().Name} Error from node {GUID}");
+            NovelGameDebug.LogError($"Unity Variable Node error: value invalid. Type: {value.GetType().Name} Error from node {GUID}");
         }
     }
 }

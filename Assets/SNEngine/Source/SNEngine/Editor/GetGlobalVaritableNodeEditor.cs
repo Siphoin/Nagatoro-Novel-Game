@@ -1,11 +1,11 @@
 ﻿#if UNITY_EDITOR
 using XNodeEditor;
-using SNEngine.GlobalVaritables;
-using SNEngine.GlobalVaritables.Textures;
+using SNEngine.GlobalVariables;
+using SNEngine.GlobalVariables.Textures;
 
 namespace SiphoinUnityHelpers.XNodeExtensions.Editor
 {
-    [CustomNodeEditor(typeof(GetGlobalVaritableNode<>))]
+    [CustomNodeEditor(typeof(GetGlobalVariableNode<>))]
     public class GetGlobalVaritableNodeEditor : NodeEditor
     {
         public override void OnBodyGUI()

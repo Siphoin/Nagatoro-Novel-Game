@@ -1,7 +1,7 @@
-﻿namespace SiphoinUnityHelpers.XNodeExtensions.Varitables.Set
+﻿namespace SiphoinUnityHelpers.XNodeExtensions.Variables.Set
 {
     [NodeTint("#494d52")]
-    public class SetUlongNode : SetVaritableNode<ulong>
+    public class SetUlongNode : SetVariableNode<ulong>
     {
     }
 }

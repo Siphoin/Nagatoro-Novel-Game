@@ -7,14 +7,14 @@ using XNodeEditor;
 
 namespace SNEngine.Editor
 {
-    [CustomEditor(typeof(VaritableContainerGraph), true)]
+    [CustomEditor(typeof(VariableContainerGraph), true)]
     public class VaritableContainerGraphInspector : UnityEditor.Editor
     {
-        private VaritableContainerGraph _graph;
+        private VariableContainerGraph _graph;
 
         private void OnEnable()
         {
-            _graph = target as VaritableContainerGraph;
+            _graph = target as VariableContainerGraph;
         }
 
         public override void OnInspectorGUI()
@@ -59,7 +59,7 @@ namespace SNEngine.Editor
         {
             if (_graph == null || _graph.nodes == null) return;
 
-            var varitableNodes = _graph.nodes.OfType<VaritableNode>().ToList();
+            var varitableNodes = _graph.nodes.OfType<VariableNode>().ToList();
 
             EditorGUILayout.BeginVertical(EditorStyles.helpBox);
             GUILayout.Space(5);

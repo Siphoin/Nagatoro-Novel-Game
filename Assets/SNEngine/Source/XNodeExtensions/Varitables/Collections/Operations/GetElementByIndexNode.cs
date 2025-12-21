@@ -4,7 +4,7 @@ using XNode;
 using System.Linq;
 using System.Collections.Generic;
 
-namespace SiphoinUnityHelpers.XNodeExtensions.Varitables.Collection.Operations
+namespace SiphoinUnityHelpers.XNodeExtensions.Variables.Collection.Operations
 {
     public class GetElementByIndexNode : CollectionOperationNode<Object>
     {

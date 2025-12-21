@@ -1,9 +1,9 @@
 ﻿using UnityEngine;
 
-namespace SiphoinUnityHelpers.XNodeExtensions.Varitables.Set
+namespace SiphoinUnityHelpers.XNodeExtensions.Variables.Set
 {
     [NodeTint("#494a52")]
-    public class SetVector2Node : SetVaritableNode<Vector2>
+    public class SetVector2Node : SetVariableNode<Vector2>
     {
     }
 }

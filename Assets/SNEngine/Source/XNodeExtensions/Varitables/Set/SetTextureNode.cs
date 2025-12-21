@@ -1,11 +1,11 @@
 ﻿using SNEngine.Serialisation;
 using UnityEngine;
 
-namespace SiphoinUnityHelpers.XNodeExtensions.Varitables.Set
+namespace SiphoinUnityHelpers.XNodeExtensions.Variables.Set
 {
-    public class SetTextureNode : SetVaritableNode<Texture>
+    public class SetTextureNode : SetVariableNode<Texture>
     {
-        protected override void OnSetTargetValueChanged(VaritableNode<Texture> targetNode, Texture newValue)
+        protected override void OnSetTargetValueChanged(VariableNode<Texture> targetNode, Texture newValue)
         {
             SNEngineSerialization.AddAssetToLibrary<TextureLibrary>(newValue);
         }

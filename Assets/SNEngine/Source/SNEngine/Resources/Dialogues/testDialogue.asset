@@ -145,12 +145,12 @@ MonoBehaviour:
   position: {x: 632, y: 120}
   ports:
     keys:
-    - _varitable
+    - _Variable
     - _value
     - _enter
     - _exit
     values:
-    - _fieldName: _varitable
+    - _fieldName: _Variable
       _node: {fileID: -2196639434264101658}
       _typeQualifiedName: System.Int32, mscorlib, Version=4.0.0.0, Culture=neutral,
         PublicKeyToken=b77a5c561934e089
@@ -215,7 +215,7 @@ MonoBehaviour:
     _connectionType: 0
     _typeConstraint: 0
     _dynamic: 0
-  _varitable: 0
+  _Variable: 0
   _value: 0
   _targetGuid: 50314512cbf64e4
 --- !u!114 &-234506629145148142
@@ -483,7 +483,7 @@ MonoBehaviour:
       _typeConstraint: 0
       _dynamic: 0
   _nodeGuid: f33f4564c4b94e7
-  _guidVaritable: c77dddbe4215426
+  _guidVariable: 
 --- !u!114 &3859314814960716504
 MonoBehaviour:
   m_ObjectHideFlags: 0

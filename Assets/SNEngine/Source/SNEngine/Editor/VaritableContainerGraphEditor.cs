@@ -5,13 +5,12 @@ using UnityEditor;
 using UnityEngine;
 using XNodeEditor;
 using SNEngine.Graphs;
-using static XNodeEditor.NodeGraphEditor;
 using SiphoinUnityHelpers.XNodeExtensions.Editor;
 using SiphoinUnityHelpers.XNodeExtensions;
 
 namespace SNEngine.Editor
 {
-    [CustomNodeGraphEditor(typeof(VaritableContainerGraph))]
+    [CustomNodeGraphEditor(typeof(VariableContainerGraph))]
     public class VaritableContainerGraphEditor : FilteredNodeGraphEditor
     {
         private static readonly Dictionary<Type, bool> _typeCache = new Dictionary<Type, bool>();
@@ -32,7 +31,7 @@ namespace SNEngine.Editor
 
         private bool CheckIfAllowed(Type nodeType)
         {
-            if (typeof(VaritableNode).IsAssignableFrom(nodeType))
+            if (typeof(VariableNode).IsAssignableFrom(nodeType))
                 return true;
 
             if (typeof(SummaryNode).IsAssignableFrom(nodeType))
@@ -87,7 +86,7 @@ namespace SNEngine.Editor
 
                 _sidebarScroll = EditorGUILayout.BeginScrollView(_sidebarScroll, GUIStyle.none, GUI.skin.verticalScrollbar);
 
-                var variables = target.nodes.OfType<VaritableNode>()
+                var variables = target.nodes.OfType<VariableNode>()
                     .OrderBy(x => x.Name)
                     .ToList();
 
@@ -116,7 +115,7 @@ namespace SNEngine.Editor
             EditorGUILayout.EndHorizontal();
         }
 
-        private void DrawVariableRow(NodeEditorWindow window, VaritableNode node, int index)
+        private void DrawVariableRow(NodeEditorWindow window, VariableNode node, int index)
         {
             float rowHeight = 36f;
             Rect rowRect = EditorGUILayout.GetControlRect(false, rowHeight);

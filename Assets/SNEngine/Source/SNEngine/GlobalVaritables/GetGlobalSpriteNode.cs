@@ -1,9 +1,9 @@
 ﻿using UnityEngine;
 
-namespace SNEngine.GlobalVaritables
+namespace SNEngine.GlobalVariables
 {
     [NodeTint("#464778")]
-    public class GetGlobalSpriteNode : GetGlobalVaritableNode<Sprite>
+    public class GetGlobalSpriteNode : GetGlobalVariableNode<Sprite>
     {
     }
 

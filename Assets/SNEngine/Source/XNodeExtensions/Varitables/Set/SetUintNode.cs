@@ -1,6 +1,6 @@
-﻿namespace SiphoinUnityHelpers.XNodeExtensions.Varitables.Set
+﻿namespace SiphoinUnityHelpers.XNodeExtensions.Variables.Set
 {
-    public class SetUintNode : SetVaritableNode<uint>
+    public class SetUintNode : SetVariableNode<uint>
     {
     }
 }

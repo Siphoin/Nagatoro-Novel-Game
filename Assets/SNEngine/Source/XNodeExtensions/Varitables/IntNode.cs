@@ -2,10 +2,10 @@
 using UnityEngine;
 using XNode;
 
-namespace SiphoinUnityHelpers.XNodeExtensions.Varitables
+namespace SiphoinUnityHelpers.XNodeExtensions.Variables
 {
     [NodeTint("#524a4a")]
-    public class IntNode : VaritableNode<int>
+    public class IntNode : VariableNode<int>
     {
         public override void SetValue(object value)
         {

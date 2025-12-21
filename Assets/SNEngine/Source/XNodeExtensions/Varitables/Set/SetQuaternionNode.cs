@@ -1,9 +1,9 @@
 ﻿using UnityEngine;
 
-namespace SiphoinUnityHelpers.XNodeExtensions.Varitables.Set
+namespace SiphoinUnityHelpers.XNodeExtensions.Variables.Set
 {
     [NodeTint("#524949")]
-    public class SetQuaternionNode : SetVaritableNode<Quaternion>
+    public class SetQuaternionNode : SetVariableNode<Quaternion>
     {
     }
 }

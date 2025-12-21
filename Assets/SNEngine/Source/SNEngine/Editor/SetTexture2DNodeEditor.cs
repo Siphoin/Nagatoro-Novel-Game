@@ -2,7 +2,7 @@
 using UnityEditor;
 using UnityEngine;
 using XNodeEditor;
-using SiphoinUnityHelpers.XNodeExtensions.Varitables.Set;
+using SiphoinUnityHelpers.XNodeExtensions.Variables.Set;
 using SiphoinUnityHelpers.XNodeExtensions.Editor;
 using SiphoinUnityHelpers.Editor;
 

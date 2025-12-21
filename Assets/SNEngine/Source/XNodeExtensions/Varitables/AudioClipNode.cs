@@ -1,9 +1,9 @@
 ﻿using SNEngine.Serialisation;
 using UnityEngine;
 
-namespace SiphoinUnityHelpers.XNodeExtensions.Varitables
+namespace SiphoinUnityHelpers.XNodeExtensions.Variables
 {
-    public class AudioClipNode : UnityVaritableNode<AudioClip, AudioClipLibrary>
+    public class AudioClipNode : UnityVariableNode<AudioClip, AudioClipLibrary>
     {
         protected override void OnValueChanged(AudioClip oldValue, AudioClip newValue)
         {

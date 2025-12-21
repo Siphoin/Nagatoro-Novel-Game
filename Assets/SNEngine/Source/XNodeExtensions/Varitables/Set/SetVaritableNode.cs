@@ -3,11 +3,11 @@ using System.Linq;
 using SNEngine.Graphs;
 using System.Collections.Generic;
 
-namespace SiphoinUnityHelpers.XNodeExtensions.Varitables.Set
+namespace SiphoinUnityHelpers.XNodeExtensions.Variables.Set
 {
-    public abstract class SetVaritableNode<T> : BaseNodeInteraction
+    public abstract class SetVariableNode<T> : BaseNodeInteraction
     {
-        [Input(ShowBackingValue.Never, ConnectionType.Override), SerializeField] private T _varitable;
+        [Input(ShowBackingValue.Never, ConnectionType.Override), SerializeField] private T _Variable;
 
         [Input, SerializeField] private T _value;
 
@@ -19,9 +19,9 @@ namespace SiphoinUnityHelpers.XNodeExtensions.Varitables.Set
 
         public override void Execute()
         {
-            var outputVaritable = GetInputPort(nameof(_varitable));
+            var outputVariable = GetInputPort(nameof(_Variable));
             var inputValue = GetInputPort(nameof(_value));
-            var connectedVaritables = outputVaritable.GetConnections();
+            var connectedVariables = outputVariable.GetConnections();
 
             object finalValue = _value;
             var connectedValue = inputValue.Connection;
@@ -31,13 +31,13 @@ namespace SiphoinUnityHelpers.XNodeExtensions.Varitables.Set
                 finalValue = connectedValue.GetOutputValue();
             }
 
-            if (connectedVaritables.Count == 0 && !string.IsNullOrEmpty(_targetGuid))
+            if (connectedVariables.Count == 0 && !string.IsNullOrEmpty(_targetGuid))
             {
-                VaritableNode targetNode = null;
+                VariableNode targetNode = null;
 
                 if (graph is BaseGraph baseGraph)
                 {
-                    targetNode = baseGraph.GetNodeByGuid(_targetGuid) as VaritableNode;
+                    targetNode = baseGraph.GetNodeByGuid(_targetGuid) as VariableNode;
                 }
 
                 if (targetNode == null)
@@ -45,23 +45,23 @@ namespace SiphoinUnityHelpers.XNodeExtensions.Varitables.Set
                     targetNode = FindGlobalNode(_targetGuid);
                 }
 
-                if (targetNode is VaritableNode<T> typedNode)
+                if (targetNode is VariableNode<T> typedNode)
                 {
                     SetTypedValue(typedNode, finalValue);
                 }
             }
             else
             {
-                foreach (var port in connectedVaritables)
+                foreach (var port in connectedVariables)
                 {
-                    var connectedVaritable = port.node;
+                    var connectedVariable = port.node;
 
-                    if (connectedVaritable is VaritableNode<T> varitableNode)
+                    if (connectedVariable is VariableNode<T> VariableNode)
                     {
-                        SetTypedValue(varitableNode, finalValue);
+                        SetTypedValue(VariableNode, finalValue);
                     }
 
-                    if (connectedVaritable is VaritableCollectionNode<T> collectionNode)
+                    if (connectedVariable is VariableCollectionNode<T> collectionNode)
                     {
                         int index = RegexCollectionNode.GetIndex(port);
                         if (finalValue is T castValue)
@@ -73,7 +73,7 @@ namespace SiphoinUnityHelpers.XNodeExtensions.Varitables.Set
             }
         }
 
-        protected virtual void OnSetTargetValueChanged(VaritableNode<T> targetNode, T newValue) { }
+        protected virtual void OnSetTargetValueChanged(VariableNode<T> targetNode, T newValue) { }
 
 #if UNITY_EDITOR
         protected override void OnEnable()
@@ -92,18 +92,18 @@ namespace SiphoinUnityHelpers.XNodeExtensions.Varitables.Set
         }
 #endif
 
-        private VaritableNode FindGlobalNode(string guid)
+        private VariableNode FindGlobalNode(string guid)
         {
-            var containers = Resources.LoadAll<VaritableContainerGraph>("");
+            var containers = Resources.LoadAll<VariableContainerGraph>("");
             foreach (var container in containers)
             {
-                var node = container.nodes.OfType<VaritableNode>().FirstOrDefault(n => n.GUID == guid);
+                var node = container.nodes.OfType<VariableNode>().FirstOrDefault(n => n.GUID == guid);
                 if (node != null) return node;
             }
             return null;
         }
 
-        private void SetTypedValue(VaritableNode<T> node, object value)
+        private void SetTypedValue(VariableNode<T> node, object value)
         {
             T castValue = default;
             bool success = false;

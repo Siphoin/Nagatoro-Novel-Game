@@ -1,10 +1,10 @@
 ﻿using UnityEngine;
 using XNode;
 
-namespace SiphoinUnityHelpers.XNodeExtensions.Varitables.Collection
+namespace SiphoinUnityHelpers.XNodeExtensions.Variables.Collection
 {
     [NodeTint("#52494f")]
-    public class DoubleNode : VaritableCollectionNode<double>
+    public class DoubleNode : VariableCollectionNode<double>
     {
     }
 }

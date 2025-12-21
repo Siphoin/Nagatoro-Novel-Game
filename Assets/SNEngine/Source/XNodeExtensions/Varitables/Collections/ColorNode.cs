@@ -1,8 +1,8 @@
 ﻿using UnityEngine;
 
-namespace SiphoinUnityHelpers.XNodeExtensions.Varitables.Collection
+namespace SiphoinUnityHelpers.XNodeExtensions.Variables.Collection
 {
-    public class ColorNode : VaritableCollectionNode<Color>
+    public class ColorNode : VariableCollectionNode<Color>
     {
     }
 }

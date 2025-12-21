@@ -1,10 +1,10 @@
 ﻿using UnityEngine;
 using XNode;
 
-namespace SiphoinUnityHelpers.XNodeExtensions.Varitables.Collection
+namespace SiphoinUnityHelpers.XNodeExtensions.Variables.Collection
 {
     [NodeTint("#494d52")]
-    public class LongNode : VaritableCollectionNode<long>
+    public class LongNode : VariableCollectionNode<long>
     {
     }
 }

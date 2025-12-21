@@ -1,12 +1,12 @@
 ﻿using UnityEngine;
 
-namespace SNEngine.GlobalVaritables.Textures
+namespace SNEngine.GlobalVariables.Textures
 {
-    public class GetGlobalTextureNode : GetGlobalVaritableNode<Texture>
+    public class GetGlobalTextureNode : GetGlobalVariableNode<Texture>
     {
     }
 
-    public class GetGlobalTexture2DNode : GetGlobalVaritableNode<Texture2D>
+    public class GetGlobalTexture2DNode : GetGlobalVariableNode<Texture2D>
     {
     }
 }

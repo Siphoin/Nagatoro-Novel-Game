@@ -6,27 +6,27 @@ using System.Linq;
 using UnityEngine;
 using XNode;
 
-namespace SNEngine.GlobalVaritables
+namespace SNEngine.GlobalVariables
 {
-    public abstract class GetGlobalVaritableNode<T> : BaseNode
+    public abstract class GetGlobalVariableNode<T> : BaseNode
     {
-        [SerializeField, HideInInspector] private string _guidVaritable;
+        [SerializeField, HideInInspector] private string _guidVariable;
         [Output] private T _result;
 
         public override object GetValue(NodePort port)
         {
             if (!Application.isPlaying || port.fieldName != "_result") return null;
 
-            var service = NovelGame.Instance.GetService<VaritablesContainerService>();
-            if (service?.GlobalVaritables == null) return null;
+            var service = NovelGame.Instance.GetService<VariablesContainerService>();
+            if (service?.GlobalVariables == null) return null;
 
-            string targetGuid = _guidVaritable?.Trim();
+            string targetGuid = _guidVariable?.Trim();
             if (string.IsNullOrEmpty(targetGuid)) return default(T);
 
-            var varitableNode = service.GlobalVaritables.Values.FirstOrDefault(v =>
+            var VariableNode = service.GlobalVariables.Values.FirstOrDefault(v =>
                 v != null && v.GUID != null && v.GUID.Trim() == targetGuid);
 
-            return varitableNode != null ? varitableNode.GetCurrentValue() : default(T);
+            return VariableNode != null ? VariableNode.GetCurrentValue() : default(T);
         }
     }
 }

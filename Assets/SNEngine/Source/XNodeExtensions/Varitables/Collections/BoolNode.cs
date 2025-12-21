@@ -1,7 +1,7 @@
-﻿namespace SiphoinUnityHelpers.XNodeExtensions.Varitables.Collection
+﻿namespace SiphoinUnityHelpers.XNodeExtensions.Variables.Collection
 {
     [NodeTint("#6b3d3d")]
-    public class BoolNode : VaritableCollectionNode<bool>
+    public class BoolNode : VariableCollectionNode<bool>
     {
     }
 }

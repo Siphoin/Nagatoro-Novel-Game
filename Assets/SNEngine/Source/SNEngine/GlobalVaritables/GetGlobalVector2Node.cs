@@ -1,9 +1,9 @@
 ﻿using UnityEngine;
 
-namespace SNEngine.GlobalVaritables
+namespace SNEngine.GlobalVariables
 {
     [NodeTint("#494a52")]
-    public class GetGlobalVector2Node : GetGlobalVaritableNode<Vector2>
+    public class GetGlobalVector2Node : GetGlobalVariableNode<Vector2>
     {
     }
 

@@ -1,9 +1,9 @@
 ﻿using SNEngine.Serialisation;
 using UnityEngine;
 
-namespace SiphoinUnityHelpers.XNodeExtensions.Varitables
+namespace SiphoinUnityHelpers.XNodeExtensions.Variables
 {
-    public class MaterialNode : UnityVaritableNode<Material, MaterialLibrary>
+    public class MaterialNode : UnityVariableNode<Material, MaterialLibrary>
     {
         protected override void OnValueChanged(Material oldValue, Material newValue)
         {

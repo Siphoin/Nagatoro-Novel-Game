@@ -12,7 +12,7 @@ using UnityEditor;
 
 namespace SiphoinUnityHelpers.XNodeExtensions
 {
-    public abstract class VaritableNode : BaseNode
+    public abstract class VariableNode : BaseNode
     {
         [SerializeField, ReadOnly(ReadOnlyMode.OnEditor)] private string _name;
 
@@ -41,7 +41,7 @@ namespace SiphoinUnityHelpers.XNodeExtensions
             {
                 if (string.IsNullOrEmpty(Name))
                 {
-                    Name = $"{GetDefaultName()} Varitable";
+                    Name = $"{GetDefaultName()} Variable";
                 }
             }
         }
@@ -76,7 +76,7 @@ namespace SiphoinUnityHelpers.XNodeExtensions
 #endif
     }
 
-    public abstract class VaritableNode<T> : VaritableNode
+    public abstract class VariableNode<T> : VariableNode
     {
         private T _startValue;
         private T _editorOldValue;
@@ -114,7 +114,7 @@ namespace SiphoinUnityHelpers.XNodeExtensions
             }
             else
             {
-                XNodeExtensionsDebug.LogError($"varitable node {GUID} not apply the value {value?.GetType().Name}");
+                XNodeExtensionsDebug.LogError($"Variable node {GUID} not apply the value {value?.GetType().Name}");
             }
         }
 

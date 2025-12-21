@@ -1,10 +1,10 @@
 ﻿using SNEngine.Serialisation;
 using UnityEngine;
 
-namespace SiphoinUnityHelpers.XNodeExtensions.Varitables
+namespace SiphoinUnityHelpers.XNodeExtensions.Variables
 {
     [NodeTint("#464778")]
-    public class SpriteNode : UnityVaritableNode<Sprite, SpriteLibrary>
+    public class SpriteNode : UnityVariableNode<Sprite, SpriteLibrary>
     {
         protected override void OnValueChanged(Sprite oldValue, Sprite newValue)
         {

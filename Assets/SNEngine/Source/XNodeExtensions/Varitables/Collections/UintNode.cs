@@ -1,7 +1,7 @@
-﻿namespace SiphoinUnityHelpers.XNodeExtensions.Varitables.Collection
+﻿namespace SiphoinUnityHelpers.XNodeExtensions.Variables.Collection
 {
     [NodeTint("#524a4a")]
-    public class UintNode : VaritableCollectionNode<uint>
+    public class UintNode : VariableCollectionNode<uint>
     {
     }
 }

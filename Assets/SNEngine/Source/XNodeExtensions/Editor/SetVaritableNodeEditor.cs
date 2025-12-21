@@ -1,11 +1,11 @@
 ﻿#if UNITY_EDITOR
 using XNodeEditor;
-using SiphoinUnityHelpers.XNodeExtensions.Varitables.Set;
-using SiphoinUnityHelpers.XNodeExtensions.Varitables.Collection;
+using SiphoinUnityHelpers.XNodeExtensions.Variables.Set;
+using SiphoinUnityHelpers.XNodeExtensions.Variables;
 
 namespace SiphoinUnityHelpers.XNodeExtensions.Editor
 {
-    [CustomNodeEditor(typeof(SetVaritableNode<>))]
+    [CustomNodeEditor(typeof(SetVariableNode<>))]
     public class SetVaritableNodeEditor : NodeEditor
     {
         public override void OnBodyGUI()

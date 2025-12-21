@@ -1,8 +1,8 @@
 ﻿using UnityEngine;
 
-namespace SNEngine.GlobalVaritables
+namespace SNEngine.GlobalVariables
 {
-    public class GetGlobalAudioClipNode : GetGlobalVaritableNode<AudioClip>
+    public class GetGlobalAudioClipNode : GetGlobalVariableNode<AudioClip>
     {
     }
 

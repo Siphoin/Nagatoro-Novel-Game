@@ -1,10 +1,10 @@
 ﻿using UnityEngine;
 using XNode;
 
-namespace SiphoinUnityHelpers.XNodeExtensions.Varitables.Collection
+namespace SiphoinUnityHelpers.XNodeExtensions.Variables.Collection
 {
     [NodeTint("#524c49")]
-    public class PrefabNode : VaritableCollectionNode<GameObject>
+    public class PrefabNode : VariableCollectionNode<GameObject>
     {
     }
 }

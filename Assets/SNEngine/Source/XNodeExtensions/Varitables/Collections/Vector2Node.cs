@@ -1,11 +1,11 @@
 ﻿using UnityEngine;
 using XNode;
 
-namespace SiphoinUnityHelpers.XNodeExtensions.Varitables.Collection
+namespace SiphoinUnityHelpers.XNodeExtensions.Variables.Collection
 {
     [NodeTint("#494a52")]
     
-    public class Vector2Node : VaritableCollectionNode<Vector2>
+    public class Vector2Node : VariableCollectionNode<Vector2>
     {
     }
 }

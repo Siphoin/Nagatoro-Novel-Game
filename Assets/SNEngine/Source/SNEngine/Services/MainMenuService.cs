@@ -43,7 +43,7 @@ namespace SNEngine.Services
 
         private void ResetAllGlobalContainers()
         {
-            var containers = Resources.LoadAll<VaritableContainerGraph>("");
+            var containers = Resources.LoadAll<VariableContainerGraph>("");
             foreach (var container in containers)
             {
                 container.ResetState();

@@ -1,9 +1,9 @@
 ﻿using UnityEngine;
 
-namespace SNEngine.GlobalVaritables
+namespace SNEngine.GlobalVariables
 {
     [NodeTint("#524c49")]
-    public class GetGlobalPrefabNode : GetGlobalVaritableNode<GameObject>
+    public class GetGlobalPrefabNode : GetGlobalVariableNode<GameObject>
     {
     }
 

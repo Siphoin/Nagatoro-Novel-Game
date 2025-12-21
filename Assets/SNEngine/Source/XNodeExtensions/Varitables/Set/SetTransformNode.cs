@@ -1,8 +1,8 @@
 ﻿using UnityEngine;
 
-namespace SiphoinUnityHelpers.XNodeExtensions.Varitables.Set
+namespace SiphoinUnityHelpers.XNodeExtensions.Variables.Set
 {
-    public class SetTransformNode : SetVaritableNode<Transform>
+    public class SetTransformNode : SetVariableNode<Transform>
     {
     }
 }

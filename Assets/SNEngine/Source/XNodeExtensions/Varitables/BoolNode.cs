@@ -1,10 +1,10 @@
 ﻿using UnityEngine;
 using XNode;
 
-namespace SiphoinUnityHelpers.XNodeExtensions.Varitables
+namespace SiphoinUnityHelpers.XNodeExtensions.Variables
 {
     [NodeTint("#6b3d3d")]
-    public class BoolNode : VaritableNode<bool>
+    public class BoolNode : VariableNode<bool>
     {
     }
 }

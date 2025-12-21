@@ -4,27 +4,27 @@ using UnityEngine;
 
 namespace SNEngine.Graphs
 {
-    [CreateAssetMenu(menuName = "SNEngine/VaritableContainerGraph")]
-    public class VaritableContainerGraph : BaseGraph, IContainerVaritables
+    [CreateAssetMenu(menuName = "SNEngine/VariableContainerGraph")]
+    public class VariableContainerGraph : BaseGraph, IContainerVariables
     {
-        public IDictionary<string, VaritableNode> GlobalVaritables => Varitables;
+        public IDictionary<string, VariableNode> GlobalVariables => Variables;
 
         public override void Execute()
         {
-            BuidVaritableNodes();
+            BuidVariableNodes();
         }
 
         public void ResetState()
         {
-            foreach (var varitable in Varitables.Values)
+            foreach (var Variable in Variables.Values)
             {
-                varitable.ResetValue();
+                Variable.ResetValue();
             }
         }
 
         public override string GetWindowTitle()
         {
-            return "Global Varitables";
+            return "Global Variables";
         }
     }
 }

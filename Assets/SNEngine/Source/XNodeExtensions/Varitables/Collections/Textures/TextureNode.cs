@@ -1,8 +1,8 @@
 ﻿using UnityEngine;
 
-namespace SiphoinUnityHelpers.XNodeExtensions.Varitables.Collection.Textures
+namespace SiphoinUnityHelpers.XNodeExtensions.Variables.Collection.Textures
 {
-    public class TextureNode : VaritableCollectionNode<Texture>
+    public class TextureNode : VariableCollectionNode<Texture>
     {
     }
 }

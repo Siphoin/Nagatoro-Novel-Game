@@ -8,13 +8,13 @@ using SNEngine.Graphs;
 
 namespace SiphoinUnityHelpers.XNodeExtensions.Editor
 {
-    public class VaritableSelectorWindow : EditorWindow
+    public class VariableselectorWindow : EditorWindow
     {
         public enum SelectorMode { All, LocalOnly, GlobalOnly }
         private enum Category { Local, Global }
 
         private BaseGraph _targetGraph;
-        private Action<VaritableNode> _onSelect;
+        private Action<VariableNode> _onSelect;
         private Type _requiredType;
         private SelectorMode _mode = SelectorMode.All;
 
@@ -22,18 +22,18 @@ namespace SiphoinUnityHelpers.XNodeExtensions.Editor
         private string _searchQuery = "";
         private Vector2 _scrollPos;
 
-        private List<VaritableNode> _localNodes = new List<VaritableNode>();
-        private List<VaritableNode> _globalNodes = new List<VaritableNode>();
-        private List<VaritableNode> _filteredNodes = new List<VaritableNode>();
+        private List<VariableNode> _localNodes = new List<VariableNode>();
+        private List<VariableNode> _globalNodes = new List<VariableNode>();
+        private List<VariableNode> _filteredNodes = new List<VariableNode>();
 
         // Virtualization variables
         private const float ROW_HEIGHT = 48f;
         private int _startIndex = 0;
         private int _endIndex = 0;
 
-        public static void Open(BaseGraph graph, Type requiredType, Action<VaritableNode> onSelect, SelectorMode mode = SelectorMode.All)
+        public static void Open(BaseGraph graph, Type requiredType, Action<VariableNode> onSelect, SelectorMode mode = SelectorMode.All)
         {
-            var window = GetWindow<VaritableSelectorWindow>(true, "Variable Selector", true);
+            var window = GetWindow<VariableselectorWindow>(true, "Variable Selector", true);
             window._targetGraph = graph;
             window._requiredType = requiredType;
             window._onSelect = onSelect;
@@ -51,13 +51,13 @@ namespace SiphoinUnityHelpers.XNodeExtensions.Editor
 
             if (_targetGraph != null)
             {
-                _localNodes.AddRange(_targetGraph.nodes.OfType<VaritableNode>().Where(IsCompatibleType));
+                _localNodes.AddRange(_targetGraph.nodes.OfType<VariableNode>().Where(IsCompatibleType));
             }
 
-            var globalContainer = Resources.Load<VaritableContainerGraph>("VaritableContainerGraph");
+            var globalContainer = Resources.Load<VariableContainerGraph>("VaritableContainerGraph");
             if (globalContainer != null && globalContainer != _targetGraph)
             {
-                _globalNodes.AddRange(globalContainer.nodes.OfType<VaritableNode>().Where(IsCompatibleType));
+                _globalNodes.AddRange(globalContainer.nodes.OfType<VariableNode>().Where(IsCompatibleType));
             }
 
             ApplyFilter();
@@ -65,7 +65,7 @@ namespace SiphoinUnityHelpers.XNodeExtensions.Editor
 
         private void ApplyFilter()
         {
-            List<VaritableNode> sourceList;
+            List<VariableNode> sourceList;
 
             switch (_mode)
             {
@@ -176,7 +176,7 @@ namespace SiphoinUnityHelpers.XNodeExtensions.Editor
 
             for (int i = _startIndex; i < _endIndex; i++)
             {
-                VaritableNode node = _filteredNodes[i];
+                VariableNode node = _filteredNodes[i];
 
                 Rect rowRect = new Rect(0, i * ROW_HEIGHT, contentWidth, ROW_HEIGHT);
 
@@ -238,7 +238,7 @@ namespace SiphoinUnityHelpers.XNodeExtensions.Editor
             GUI.EndScrollView();
         }
 
-        private bool IsCompatibleType(VaritableNode node)
+        private bool IsCompatibleType(VariableNode node)
         {
             if (_requiredType == null) return true;
 
@@ -248,7 +248,7 @@ namespace SiphoinUnityHelpers.XNodeExtensions.Editor
                 if (nodeType.IsGenericType)
                 {
                     Type def = nodeType.GetGenericTypeDefinition();
-                    if (def == typeof(VaritableNode<>) || def == typeof(VaritableCollectionNode<>))
+                    if (def == typeof(VariableNode<>) || def == typeof(VariableCollectionNode<>))
                     {
                         Type nodeVarType = nodeType.GetGenericArguments()[0];
                         return _requiredType.IsAssignableFrom(nodeVarType);

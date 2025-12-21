@@ -19,7 +19,7 @@ namespace SNEngine.SaveSystem
         private const int WEBGL_PREVIEW_SIZE = 256;
 
         private ISaveLoadProvider _provider;
-        private Dictionary<string, object> _originalVaritableValues;
+        private Dictionary<string, object> _originalVariableValues;
         private DialogueGraph _currentGraph;
 
         public override void Initialize()
@@ -110,16 +110,16 @@ namespace SNEngine.SaveSystem
         public void LoadDataGraph(DialogueGraph graph, SaveData saveData)
         {
             _currentGraph = graph;
-            _originalVaritableValues = new Dictionary<string, object>();
+            _originalVariableValues = new Dictionary<string, object>();
 
             IEnumerable<ISaveProgressNode> nodes = graph.AllNodes
                 .Select(x => x.Value)
                 .OfType<ISaveProgressNode>();
 
-            IEnumerable<VaritableNode> varitableNodes = graph.nodes
-                .OfType<VaritableNode>();
+            IEnumerable<VariableNode> VariableNodes = graph.nodes
+                .OfType<VariableNode>();
 
-            var globalVaritables = NovelGame.Instance.GetService<VaritablesContainerService>().GlobalVaritables;
+            var globalVariables = NovelGame.Instance.GetService<VariablesContainerService>().GlobalVariables;
 
             foreach (var node in nodes)
             {
@@ -136,11 +136,11 @@ namespace SNEngine.SaveSystem
                 }
             }
 
-            foreach (var node in varitableNodes)
+            foreach (var node in VariableNodes)
             {
-                _originalVaritableValues[node.GUID] = node.GetStartValue();
+                _originalVariableValues[node.GUID] = node.GetStartValue();
 
-                var data = saveData.Varitables;
+                var data = saveData.Variables;
 
                 if (data.TryGetValue(node.GUID, out var savedData))
                 {
@@ -153,11 +153,11 @@ namespace SNEngine.SaveSystem
                 }
             }
 
-            foreach (var node in globalVaritables.Values)
+            foreach (var node in globalVariables.Values)
             {
-                _originalVaritableValues[node.GUID] = node.GetStartValue();
+                _originalVariableValues[node.GUID] = node.GetStartValue();
 
-                var data = saveData.GlobalVaritables;
+                var data = saveData.GlobalVariables;
 
                 if (data.TryGetValue(node.GUID, out var savedData))
                 {
@@ -171,8 +171,8 @@ namespace SNEngine.SaveSystem
             }
 
 #if UNITY_EDITOR
-            graph.OnEndExecute -= RestoreOriginalVaritableValues;
-            graph.OnEndExecute += RestoreOriginalVaritableValues;
+            graph.OnEndExecute -= RestoreOriginalVariableValues;
+            graph.OnEndExecute += RestoreOriginalVariableValues;
 #endif
 
         }
@@ -211,7 +211,7 @@ namespace SNEngine.SaveSystem
         public async UniTask SaveCurrentState(string saveName)
         {
             var dialogueService = NovelGame.Instance.GetService<DialogueService>();
-            var globalVaritablesService = NovelGame.Instance.GetService<VaritablesContainerService>();
+            var globalVariablesService = NovelGame.Instance.GetService<VariablesContainerService>();
 
             if (dialogueService.CurrentDialogue is not DialogueGraph dialogueGraph)
             {
@@ -219,23 +219,23 @@ namespace SNEngine.SaveSystem
             }
 
             var nodeGuid = dialogueGraph.CurrentExecuteNode.GUID;
-            var varitables = dialogueGraph.Varitables;
-            var globalVaritables = globalVaritablesService.GlobalVaritables;
+            var Variables = dialogueGraph.Variables;
+            var globalVariables = globalVariablesService.GlobalVariables;
 
-            Dictionary<string, object> varitablesData = new();
-            foreach (var varitable in varitables)
+            Dictionary<string, object> VariablesData = new();
+            foreach (var Variable in Variables)
             {
-                var guid = varitable.Value.GUID;
-                var valueNode = varitable.Value.GetCurrentValue();
-                varitablesData.Add(guid, valueNode);
+                var guid = Variable.Value.GUID;
+                var valueNode = Variable.Value.GetCurrentValue();
+                VariablesData.Add(guid, valueNode);
             }
 
-            Dictionary<string, object> globalVaritablesData = new();
-            foreach (var varitable in globalVaritables)
+            Dictionary<string, object> globalVariablesData = new();
+            foreach (var Variable in globalVariables)
             {
-                var guid = varitable.Value.GUID;
-                var valueNode = varitable.Value.GetCurrentValue();
-                globalVaritablesData.Add(guid, valueNode);
+                var guid = Variable.Value.GUID;
+                var valueNode = Variable.Value.GetCurrentValue();
+                globalVariablesData.Add(guid, valueNode);
             }
 
             var nodesData = ExtractSaveDataFromGraph(dialogueGraph);
@@ -243,8 +243,8 @@ namespace SNEngine.SaveSystem
             SaveData saveData = new()
             {
                 CurrentNode = nodeGuid,
-                Varitables = varitablesData,
-                GlobalVaritables = globalVaritablesData,
+                Variables = VariablesData,
+                GlobalVariables = globalVariablesData,
                 DialogueGUID = dialogueGraph.GUID,
                 DateSave = System.DateTime.Now,
                 NodesData = nodesData,
@@ -265,24 +265,24 @@ namespace SNEngine.SaveSystem
         }
 
 #if UNITY_EDITOR
-        private void RestoreOriginalVaritableValues()
+        private void RestoreOriginalVariableValues()
         {
-            if (_originalVaritableValues == null || _currentGraph == null) return;
+            if (_originalVariableValues == null || _currentGraph == null) return;
 
-            IEnumerable<VaritableNode> varitableNodes = _currentGraph.AllNodes
+            IEnumerable<VariableNode> VariableNodes = _currentGraph.AllNodes
                 .Select(x => x.Value)
-                .OfType<VaritableNode>();
+                .OfType<VariableNode>();
 
-            foreach (var node in varitableNodes)
+            foreach (var node in VariableNodes)
             {
-                if (_originalVaritableValues.TryGetValue(node.GUID, out var originalValue))
+                if (_originalVariableValues.TryGetValue(node.GUID, out var originalValue))
                 {
                     node.SetValue(originalValue);
                 }
             }
 
-            NovelGameDebug.Log("Restored original varitable values after graph execution from save.");
-            _originalVaritableValues.Clear();
+            NovelGameDebug.Log("Restored original Variable values after graph execution from save.");
+            _originalVariableValues.Clear();
             _currentGraph = null;
         }
 #endif

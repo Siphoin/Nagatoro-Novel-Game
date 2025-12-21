@@ -1,10 +1,10 @@
 ﻿using SiphoinUnityHelpers.Attributes;
 using UnityEngine;
 
-namespace SiphoinUnityHelpers.XNodeExtensions.Varitables
+namespace SiphoinUnityHelpers.XNodeExtensions.Variables
 {
     [NodeWidth(250)]
-    public class TransformNode : VaritableNode<Transform>
+    public class TransformNode : VariableNode<Transform>
     {
     }
 }

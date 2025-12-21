@@ -2,9 +2,9 @@
 using UnityEditor;
 using UnityEngine;
 using XNodeEditor;
-using SiphoinUnityHelpers.XNodeExtensions.Varitables;
+using SiphoinUnityHelpers.XNodeExtensions.Variables;
 using SiphoinUnityHelpers.Editor;
-using SiphoinUnityHelpers.XNodeExtensions.Varitables.Textures;
+using SiphoinUnityHelpers.XNodeExtensions.Variables.Textures;
 
 namespace SNEngine.Editor
 {

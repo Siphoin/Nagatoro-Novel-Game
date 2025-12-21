@@ -7,29 +7,29 @@ using UnityEngine;
 
 namespace SNEngine.Services
 {
-    [CreateAssetMenu(menuName = "SNEngine/Services/Varitable Container Service")]
-    public class VaritablesContainerService : ServiceBase, IContainerVaritables
+    [CreateAssetMenu(menuName = "SNEngine/Services/Variable Container Service")]
+    public class VariablesContainerService : ServiceBase, IContainerVariables
     {
-        private IContainerVaritables _containerVaritables;
-        public IDictionary<string, VaritableNode> GlobalVaritables => _containerVaritables.GlobalVaritables;
+        private IContainerVariables _containerVariables;
+        public IDictionary<string, VariableNode> GlobalVariables => _containerVariables.GlobalVariables;
 
-        private const string PATH = "VaritableContainerGraph";
+        private const string PATH = "VariableContainerGraph";
 
         public override void Initialize()
         {
-            var graph = Resources.Load<VaritableContainerGraph>(PATH);
+            var graph = Resources.Load<VariableContainerGraph>(PATH);
 
             if (graph != null)
             {
-                NovelGameDebug.Log($"{nameof(GlobalVaritables)} Container loaded. Build Varitables...");
+                NovelGameDebug.Log($"{nameof(GlobalVariables)} Container loaded. Build Variables...");
 
                 graph.Execute();
 
                 StringBuilder stringBuilder = new StringBuilder();
 
-                stringBuilder.AppendLine($"{nameof(GlobalVaritables)} Container finished Build.");
+                stringBuilder.AppendLine($"{nameof(GlobalVariables)} Container finished Build.");
 
-                foreach (var item in graph.GlobalVaritables)
+                foreach (var item in graph.GlobalVariables)
                 {
                     stringBuilder.AppendLine($"Key: {item.Key} Value: {item.Value.GetCurrentValue()} Type Node: {item.Value.GetType().Name}");
                 }
@@ -37,12 +37,12 @@ namespace SNEngine.Services
 
                 NovelGameDebug.Log(stringBuilder.ToString());
 
-                _containerVaritables = graph;
+                _containerVariables = graph;
             }
 
             else
             {
-                NovelGameDebug.LogError($"{nameof(GlobalVaritables)} Container not found on path {PATH}");
+                NovelGameDebug.LogError($"{nameof(GlobalVariables)} Container not found on path {PATH}");
             }
         }
     }
