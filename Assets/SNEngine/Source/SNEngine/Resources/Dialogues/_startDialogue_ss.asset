@@ -103,7 +103,7 @@ MonoBehaviour:
         PublicKeyToken=null
       connections:
       - fieldName: _exit
-        node: {fileID: 8365248015359668658}
+        node: {fileID: 0}
         reroutePoints: []
       _direction: 0
       _connectionType: 0
@@ -185,7 +185,7 @@ MonoBehaviour:
         PublicKeyToken=null
       connections:
       - fieldName: _enter
-        node: {fileID: 8365248015359668658}
+        node: {fileID: 0}
         reroutePoints: []
       _direction: 1
       _connectionType: 0
