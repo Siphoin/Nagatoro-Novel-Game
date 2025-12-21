@@ -8,7 +8,8 @@ project_root = os.path.abspath(os.path.join(script_dir, "../../../../../.."))
 PATHS_TO_DELETE = [
     "Assets/SNEngine/Source/SNEngine/Resources/Custom",
     "Assets/StreamingAssets",
-    "Assets/SNEngine/Demo"
+    "Assets/SNEngine/Demo",
+    "Assets/SNEngine/Source/SNEngine/Resources/Editor/TextTemplates/custom_ui_template.yaml"
 ]
 
 PATHS_TO_CLEAR = [
