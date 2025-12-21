@@ -103,15 +103,6 @@ namespace SNEngine.SelectVariantsSystem
 
             for (int i = 0; i < variants.Length; i++)
             {
-                string fieldName = $"{nameof(_variants)} {i}";
-
-                var port = GetInputPort(fieldName);
-
-                if (port.Connection != null)
-                {
-                    variants[i] = GetInputValue<string>(fieldName);
-                }
-
                 variants[i] = TextParser.ParseWithProperties(variants[i], graph as BaseGraph);
             }
 
