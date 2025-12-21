@@ -13,6 +13,11 @@ namespace SNEngine.Editor
 
         public void OnPreprocessBuild(BuildReport report)
         {
+            Assign();
+        }
+
+        public static void Assign()
+        {
             Texture2D[] currentIcons = PlayerSettings.GetIcons(NamedBuildTarget.Unknown, IconKind.Application);
 
             bool hasIcon = false;

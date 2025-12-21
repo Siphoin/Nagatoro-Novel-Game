@@ -10,7 +10,7 @@ namespace SNEngine.Editor
             SetExecutionOrder();
         }
 
-        private static void SetExecutionOrder()
+        public static void SetExecutionOrder()
         {
             string scriptName = typeof(NovelGame).Name;
             int priority = -100;
