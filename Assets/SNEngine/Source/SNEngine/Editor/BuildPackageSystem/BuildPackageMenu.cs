@@ -21,16 +21,14 @@ namespace SNEngine.Editor.BuildPackageSystem
         [MenuItem(MENU_PATH)]
         public static void BuildPackage()
         {
-            // Check if we're on the master branch using PowerShell
             if (IsOnMasterBranch())
             {
-                EditorUtility.DisplayDialog("Build Package", 
-                    "You are currently on the master branch. Please switch to a different branch before building the package.", 
+                EditorUtility.DisplayDialog("Build Package",
+                    "You are currently on the master branch. Please switch to a different branch before building the package.",
                     "OK");
                 return;
             }
 
-            // Ask user to select folder for the unitypackage
             string exportPath = EditorUtility.OpenFolderPanel("Select folder to save unitypackage", "", "");
             if (string.IsNullOrEmpty(exportPath))
             {
@@ -42,32 +40,36 @@ namespace SNEngine.Editor.BuildPackageSystem
 
             try
             {
-                // Store current git state
                 string gitState = GetGitState();
 
-                // Delete Custom folder and all characters
-                DeleteCustomResources();
-                DeleteAllCharacters();
-                DeleteStreamingAssetsFolder();
-                
-                // Create start dialogue
-                CreateStartDialogue();
-                
-                // Delete Demo folder
-                DeleteDemoFolder();
+                AssetDatabase.SaveAssets();
 
-                // Export the package
-                ExportPackage(packagePath);
+                DeleteAssetSafe(CUSTOM_RESOURCES_PATH);
+                DeleteAssetSafe(STREAMING_ASSETS_PATH);
+                DeleteAssetSafe(DEMO_PATH);
+
+                ClearFolder(CHARACTERS_PATH);
+                ClearFolder(DIALOGUES_PATH);
+
+                CreateStartDialogue();
+
+                AssetDatabase.Refresh();
+
+                ExportWorker.ExportPackage(packagePath);
 
                 Debug.Log($"Package successfully exported to: {packagePath}");
-                
-                // Restore git state to revert all changes
+
                 RestoreGitState(gitState);
             }
             catch (Exception e)
             {
                 Debug.LogError($"Error during package build: {e.Message}");
             }
+        }
+
+        private static string GetProjectRoot()
+        {
+            return Path.GetFullPath(Path.Combine(Application.dataPath, ".."));
         }
 
         private static bool IsOnMasterBranch()
@@ -80,119 +82,69 @@ namespace SNEngine.Editor.BuildPackageSystem
                     Arguments = "-Command \"git branch --show-current\"",
                     UseShellExecute = false,
                     RedirectStandardOutput = true,
-                    CreateNoWindow = true
+                    CreateNoWindow = true,
+                    WorkingDirectory = GetProjectRoot()
                 };
 
                 using (Process process = Process.Start(startInfo))
                 {
                     string output = process.StandardOutput.ReadToEnd();
                     process.WaitForExit();
-
-                    string currentBranch = output.Trim();
-                    return currentBranch.Equals("master", StringComparison.OrdinalIgnoreCase);
+                    return output.Trim().Equals("master", StringComparison.OrdinalIgnoreCase);
                 }
             }
-            catch (Exception e)
+            catch
             {
-                Debug.LogWarning($"Could not check git branch: {e.Message}");
-                return false; // Assume not on master if we can't check
+                return false;
             }
         }
 
-        private static void DeleteCustomResources()
+        private static void DeleteAssetSafe(string path)
         {
-            if (Directory.Exists(CUSTOM_RESOURCES_PATH))
+            if (AssetDatabase.IsValidFolder(path) || File.Exists(path))
             {
-                Directory.Delete(CUSTOM_RESOURCES_PATH, true);
-                AssetDatabase.DeleteAsset("Assets/SNEngine/Source/SNEngine/Resources/Custom");
-                
-                Debug.Log($"[BuildPackage] Custom resources deleted from: {CUSTOM_RESOURCES_PATH}");
+                AssetDatabase.DeleteAsset(path);
             }
         }
 
-        private static void DeleteAllCharacters()
+        private static void ClearFolder(string folderPath)
         {
-            if (Directory.Exists(CHARACTERS_PATH))
+            if (!AssetDatabase.IsValidFolder(folderPath))
             {
-                // Delete all character assets in the folder
-                string[] characterFiles = Directory.GetFiles(CHARACTERS_PATH, "*.asset");
-                
-                foreach (string characterFile in characterFiles)
+                return;
+            }
+
+            string[] subFolders = AssetDatabase.GetSubFolders(folderPath);
+            foreach (string folder in subFolders)
+            {
+                AssetDatabase.DeleteAsset(folder);
+            }
+
+            string[] files = Directory.GetFiles(Path.GetFullPath(Path.Combine(Application.dataPath, "..", folderPath)));
+            foreach (string file in files)
+            {
+                string assetPath = folderPath + "/" + Path.GetFileName(file);
+                if (AssetDatabase.LoadAssetAtPath<UnityEngine.Object>(assetPath) != null)
                 {
-                    string relativePath = "Assets" + characterFile.Substring(Application.dataPath.Length);
-                    AssetDatabase.DeleteAsset(relativePath);
+                    AssetDatabase.DeleteAsset(assetPath);
                 }
-                
-                Debug.Log($"[BuildPackage] All characters deleted from: {CHARACTERS_PATH}");
-            }
-        }
-
-        private static void DeleteDemoFolder()
-        {
-            if (Directory.Exists(DEMO_PATH))
-            {
-                Directory.Delete(DEMO_PATH, true);
-                AssetDatabase.DeleteAsset(DEMO_PATH);
-                
-                Debug.Log($"[BuildPackage] Demo folder deleted from: {DEMO_PATH}");
-            }
-        }
-        
-        private static void DeleteStreamingAssetsFolder()
-        {
-            if (Directory.Exists(STREAMING_ASSETS_PATH))
-            {
-                Directory.Delete(STREAMING_ASSETS_PATH, true);
-                AssetDatabase.DeleteAsset(STREAMING_ASSETS_PATH);
-                
-                Debug.Log($"[BuildPackage] StreamingAssets folder deleted from: {STREAMING_ASSETS_PATH}");
             }
         }
 
         private static void CreateStartDialogue()
         {
-            if (!Directory.Exists(DIALOGUES_PATH))
-            {
-                Directory.CreateDirectory(DIALOGUES_PATH);
-            }
-
             string startDialoguePath = Path.Combine(DIALOGUES_PATH, START_DIALOGUE_NAME);
 
-            // Check if template exists
             if (!File.Exists(TEMPLATE_PATH))
             {
-                Debug.LogError($"[BuildPackage] Template not found at path: {TEMPLATE_PATH}");
+                Debug.LogError($"[BuildPackage] Template not found: {TEMPLATE_PATH}");
                 return;
             }
 
-            // Copy template to create start dialogue
             File.Copy(TEMPLATE_PATH, startDialoguePath, true);
-            
-            // Import the new asset so Unity recognizes it
             AssetDatabase.ImportAsset(startDialoguePath, ImportAssetOptions.ForceUpdate);
-            
-            Debug.Log($"[BuildPackage] Created start dialogue at: {startDialoguePath}");
         }
-        
-        private static void ExportPackage(string packagePath)
-        {
-            // Define the assets to be included in the package
-            string[] assets = {
-                "Assets/SNEngine",
-            };
 
-            // Ensure the directory exists
-            string directory = Path.GetDirectoryName(packagePath);
-            if (!Directory.Exists(directory))
-            {
-                Directory.CreateDirectory(directory);
-            }
-
-            // Export the package
-            AssetDatabase.ExportPackage(assets, packagePath, 
-                ExportPackageOptions.Recurse | ExportPackageOptions.Interactive);
-        }
-        
         private static string GetGitState()
         {
             try
@@ -203,47 +155,42 @@ namespace SNEngine.Editor.BuildPackageSystem
                     Arguments = "-Command \"git status --porcelain\"",
                     UseShellExecute = false,
                     RedirectStandardOutput = true,
-                    CreateNoWindow = true
+                    CreateNoWindow = true,
+                    WorkingDirectory = GetProjectRoot()
                 };
 
                 using (Process process = Process.Start(startInfo))
                 {
                     string output = process.StandardOutput.ReadToEnd();
                     process.WaitForExit();
-
                     return output.Trim();
                 }
             }
-            catch (Exception e)
+            catch
             {
-                Debug.LogWarning($"Could not get git state: {e.Message}");
                 return string.Empty;
             }
         }
-        
+
         private static void RestoreGitState(string previousState)
         {
             try
             {
-                // Use git checkout to restore all changes
                 ProcessStartInfo startInfo = new ProcessStartInfo
                 {
                     FileName = "powershell.exe",
-                    Arguments = "-Command \"git checkout . && git clean -fd\"",
+                    Arguments = "-Command \"git checkout .; git clean -fd\"",
                     UseShellExecute = false,
                     RedirectStandardOutput = true,
-                    CreateNoWindow = true
+                    CreateNoWindow = true,
+                    WorkingDirectory = GetProjectRoot()
                 };
 
                 using (Process process = Process.Start(startInfo))
                 {
-                    string output = process.StandardOutput.ReadToEnd();
                     process.WaitForExit();
-
-                    Debug.Log($"[BuildPackage] Git state restored. Output: {output}");
                 }
-                
-                // Refresh the asset database
+
                 AssetDatabase.Refresh();
             }
             catch (Exception e)
