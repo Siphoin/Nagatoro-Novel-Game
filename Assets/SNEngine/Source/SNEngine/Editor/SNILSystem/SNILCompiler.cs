@@ -289,6 +289,8 @@ namespace SNEngine.Editor.SNILSystem
                     continue; // Пропускаем создание ноды для вызова функции
                 }
 
+                // For now, use the simple parser for non-block instructions
+                // The block parser handles IF-ELSE-ENDIF structures
                 var instruction = MatchLineToTemplate(trimmed, templates);
                 if (instruction != null)
                 {
@@ -296,43 +298,35 @@ namespace SNEngine.Editor.SNILSystem
                 }
             }
 
-            return (instructions, functionCallPositions);
+            // For a more complete implementation, we would need to integrate function call handling into the block parser
+            // For now, we'll use the block parser for the main logic
+            var blockInstructions = SNILBlockParser.ParseWithBlocks(lines);
+
+            // We need to filter out function calls from the block parser and track their positions
+            var filteredInstructions = new List<SNILInstruction>();
+            var updatedFunctionCallPositions = new List<int>();
+
+            for (int i = 0; i < lines.Length; i++)
+            {
+                string line = lines[i];
+                string trimmed = line.Trim();
+
+                if (trimmed.StartsWith("call ", StringComparison.OrdinalIgnoreCase))
+                {
+                    string functionName = trimmed.Substring(5).Trim();
+                    updatedFunctionCallPositions.Add(filteredInstructions.Count);
+                }
+            }
+
+            // Since the block parser handles all instructions including nested ones,
+            // we'll return the block parser results
+            return (blockInstructions, updatedFunctionCallPositions);
         }
 
         private static List<SNILInstruction> ParseScript(string[] lines)
         {
-            var templates = SNILTemplateManager.GetNodeTemplates();
-            List<SNILInstruction> instructions = new List<SNILInstruction>();
-
-            foreach (string line in lines)
-            {
-                string trimmed = line.Trim();
-                if (string.IsNullOrEmpty(trimmed) || IsCommentLine(trimmed)) continue;
-
-                var nameMatch = Regex.Match(trimmed, @"^name:\s*(.+)", RegexOptions.IgnoreCase);
-                if (nameMatch.Success) continue;
-
-                // Пропускаем только определения функций и концы функций (не конец диалога)
-                if (trimmed.StartsWith("function ", StringComparison.OrdinalIgnoreCase) ||
-                    trimmed.Equals("end", StringComparison.Ordinal)) // Только lowercase "end" для функций, не "End" для диалога
-                {
-                    continue;
-                }
-
-                // Пропускаем вызовы функций
-                if (trimmed.StartsWith("call ", StringComparison.OrdinalIgnoreCase))
-                {
-                    continue;
-                }
-
-                var instruction = MatchLineToTemplate(trimmed, templates);
-                if (instruction != null)
-                {
-                    instructions.Add(instruction);
-                }
-            }
-
-            return instructions;
+            // Use the new block parser to handle IF-ELSE-ENDIF structures
+            return SNILBlockParser.ParseWithBlocks(lines);
         }
 
         private static void ImportMultiScript(List<string[]> scriptParts)

@@ -1,12 +1,11 @@
-name: TestScript
+name: ChoiceExample
 Start
-Show Background beachBackground
-Nagatoro says Hello!
-call greetNagatoro
-Show Nagatoro with emotion Naga_Lean_Bikini_Sidelook_CatOpen
-Jump To dialogue_2
+Print Time to make a decision!
+Nagatoro says I have a challenge for you. Pick a number between 1 and 3.
 
-function greetNagatoro
-Nagatoro says Hi there!
-Player says Hello Nagatoro!
-end
+# This creates a GUI with multiple choice options
+Show Variants Option 1: The safe choice, Option 2: The risky choice, Option 3: The mysterious choice
+
+# The ShowVariants node sets selectedIndex, which can be used by comparison nodes in the actual graph
+Nagatoro says You made your choice!
+End
