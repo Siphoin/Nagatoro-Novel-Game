@@ -39,7 +39,8 @@ namespace SNEngine.Editor.SNILSystem
 
                     string displayName = FormatNodeDisplayName(inst.NodeTypeName);
                     node.name = displayName;
-                    node.position = new Vector2(functionNodeIndex * 250, -150); // Размещаем группы вызовов выше основного потока
+                    // Размещаем GroupCallsNode на том же уровне, что и основной поток, но чуть выше для визуального отделения
+                    node.position = new Vector2(0, -150); // Временно ставим в нулевую позицию, переместим позже
 
                     SNILParameterApplier.ApplyParametersToNode(node, inst.Parameters, inst.NodeTypeName);
 
@@ -74,7 +75,8 @@ namespace SNEngine.Editor.SNILSystem
 
                         string displayName = FormatNodeDisplayName(inst.NodeTypeName);
                         node.name = displayName;
-                        node.position = new Vector2(functionNodeIndex * 250, -100); // Размещаем тело функций еще ниже
+                        // Размещаем тело функций выше основного потока, чтобы не мешало
+                        node.position = new Vector2(0, -100); // Временная позиция, будет обновлена позже
 
                         SNILParameterApplier.ApplyParametersToNode(node, inst.Parameters, inst.NodeTypeName);
 
@@ -126,6 +128,9 @@ namespace SNEngine.Editor.SNILSystem
             // Создаем полный список нод с вставленными GroupCallsNode в нужные места
             var completeNodeSequence = BuildCompleteNodeSequence(mainNodes, functionCallPositions, functionMap);
             
+            // Расставляем позиции для всех нод в последовательности
+            PositionNodesHorizontally(completeNodeSequence);
+            
             // Соединяем все ноды последовательно
             ConnectNodesSequentially(completeNodeSequence);
         }
@@ -153,6 +158,24 @@ namespace SNEngine.Editor.SNILSystem
                     if (outPort != null && inPort != null) outPort.Connect(inPort);
                 }
             }
+            
+            // Позиционируем ноды тела функции выше основного потока
+            PositionFunctionBodyNodes(groupNode, bodyNodes);
+        }
+
+        private static void PositionFunctionBodyNodes(GroupCallsNode groupNode, List<BaseNode> bodyNodes)
+        {
+            if (bodyNodes.Count == 0) return;
+
+            // Получаем позицию GroupCallsNode для определения стартовой точки
+            float groupNodeX = groupNode.position.x;
+            float groupNodeY = groupNode.position.y; // Это будет -150 или другое отрицательное значение
+            
+            // Размещаем ноды тела функции немного правее GroupCallsNode и выше основного потока
+            for (int i = 0; i < bodyNodes.Count; i++)
+            {
+                bodyNodes[i].position = new Vector2(groupNodeX + (i + 1) * 250, groupNodeY - 50); // Ещё выше основного потока
+            }
         }
 
         private static List<BaseNode> BuildCompleteNodeSequence(List<BaseNode> mainNodes, List<int> functionCallPositions, Dictionary<string, GroupCallsNode> functionMap)
@@ -170,30 +193,45 @@ namespace SNEngine.Editor.SNILSystem
             }
 
             // Вставляем GroupCallsNode в нужные позиции
-            // Поскольку у нас нет точной информации о том, какие функции вызываются в каких позициях,
-            // мы предполагаем, что они вызываются в порядке определения
+            // Для упрощения, вставляем все GroupCallsNode в порядке их появления в functionMap
             if (functionCallPositions != null && functionCallPositions.Count > 0)
             {
-                // В реальной реализации, нужно отслеживать конкретные вызовы функций и их позиции
-                // Для упрощения, вставляем все GroupCallsNode по очереди в указанные позиции
+                // Сортируем позиции по возрастанию, чтобы индексы не смещались при вставке
+                var sortedPositions = functionCallPositions.OrderBy(x => x).ToList();
                 
-                // Сортируем позиции по убыванию, чтобы индексы не смещались при вставке
-                var sortedPositions = functionCallPositions.OrderByDescending(x => x).ToList();
-                
-                foreach (var pos in sortedPositions)
+                // Вставляем GroupCallsNode в указанные позиции
+                for (int i = sortedPositions.Count - 1; i >= 0; i--)
                 {
-                    // Вставляем GroupCallsNode в указанную позицию
-                    // В реальности нужно знать, какую именно функцию вызвать
+                    int pos = sortedPositions[i];
+                    // В реальности нужно знать, какую именно функцию вызвать в этой позиции
                     // Для упрощения, возьмем первую доступную GroupCallsNode
-                    var groupNode = functionMap.Values.FirstOrDefault();
-                    if (groupNode != null && pos < completeSequence.Count)
+                    var groupNode = functionMap.Values.ElementAtOrDefault(i);
+                    if (groupNode != null && pos < completeSequence.Count && pos >= 0)
                     {
                         completeSequence.Insert(pos, groupNode);
                     }
                 }
             }
+            else
+            {
+                // Если нет информации о позициях вызовов, вставляем все GroupCallsNode в конец
+                foreach (var groupNode in functionMap.Values)
+                {
+                    completeSequence.Add(groupNode);
+                }
+            }
             
             return completeSequence;
+        }
+
+        private static void PositionNodesHorizontally(List<BaseNode> nodes)
+        {
+            for (int i = 0; i < nodes.Count; i++)
+            {
+                var node = nodes[i];
+                // Устанавливаем позицию на основном уровне (y=0) с интервалом 250 пикселей
+                node.position = new Vector2(i * 250, 0);
+            }
         }
 
         private static void ConnectNodesSequentially(List<BaseNode> nodes)
