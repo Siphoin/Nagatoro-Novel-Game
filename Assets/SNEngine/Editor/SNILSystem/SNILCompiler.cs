@@ -6,6 +6,7 @@ using System.Text.RegularExpressions;
 using SiphoinUnityHelpers.XNodeExtensions;
 using SNEngine.Graphs;
 using SNEngine.DialogSystem;
+using SNEngine.Editor.SNILSystem.Parsers;
 using SNEngine.Editor.SNILSystem.Validators;
 using UnityEditor;
 using UnityEngine;
@@ -27,53 +28,77 @@ namespace SNEngine.Editor.SNILSystem
                     return;
                 }
 
-                string[] lines = File.ReadAllLines(filePath);
-                if (lines.Length == 0) return;
-
-                // Валидируем синтаксис перед компиляцией
-                SNILSyntaxValidator validator = new SNILSyntaxValidator();
-                if (!validator.Validate(lines, out string errorMessage))
+                // Проверяем, содержит ли файл несколько скриптов
+                List<string[]> scriptParts = SNILMultiScriptParser.ParseMultiScript(filePath);
+                
+                if (scriptParts.Count > 1)
                 {
-                    Debug.LogError($"SNIL script validation failed: {errorMessage}");
-                    return;
+                    // Обрабатываем как многодиалоговый файл
+                    ImportMultiScript(scriptParts);
                 }
-
-                string graphName = Path.GetFileNameWithoutExtension(filePath);
-                foreach (string line in lines)
+                else
                 {
-                    var nameMatch = Regex.Match(line.Trim(), @"^name:\s*(.+)", RegexOptions.IgnoreCase);
-                    if (nameMatch.Success)
-                    {
-                        graphName = nameMatch.Groups[1].Value.Trim();
-                        break;
-                    }
+                    // Обрабатываем как обычный файл
+                    ImportSingleScript(scriptParts[0]);
                 }
-
-                graphName = SanitizeFileName(graphName);
-                var instructions = ParseScript(lines);
-
-                DialogueGraph graph = ScriptableObject.CreateInstance<DialogueGraph>();
-                graph.name = graphName;
-
-                string folderPath = "Assets/Resources/Dialogues";
-                if (!AssetDatabase.IsValidFolder("Assets/Resources")) AssetDatabase.CreateFolder("Assets", "Resources");
-                if (!AssetDatabase.IsValidFolder(folderPath)) AssetDatabase.CreateFolder("Assets/Resources", "Dialogues");
-
-                string assetPath = $"{folderPath}/{graphName}.asset";
-                AssetDatabase.CreateAsset(graph, assetPath);
-
-                SNILNodeCreator.CreateNodesFromInstructions(graph, instructions);
-
-                EditorUtility.SetDirty(graph);
-                AssetDatabase.SaveAssets();
-                AssetDatabase.Refresh();
-
-                Debug.Log($"Imported: {assetPath}");
             }
             catch (Exception e)
             {
                 Debug.LogError($"Import failed: {e.Message}\n{e.StackTrace}");
             }
+        }
+
+        private static void ImportMultiScript(List<string[]> scriptParts)
+        {
+            foreach (string[] part in scriptParts)
+            {
+                ImportSingleScript(part);
+            }
+        }
+
+        private static void ImportSingleScript(string[] lines)
+        {
+            if (lines.Length == 0) return;
+
+            // Валидируем синтаксис перед компиляцией
+            SNILSyntaxValidator validator = new SNILSyntaxValidator();
+            if (!validator.Validate(lines, out string errorMessage))
+            {
+                Debug.LogError($"SNIL script validation failed: {errorMessage}");
+                return;
+            }
+
+            string graphName = Path.GetFileNameWithoutExtension(lines[0] + "_temp"); // Заглушка
+            foreach (string line in lines)
+            {
+                var nameMatch = Regex.Match(line.Trim(), @"^name:\s*(.+)", RegexOptions.IgnoreCase);
+                if (nameMatch.Success)
+                {
+                    graphName = nameMatch.Groups[1].Value.Trim();
+                    break;
+                }
+            }
+
+            graphName = SanitizeFileName(graphName);
+            var instructions = ParseScript(lines);
+
+            DialogueGraph graph = ScriptableObject.CreateInstance<DialogueGraph>();
+            graph.name = graphName;
+
+            string folderPath = "Assets/Resources/Dialogues";
+            if (!AssetDatabase.IsValidFolder("Assets/Resources")) AssetDatabase.CreateFolder("Assets", "Resources");
+            if (!AssetDatabase.IsValidFolder(folderPath)) AssetDatabase.CreateFolder("Assets/Resources", "Dialogues");
+
+            string assetPath = $"{folderPath}/{graphName}.asset";
+            AssetDatabase.CreateAsset(graph, assetPath);
+
+            SNILNodeCreator.CreateNodesFromInstructions(graph, instructions);
+
+            EditorUtility.SetDirty(graph);
+            AssetDatabase.SaveAssets();
+            AssetDatabase.Refresh();
+
+            Debug.Log($"Imported: {assetPath}");
         }
 
         private static string SanitizeFileName(string fileName)
