@@ -2262,7 +2262,7 @@ MonoBehaviour:
   m_Name: Dialog On Screen
   m_EditorClassIdentifier: 
   graph: {fileID: 11400000}
-  position: {x: 8904, y: 808}
+  position: {x: 8872, y: 728}
   ports:
     keys:
     - _enter
