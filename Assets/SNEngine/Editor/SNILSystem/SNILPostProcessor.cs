@@ -53,7 +53,7 @@ namespace SNEngine.Editor.SNILSystem
                     if (field != null)
                     {
                         // Загружаем реальный граф из ассета
-                        DialogueGraph realGraph = AssetDatabase.LoadAssetAtPath<DialogueGraph>($"Assets/Resources/Dialogues/{jumpRef.TargetDialogueName}.asset");
+                        DialogueGraph realGraph = AssetDatabase.LoadAssetAtPath<DialogueGraph>($"Assets/SNEngine/Source/SNEngine/Resources/Dialogues/{jumpRef.TargetDialogueName}.asset");
                         if (realGraph != null)
                         {
                             field.SetValue(jumpRef.Node, realGraph);
@@ -61,7 +61,7 @@ namespace SNEngine.Editor.SNILSystem
                         }
                         else
                         {
-                            UnityEngine.Debug.LogWarning($"Could not load dialogue asset: Assets/Resources/Dialogues/{jumpRef.TargetDialogueName}.asset");
+                            UnityEngine.Debug.LogWarning($"Could not load dialogue asset: Assets/SNEngine/Source/SNEngine/Resources/Dialogues/{jumpRef.TargetDialogueName}.asset");
                         }
                     }
                 }

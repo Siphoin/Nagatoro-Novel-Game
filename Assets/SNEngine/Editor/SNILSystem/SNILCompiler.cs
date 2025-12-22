@@ -42,7 +42,6 @@ namespace SNEngine.Editor.SNILSystem
                     return false;
                 }
 
-                // Проверяем, содержит ли файл несколько скриптов
                 List<string[]> scriptParts = SNILMultiScriptParser.ParseMultiScript(filePath);
                 
                 bool isValid = true;
@@ -88,21 +87,17 @@ namespace SNEngine.Editor.SNILSystem
                     return;
                 }
 
-                // Проверяем, содержит ли файл несколько скриптов
                 List<string[]> scriptParts = SNILMultiScriptParser.ParseMultiScript(filePath);
                 
                 if (scriptParts.Count > 1)
                 {
-                    // Обрабатываем как многодиалоговый файл
                     ImportMultiScript(scriptParts);
                 }
                 else
                 {
-                    // Обрабатываем как обычный файл
                     ImportSingleScript(scriptParts[0]);
                 }
                 
-                // Выполняем пост-обработку для установки всех ссылок
                 if (doPostProcessing)
                 {
                     SNILPostProcessor.ProcessAllReferences();
@@ -127,11 +122,10 @@ namespace SNEngine.Editor.SNILSystem
             
             foreach (string[] part in scriptParts)
             {
-                // Разбираем функции из скрипта
                 var functions = SNILFunctionParser.ParseFunctions(part);
                 var mainScriptLines = SNILFunctionParser.ExtractMainScriptWithoutFunctions(part).ToArray();
 
-                string graphName = "NewGraph"; // Заглушка
+                string graphName = "NewGraph";
                 foreach (string line in mainScriptLines)
                 {
                     var nameMatch = Regex.Match(line.Trim(), @"^name:\s*(.+)", RegexOptions.IgnoreCase);
@@ -154,11 +148,10 @@ namespace SNEngine.Editor.SNILSystem
             
             foreach (string[] part in scriptParts)
             {
-                // Разбираем функции из скрипта
                 var functions = SNILFunctionParser.ParseFunctions(part);
                 var mainScriptLines = SNILFunctionParser.ExtractMainScriptWithoutFunctions(part).ToArray();
 
-                string graphName = "NewGraph"; // Заглушка
+                string graphName = "NewGraph";
                 foreach (string line in mainScriptLines)
                 {
                     var nameMatch = Regex.Match(line.Trim(), @"^name:\s*(.+)", RegexOptions.IgnoreCase);
@@ -171,24 +164,25 @@ namespace SNEngine.Editor.SNILSystem
 
                 graphName = SanitizeFileName(graphName);
                 
-                // Проверяем, существует ли уже такой граф
-                string assetPath = $"Assets/Resources/Dialogues/{graphName}.asset";
+                string assetPath = $"Assets/SNEngine/Source/SNEngine/Resources/Dialogues/{graphName}.asset";
                 DialogueGraph graph = AssetDatabase.LoadAssetAtPath<DialogueGraph>(assetPath);
-                
+
                 if (graph == null)
                 {
                     graph = ScriptableObject.CreateInstance<DialogueGraph>();
                     graph.name = graphName;
 
-                    string folderPath = "Assets/Resources/Dialogues";
-                    if (!AssetDatabase.IsValidFolder("Assets/Resources")) AssetDatabase.CreateFolder("Assets", "Resources");
-                    if (!AssetDatabase.IsValidFolder(folderPath)) AssetDatabase.CreateFolder("Assets/Resources", "Dialogues");
+                    string folderPath = "Assets/SNEngine/Source/SNEngine/Resources/Dialogues";
+                    if (!AssetDatabase.IsValidFolder("Assets/SNEngine")) AssetDatabase.CreateFolder("Assets", "SNEngine");
+                    if (!AssetDatabase.IsValidFolder("Assets/SNEngine/Source")) AssetDatabase.CreateFolder("Assets/SNEngine", "Source");
+                    if (!AssetDatabase.IsValidFolder("Assets/SNEngine/Source/SNEngine")) AssetDatabase.CreateFolder("Assets/SNEngine/Source", "SNEngine");
+                    if (!AssetDatabase.IsValidFolder("Assets/SNEngine/Source/SNEngine/Resources")) AssetDatabase.CreateFolder("Assets/SNEngine/Source/SNEngine", "Resources");
+                    if (!AssetDatabase.IsValidFolder(folderPath)) AssetDatabase.CreateFolder("Assets/SNEngine/Source/SNEngine/Resources", "Dialogues");
 
                     AssetDatabase.CreateAsset(graph, assetPath);
                     AssetDatabase.SaveAssets();
                 }
                 
-                // Регистрируем граф для пост-обработки
                 SNILPostProcessor.RegisterGraph(graphName, graph);
             }
         }
@@ -199,11 +193,10 @@ namespace SNEngine.Editor.SNILSystem
             
             foreach (string[] part in scriptParts)
             {
-                // Разбираем функции из скрипта
                 var functions = SNILFunctionParser.ParseFunctions(part);
                 var mainScriptLines = SNILFunctionParser.ExtractMainScriptWithoutFunctions(part).ToArray();
 
-                string graphName = "NewGraph"; // Заглушка
+                string graphName = "NewGraph";
                 foreach (string line in mainScriptLines)
                 {
                     var nameMatch = Regex.Match(line.Trim(), @"^name:\s*(.+)", RegexOptions.IgnoreCase);
@@ -216,21 +209,18 @@ namespace SNEngine.Editor.SNILSystem
 
                 graphName = SanitizeFileName(graphName);
                 
-                // Получаем существующий граф
-                string assetPath = $"Assets/Resources/Dialogues/{graphName}.asset";
+                string assetPath = $"Assets/SNEngine/Source/SNEngine/Resources/Dialogues/{graphName}.asset";
                 DialogueGraph graph = AssetDatabase.LoadAssetAtPath<DialogueGraph>(assetPath);
-                
+
                 if (graph == null)
                 {
                     Debug.LogError($"Could not load graph: {assetPath}");
                     continue;
                 }
 
-                // Сначала создаем ноды функций
-                var functionInstructions = ParseFunctionInstructions(functions);
+                    var functionInstructions = ParseFunctionInstructions(functions);
                 
-                // Затем создаем ноды основного скрипта (включая информацию о вызовах функций)
-                var (mainInstructions, functionCallPositions) = ParseScriptWithFunctionCalls(mainScriptLines);
+                    var (mainInstructions, functionCallPositions) = ParseScriptWithFunctionCalls(mainScriptLines);
                 
                 SNILNodeCreator.CreateNodesFromInstructions(graph, mainInstructions, functionInstructions, functionCallPositions);
             }
@@ -361,7 +351,6 @@ namespace SNEngine.Editor.SNILSystem
         {
             if (lines.Length == 0) return;
 
-            // Валидируем синтаксис перед компиляцией
             Validators.SNILSyntaxValidator validator = new Validators.SNILSyntaxValidator();
             if (!validator.Validate(lines, out string errorMessage))
             {
@@ -369,7 +358,7 @@ namespace SNEngine.Editor.SNILSystem
                 return;
             }
 
-            string graphName = "NewGraph"; // Заглушка
+            string graphName = "NewGraph";
             foreach (string line in lines)
             {
                 var nameMatch = Regex.Match(line.Trim(), @"^name:\s*(.+)", RegexOptions.IgnoreCase);
@@ -381,18 +370,20 @@ namespace SNEngine.Editor.SNILSystem
             }
 
             graphName = SanitizeFileName(graphName);
-            
+
             DialogueGraph graph = ScriptableObject.CreateInstance<DialogueGraph>();
             graph.name = graphName;
 
-            string folderPath = "Assets/Resources/Dialogues";
-            if (!AssetDatabase.IsValidFolder("Assets/Resources")) AssetDatabase.CreateFolder("Assets", "Resources");
-            if (!AssetDatabase.IsValidFolder(folderPath)) AssetDatabase.CreateFolder("Assets/Resources", "Dialogues");
+            string folderPath = "Assets/SNEngine/Source/SNEngine/Resources/Dialogues";
+            if (!AssetDatabase.IsValidFolder("Assets/SNEngine")) AssetDatabase.CreateFolder("Assets", "SNEngine");
+            if (!AssetDatabase.IsValidFolder("Assets/SNEngine/Source")) AssetDatabase.CreateFolder("Assets/SNEngine", "Source");
+            if (!AssetDatabase.IsValidFolder("Assets/SNEngine/Source/SNEngine")) AssetDatabase.CreateFolder("Assets/SNEngine/Source", "SNEngine");
+            if (!AssetDatabase.IsValidFolder("Assets/SNEngine/Source/SNEngine/Resources")) AssetDatabase.CreateFolder("Assets/SNEngine/Source/SNEngine", "Resources");
+            if (!AssetDatabase.IsValidFolder(folderPath)) AssetDatabase.CreateFolder("Assets/SNEngine/Source/SNEngine/Resources", "Dialogues");
 
             string assetPath = $"{folderPath}/{graphName}.asset";
             AssetDatabase.CreateAsset(graph, assetPath);
 
-            // Регистрируем граф для пост-обработки
             SNILPostProcessor.RegisterGraph(graphName, graph);
         }
 
@@ -400,7 +391,7 @@ namespace SNEngine.Editor.SNILSystem
         {
             if (lines.Length == 0) return;
 
-            string graphName = "NewGraph"; // Заглушка
+            string graphName = "NewGraph";
             foreach (string line in lines)
             {
                 var nameMatch = Regex.Match(line.Trim(), @"^name:\s*(.+)", RegexOptions.IgnoreCase);
@@ -413,8 +404,7 @@ namespace SNEngine.Editor.SNILSystem
 
             graphName = SanitizeFileName(graphName);
             
-            // Получаем существующий граф
-            string assetPath = $"Assets/Resources/Dialogues/{graphName}.asset";
+            string assetPath = $"Assets/SNEngine/Source/SNEngine/Resources/Dialogues/{graphName}.asset";
             DialogueGraph graph = AssetDatabase.LoadAssetAtPath<DialogueGraph>(assetPath);
             
             if (graph == null)
@@ -423,14 +413,11 @@ namespace SNEngine.Editor.SNILSystem
                 return;
             }
 
-            // Разбираем функции из скрипта
             var functions = SNILFunctionParser.ParseFunctions(lines);
             var mainScriptLines = SNILFunctionParser.ExtractMainScriptWithoutFunctions(lines).ToArray();
 
-            // Сначала создаем ноды функций
             var functionInstructions = ParseFunctionInstructions(functions);
             
-            // Затем создаем ноды основного скрипта (включая информацию о вызовах функций)
             var (mainInstructions, functionCallPositions) = ParseScriptWithFunctionCalls(mainScriptLines);
 
             SNILNodeCreator.CreateNodesFromInstructions(graph, mainInstructions, functionInstructions, functionCallPositions);
@@ -440,7 +427,6 @@ namespace SNEngine.Editor.SNILSystem
         {
             if (lines.Length == 0) return;
 
-            // Валидируем синтаксис перед компиляцией
             Validators.SNILSyntaxValidator validator = new Validators.SNILSyntaxValidator();
             if (!validator.Validate(lines, out string errorMessage))
             {
@@ -448,7 +434,7 @@ namespace SNEngine.Editor.SNILSystem
                 return;
             }
 
-            string graphName = "NewGraph"; // Заглушка
+            string graphName = "NewGraph";
             foreach (string line in lines)
             {
                 var nameMatch = Regex.Match(line.Trim(), @"^name:\s*(.+)", RegexOptions.IgnoreCase);
@@ -460,28 +446,27 @@ namespace SNEngine.Editor.SNILSystem
             }
 
             graphName = SanitizeFileName(graphName);
-            
+
             DialogueGraph graph = ScriptableObject.CreateInstance<DialogueGraph>();
             graph.name = graphName;
 
-            string folderPath = "Assets/Resources/Dialogues";
-            if (!AssetDatabase.IsValidFolder("Assets/Resources")) AssetDatabase.CreateFolder("Assets", "Resources");
-            if (!AssetDatabase.IsValidFolder(folderPath)) AssetDatabase.CreateFolder("Assets/Resources", "Dialogues");
+            string folderPath = "Assets/SNEngine/Source/SNEngine/Resources/Dialogues";
+            if (!AssetDatabase.IsValidFolder("Assets/SNEngine")) AssetDatabase.CreateFolder("Assets", "SNEngine");
+            if (!AssetDatabase.IsValidFolder("Assets/SNEngine/Source")) AssetDatabase.CreateFolder("Assets/SNEngine", "Source");
+            if (!AssetDatabase.IsValidFolder("Assets/SNEngine/Source/SNEngine")) AssetDatabase.CreateFolder("Assets/SNEngine/Source", "SNEngine");
+            if (!AssetDatabase.IsValidFolder("Assets/SNEngine/Source/SNEngine/Resources")) AssetDatabase.CreateFolder("Assets/SNEngine/Source/SNEngine", "Resources");
+            if (!AssetDatabase.IsValidFolder(folderPath)) AssetDatabase.CreateFolder("Assets/SNEngine/Source/SNEngine/Resources", "Dialogues");
 
             string assetPath = $"{folderPath}/{graphName}.asset";
             AssetDatabase.CreateAsset(graph, assetPath);
 
-            // Регистрируем граф для пост-обработки
             SNILPostProcessor.RegisterGraph(graphName, graph);
 
-            // Разбираем функции из скрипта
             var functions = SNILFunctionParser.ParseFunctions(lines);
             var mainScriptLines = SNILFunctionParser.ExtractMainScriptWithoutFunctions(lines).ToArray();
 
-            // Сначала создаем ноды функций
             var functionInstructions = ParseFunctionInstructions(functions);
             
-            // Затем создаем ноды основного скрипта (включая информацию о вызовах функций)
             var (mainInstructions, functionCallPositions) = ParseScriptWithFunctionCalls(mainScriptLines);
 
             SNILNodeCreator.CreateNodesFromInstructions(graph, mainInstructions, functionInstructions, functionCallPositions);
