@@ -330,6 +330,59 @@ The system includes a universal resource finder that can locate any type of asse
 - **Type checking**: The system verifies that the found asset is of the correct type
 - **Duplicate handling**: If multiple assets have the same name, an error is shown with available paths
 
+## Function System
+
+The system supports functions similar to JavaScript, allowing you to group related operations:
+
+### Defining Functions
+
+**Syntax**:
+```
+function functionName
+  // function body with SNIL commands
+end
+```
+
+**Example**:
+```
+function greetNagatoro
+Nagatoro says Hi there!
+Player says Hello Nagatoro!
+end
+```
+
+### Calling Functions
+
+Use the `call` keyword to execute a function:
+
+**Syntax**:
+```
+call functionName
+```
+
+**Usage in SNIL script**:
+```
+name: FunctionExample
+Start
+Show Background beachBackground
+call greetNagatoro
+Jump To nextDialogue
+end
+
+function greetNagatoro
+Nagatoro says Hi there!
+Player says Hello Nagatoro!
+end
+```
+
+### Function Validation
+
+The system validates function syntax:
+- Functions must have a name
+- Functions must be properly closed with `end`
+- Nested functions are not allowed
+- Each `end` must match a `function`
+
 ## Troubleshooting
 
 - If your node doesn't appear in the graph, check that:

@@ -2,5 +2,11 @@ name: TestScript
 Start
 Show Background beachBackground
 Nagatoro says Hello!
+call greetNagatoro
 Show Nagatoro with emotion Naga_Lean_Bikini_Sidelook_CatOpen
 Jump To dialogue_2
+
+function greetNagatoro
+Nagatoro says Hi there!
+Player says Hello Nagatoro!
+end

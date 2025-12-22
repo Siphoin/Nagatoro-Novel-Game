@@ -6,6 +6,7 @@ using System.Text.RegularExpressions;
 using SiphoinUnityHelpers.XNodeExtensions;
 using SNEngine.Graphs;
 using SNEngine.DialogSystem;
+using SNEngine.Editor.SNILSystem.FunctionSystem;
 using SNEngine.Editor.SNILSystem.Parsers;
 using SNEngine.Editor.SNILSystem.Validators;
 using UnityEditor;
@@ -126,8 +127,12 @@ namespace SNEngine.Editor.SNILSystem
             
             foreach (string[] part in scriptParts)
             {
+                // Разбираем функции из скрипта
+                var functions = SNILFunctionParser.ParseFunctions(part);
+                var mainScriptLines = SNILFunctionParser.ExtractMainScriptWithoutFunctions(part).ToArray();
+
                 string graphName = "NewGraph"; // Заглушка
-                foreach (string line in part)
+                foreach (string line in mainScriptLines)
                 {
                     var nameMatch = Regex.Match(line.Trim(), @"^name:\s*(.+)", RegexOptions.IgnoreCase);
                     if (nameMatch.Success)
@@ -149,8 +154,12 @@ namespace SNEngine.Editor.SNILSystem
             
             foreach (string[] part in scriptParts)
             {
+                // Разбираем функции из скрипта
+                var functions = SNILFunctionParser.ParseFunctions(part);
+                var mainScriptLines = SNILFunctionParser.ExtractMainScriptWithoutFunctions(part).ToArray();
+
                 string graphName = "NewGraph"; // Заглушка
-                foreach (string line in part)
+                foreach (string line in mainScriptLines)
                 {
                     var nameMatch = Regex.Match(line.Trim(), @"^name:\s*(.+)", RegexOptions.IgnoreCase);
                     if (nameMatch.Success)
@@ -190,8 +199,12 @@ namespace SNEngine.Editor.SNILSystem
             
             foreach (string[] part in scriptParts)
             {
+                // Разбираем функции из скрипта
+                var functions = SNILFunctionParser.ParseFunctions(part);
+                var mainScriptLines = SNILFunctionParser.ExtractMainScriptWithoutFunctions(part).ToArray();
+
                 string graphName = "NewGraph"; // Заглушка
-                foreach (string line in part)
+                foreach (string line in mainScriptLines)
                 {
                     var nameMatch = Regex.Match(line.Trim(), @"^name:\s*(.+)", RegexOptions.IgnoreCase);
                     if (nameMatch.Success)
@@ -213,11 +226,44 @@ namespace SNEngine.Editor.SNILSystem
                     continue;
                 }
 
-                var instructions = ParseScript(part);
-                SNILNodeCreator.CreateNodesFromInstructions(graph, instructions);
-
-                EditorUtility.SetDirty(graph);
+                // Сначала создаем ноды функций
+                var functionInstructions = ParseFunctionInstructions(functions);
+                
+                // Затем создаем ноды основного скрипта (включая вызовы функций)
+                var mainInstructions = ParseScript(mainScriptLines);
+                
+                SNILNodeCreator.CreateNodesFromInstructions(graph, mainInstructions, functionInstructions);
             }
+        }
+
+        private static List<SNILInstruction> ParseFunctionInstructions(List<SNILFunction> functions)
+        {
+            var functionInstructions = new List<SNILInstruction>();
+            
+            foreach (var function in functions)
+            {
+                // Создаем GroupCallsNode для функции
+                var groupCallsNodeInstruction = new SNILInstruction
+                {
+                    Type = SNILInstructionType.Generic,
+                    NodeTypeName = "GroupCallsNode",
+                    Parameters = new Dictionary<string, string> { { "name", function.Name } },
+                    NodeType = SNILTypeResolver.GetNodeType("GroupCallsNode")
+                };
+                
+                functionInstructions.Add(groupCallsNodeInstruction);
+                
+                // Создаем ноды для тела функции
+                var functionBodyInstructions = ParseScript(function.Body);
+                
+                // Добавляем инструкции тела функции
+                foreach (var instruction in functionBodyInstructions)
+                {
+                    functionInstructions.Add(instruction);
+                }
+            }
+            
+            return functionInstructions;
         }
 
         private static void ImportMultiScript(List<string[]> scriptParts)
@@ -301,10 +347,17 @@ namespace SNEngine.Editor.SNILSystem
                 return;
             }
 
-            var instructions = ParseScript(lines);
-            SNILNodeCreator.CreateNodesFromInstructions(graph, instructions);
+            // Разбираем функции из скрипта
+            var functions = SNILFunctionParser.ParseFunctions(lines);
+            var mainScriptLines = SNILFunctionParser.ExtractMainScriptWithoutFunctions(lines).ToArray();
 
-            EditorUtility.SetDirty(graph);
+            // Сначала создаем ноды функций
+            var functionInstructions = ParseFunctionInstructions(functions);
+            
+            // Затем создаем ноды основного скрипта (включая вызовы функций)
+            var mainInstructions = ParseScript(mainScriptLines);
+
+            SNILNodeCreator.CreateNodesFromInstructions(graph, mainInstructions, functionInstructions);
         }
 
         private static void ImportSingleScript(string[] lines)
@@ -345,8 +398,17 @@ namespace SNEngine.Editor.SNILSystem
             // Регистрируем граф для пост-обработки
             SNILPostProcessor.RegisterGraph(graphName, graph);
 
-            var instructions = ParseScript(lines);
-            SNILNodeCreator.CreateNodesFromInstructions(graph, instructions);
+            // Разбираем функции из скрипта
+            var functions = SNILFunctionParser.ParseFunctions(lines);
+            var mainScriptLines = SNILFunctionParser.ExtractMainScriptWithoutFunctions(lines).ToArray();
+
+            // Сначала создаем ноды функций
+            var functionInstructions = ParseFunctionInstructions(functions);
+            
+            // Затем создаем ноды основного скрипта (включая вызовы функций)
+            var mainInstructions = ParseScript(mainScriptLines);
+
+            SNILNodeCreator.CreateNodesFromInstructions(graph, mainInstructions, functionInstructions);
 
             EditorUtility.SetDirty(graph);
             AssetDatabase.SaveAssets();
@@ -373,6 +435,29 @@ namespace SNEngine.Editor.SNILSystem
 
                 var nameMatch = Regex.Match(trimmed, @"^name:\s*(.+)", RegexOptions.IgnoreCase);
                 if (nameMatch.Success) continue;
+
+                // Пропускаем только определения функций и концы, но обрабатываем вызовы функций
+                if (trimmed.StartsWith("function ", StringComparison.OrdinalIgnoreCase) ||
+                    trimmed.Equals("end", StringComparison.OrdinalIgnoreCase))
+                {
+                    continue;
+                }
+
+                // Обрабатываем вызовы функций
+                if (trimmed.StartsWith("call ", StringComparison.OrdinalIgnoreCase))
+                {
+                    string functionName = trimmed.Substring(5).Trim(); // "call ".Length = 5
+                    var callInstruction = new SNILInstruction
+                    {
+                        Type = SNILInstructionType.Generic,
+                        NodeTypeName = "CallFunctionNode",
+                        Parameters = new Dictionary<string, string> { { "functionName", functionName } },
+                        NodeType = SNILTypeResolver.GetNodeType("CallFunctionNode")
+                    };
+                    
+                    instructions.Add(callInstruction);
+                    continue;
+                }
 
                 var instruction = MatchLineToTemplate(trimmed, templates);
                 if (instruction != null)
