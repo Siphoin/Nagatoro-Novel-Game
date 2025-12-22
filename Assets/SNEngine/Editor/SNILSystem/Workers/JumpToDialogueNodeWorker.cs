@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using SiphoinUnityHelpers.XNodeExtensions;
+using SNEngine.Graphs;
 using UnityEditor;
 using UnityEngine;
 using Object = UnityEngine.Object;
@@ -18,17 +19,19 @@ namespace SNEngine.Editor.SNILSystem.Workers
                 return;
             }
 
-            // Получаем все поля, включая из базовых классов
-            var fields = GetAllFields(node.GetType());
-
             foreach (var kvp in parameters)
             {
-                var field = fields.FirstOrDefault(f =>
-                    f.Name.Equals(kvp.Key, System.StringComparison.OrdinalIgnoreCase) ||
-                    f.Name.Equals("_" + kvp.Key, System.StringComparison.OrdinalIgnoreCase));
-
-                if (field != null)
+                var field = node.GetType().GetField(kvp.Key, 
+                    BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
+                
+                if (field != null && field.FieldType == typeof(DialogueGraph))
                 {
+                    // Регистрируем отложенную ссылку
+                    SNILPostProcessor.RegisterJumpToReference(node, kvp.Key, kvp.Value);
+                }
+                else if (field != null)
+                {
+                    // Для других полей устанавливаем значения напрямую
                     object val = ConvertValue(kvp.Value, field.FieldType);
                     if (val != null || !field.FieldType.IsValueType)
                     {
@@ -36,17 +39,6 @@ namespace SNEngine.Editor.SNILSystem.Workers
                     }
                 }
             }
-        }
-
-        private static FieldInfo[] GetAllFields(System.Type type)
-        {
-            var fields = new List<FieldInfo>();
-            while (type != null && type != typeof(object))
-            {
-                fields.AddRange(type.GetFields(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
-                type = type.BaseType;
-            }
-            return fields.ToArray();
         }
 
         private static object ConvertValue(string value, System.Type targetType)
