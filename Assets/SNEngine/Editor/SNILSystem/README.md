@@ -233,6 +233,47 @@ Nagatoro says And there it is!
 End
 ```
 
+## Character System Nodes
+
+The system includes special support for character management:
+
+### Show Character Node
+Shows a character with a specific emotion:
+
+**Template** (`ShowCharacterNode.cs.snil`):
+```
+Show {_character} with emotion {_emotion}
+worker:ShowCharacterNodeWorker
+```
+
+**Usage in SNIL script**:
+```
+name: CharacterExample
+Start
+Show Nagatoro with emotion Happy
+Nagatoro says Hello!
+End
+```
+
+### Hide Character Node
+Hides a character:
+
+**Template** (`HideCharacterNode.cs.snil`):
+```
+Hide {_character}
+worker:HideCharacterNodeWorker
+```
+
+**Usage in SNIL script**:
+```
+name: CharacterHideExample
+Start
+Show Nagatoro with emotion Happy
+Nagatoro says Hello!
+Hide Nagatoro
+End
+```
+
 ## Troubleshooting
 
 - If your node doesn't appear in the graph, check that:
