@@ -1,18 +1,50 @@
 # SNIL System Documentation
 
-## Adding New Nodes to SNIL System
-
-This document explains how to add new node types to the SNIL (Script Novel Intermediate Language) system.
-
 ## Overview
 
-The SNIL system allows creating visual novel dialogues using text-based scripts. To add new node types, you need to create three components:
+The SNIL (Script Novel Intermediate Language) system is a powerful text-based scripting solution for creating visual novel dialogues in Unity. It allows developers to define complex dialogue flows using simple text-based scripts that are automatically converted into node-based dialogue graphs.
 
-1. Unity Node Class
-2. SNIL Template File
-3. SNIL Worker Class (optional, but recommended)
+## Key Features
 
-## Step 1: Create Unity Node Class
+- **Text-based dialogue scripting**: Write dialogues using simple, readable text files
+- **Node-based execution**: Automatically converts text scripts to Unity node graphs
+- **Flexible parameter system**: Supports complex parameter passing to nodes
+- **Resource management**: Built-in system for handling characters, backgrounds, and assets
+- **Multi-script support**: Create multiple dialogues in a single file
+- **Function system**: Reusable code blocks for common operations
+- **Validation**: Comprehensive error checking with detailed messages
+
+## File Structure
+
+The SNIL system stores dialogue assets in:
+- `Assets/SNEngine/Source/SNEngine/Resources/Dialogues/` - Compiled dialogue graphs
+
+## Basic Script Structure
+
+A basic SNIL script consists of:
+
+```
+name: DialogueName
+Start
+[dialogue content]
+End
+```
+
+Example:
+```
+name: Greeting
+Start
+Nagatoro says Hello there!
+Player says Hi Nagatoro!
+Nagatoro says How are you doing today?
+End
+```
+
+## Creating New Nodes
+
+To add new node types to the SNIL system, you need to create three components:
+
+### Step 1: Create Unity Node Class
 
 First, create your Unity node class that inherits from one of the base node classes:
 
@@ -42,9 +74,9 @@ Your node class should inherit from:
 - `AsyncNode` - for nodes that take time to execute
 - Or other specialized base classes
 
-## Step 2: Create SNIL Template File
+### Step 2: Create SNIL Template File
 
-Create a template file in `Assets/SNEngine/Source/SNEngine/Editor/SNIL/` with the `.snil` extension:
+Create a template file with the `.snil` extension:
 
 ```
 // Assets/SNEngine/Source/SNEngine/Editor/SNIL/CustomNode.cs.snil
@@ -57,7 +89,7 @@ The template should:
 - Optionally specify a worker class with the `worker:` directive
 - Use descriptive parameter names that match your node's field names
 
-## Step 3: Create SNIL Worker Class (Optional but Recommended)
+### Step 3: Create SNIL Worker Class (Optional but Recommended)
 
 Create a worker class to handle parameter assignment:
 
@@ -86,7 +118,7 @@ namespace SNEngine.Editor.SNILSystem.Workers
                 }
             }
         }
-        
+
         private object ConvertValue(string value, System.Type targetType)
         {
             // Convert string value to target type
@@ -101,7 +133,7 @@ namespace SNEngine.Editor.SNILSystem.Workers
 
 If you don't create a custom worker, the system will use `GenericNodeWorker` which applies parameters via reflection.
 
-## Step 4: Use Your New Node
+### Step 4: Use Your New Node
 
 Now you can use your new node in SNIL scripts:
 
@@ -113,124 +145,23 @@ CustomNode says "This is custom" with value 42
 End
 ```
 
-## Multi-Script Support
+## Core Node Types
 
-You can create multiple dialogues in one file using separators:
-
+### Dialogue Nodes
 ```
-name: FirstDialogue
-Start
-Nagatoro says Hello!
-Jump To SecondDialogue
+[Character name] says [dialogue text]
+```
 
----
-
-name: SecondDialogue
+### Start and End Nodes
+```
 Start
-Player says Hi back!
+[dialogue content]
 End
 ```
 
-## Comments
-
-You can add comments using `//` or `#`:
-
+### Jump Nodes
 ```
-# This is a comment
-name: CommentedScript
-Start
-// This is also a comment
-Nagatoro says Hello!
-End
-```
-
-## Validation
-
-The system validates scripts before import and provides detailed error messages:
-- Line number where error occurred
-- Type of error
-- Content of the problematic line
-- Clear error message
-
-Example error message:
-```
-Line 3: UnknownNode - Unknown node format: 'InvalidCommand says Hello!' (Content: 'InvalidCommand says Hello!')
-```
-
-## Best Practices
-
-1. **Parameter Naming**: Use descriptive parameter names that match your node's field names
-2. **Worker Classes**: Create custom worker classes for complex parameter handling
-3. **Template Consistency**: Keep template format consistent with your node's functionality
-4. **Validation**: Test your templates with various parameter values to ensure proper validation
-5. **Documentation**: Document your node's parameters and expected values
-
-## Example: Complete Custom Node
-
-Here's a complete example of a WaitNode:
-
-**Unity Node Class** (`WaitNode.cs`):
-```csharp
-using SiphoinUnityHelpers.XNodeExtensions;
-using UnityEngine;
-
-public class WaitNode : AsyncNode
-{
-    [SerializeField] private float _waitTime = 1.0f;
-
-    public override void Execute()
-    {
-        // Wait for specified time
-        StartCoroutine(WaitCoroutine());
-    }
-
-    private IEnumerator WaitCoroutine()
-    {
-        yield return new WaitForSeconds(_waitTime);
-        Continue();
-    }
-}
-```
-
-**Template File** (`WaitNode.cs.snil`):
-```
-Wait {_waitTime} seconds
-worker:WaitNodeWorker
-```
-
-**Worker Class** (`WaitNodeWorker.cs`):
-```csharp
-using System.Collections.Generic;
-using SiphoinUnityHelpers.XNodeExtensions;
-using SNEngine.Editor.SNILSystem.Workers;
-
-public class WaitNodeWorker : SNILWorker
-{
-    public override void ApplyParameters(BaseNode node, Dictionary<string, string> parameters)
-    {
-        if (parameters.ContainsKey("waitTime"))
-        {
-            var field = node.GetType().GetField("_waitTime");
-            if (field != null)
-            {
-                if (float.TryParse(parameters["waitTime"], out float value))
-                {
-                    field.SetValue(node, value);
-                }
-            }
-        }
-    }
-}
-```
-
-**Usage in SNIL script**:
-```
-name: TimingExample
-Start
-Nagatoro says Wait for it...
-Wait 3.5 seconds
-Nagatoro says And there it is!
-End
+Jump To [dialogue name]
 ```
 
 ## Character System Nodes
@@ -321,14 +252,36 @@ Clear Background
 End
 ```
 
-## Resource Finding System
+## Multi-Script Support
 
-The system includes a universal resource finder that can locate any type of asset by name or path:
+You can create multiple dialogues in one file using separators:
 
-- **By name**: Just specify the filename without extension (e.g., `beachBackground`)
-- **By path**: Specify the full path from Assets folder (e.g., `SNEngine/Demo/Sprites/beachBackground.png`)
-- **Type checking**: The system verifies that the found asset is of the correct type
-- **Duplicate handling**: If multiple assets have the same name, an error is shown with available paths
+```
+name: FirstDialogue
+Start
+Nagatoro says Hello!
+Jump To SecondDialogue
+
+---
+
+name: SecondDialogue
+Start
+Player says Hi back!
+End
+```
+
+## Comments
+
+You can add comments using `//` or `#`:
+
+```
+# This is a comment
+name: CommentedScript
+Start
+// This is also a comment
+Nagatoro says Hello!
+End
+```
 
 ## Function System
 
@@ -383,15 +336,182 @@ The system validates function syntax:
 - Nested functions are not allowed
 - Each `end` must match a `function`
 
+## Resource Finding System
+
+The system includes a universal resource finder that can locate any type of asset by name or path:
+
+- **By name**: Just specify the filename without extension (e.g., `beachBackground`)
+- **By path**: Specify the full path from Assets folder (e.g., `SNEngine/Demo/Sprites/beachBackground.png`)
+- **Type checking**: The system verifies that the found asset is of the correct type
+- **Duplicate handling**: If multiple assets have the same name, an error is shown with available paths
+
+## Validation
+
+The system validates scripts before import and provides detailed error messages:
+- Line number where error occurred
+- Type of error
+- Content of the problematic line
+- Clear error message
+
+Example error message:
+```
+Line 3: UnknownNode - Unknown node format: 'InvalidCommand says Hello!' (Content: 'InvalidCommand says Hello!')
+```
+
+## Import Methods
+
+### Import Single Script
+- Menu: `SNEngine/Import SNIL Script`
+- Allows importing a single `.snil` file
+
+### Import Folder
+- Menu: `SNEngine/Import SNIL Folder`
+- Imports all `.snil` files from a selected folder
+
+### Import Window
+- Menu: `SNEngine/SNIL Importer`
+- Provides a GUI interface for importing scripts with options
+
+## Best Practices
+
+1. **Parameter Naming**: Use descriptive parameter names that match your node's field names
+2. **Worker Classes**: Create custom worker classes for complex parameter handling
+3. **Template Consistency**: Keep template format consistent with your node's functionality
+4. **Validation**: Test your templates with various parameter values to ensure proper validation
+5. **Documentation**: Document your node's parameters and expected values
+6. **Error Handling**: Implement proper error handling in your custom nodes
+7. **Performance**: Consider performance implications when creating complex nodes
+8. **Testing**: Test your scripts with various inputs to ensure robustness
+
+## Example: Complete Custom Node
+
+Here's a complete example of a WaitNode:
+
+**Unity Node Class** (`WaitNode.cs`):
+```csharp
+using SiphoinUnityHelpers.XNodeExtensions;
+using UnityEngine;
+
+public class WaitNode : AsyncNode
+{
+    [SerializeField] private float _waitTime = 1.0f;
+
+    public override void Execute()
+    {
+        // Wait for specified time
+        StartCoroutine(WaitCoroutine());
+    }
+
+    private IEnumerator WaitCoroutine()
+    {
+        yield return new WaitForSeconds(_waitTime);
+        Continue();
+    }
+}
+```
+
+**Template File** (`WaitNode.cs.snil`):
+```
+Wait {_waitTime} seconds
+worker:WaitNodeWorker
+```
+
+**Worker Class** (`WaitNodeWorker.cs`):
+```csharp
+using System.Collections.Generic;
+using SiphoinUnityHelpers.XNodeExtensions;
+using SNEngine.Editor.SNILSystem.Workers;
+
+public class WaitNodeWorker : SNILWorker
+{
+    public override void ApplyParameters(BaseNode node, Dictionary<string, string> parameters)
+    {
+        if (parameters.ContainsKey("waitTime"))
+        {
+            var field = node.GetType().GetField("_waitTime");
+            if (field != null)
+            {
+                if (float.TryParse(parameters["waitTime"], out float value))
+                {
+                    field.SetValue(node, value);
+                }
+            }
+        }
+    }
+}
+```
+
+**Usage in SNIL script**:
+```
+name: TimingExample
+Start
+Nagatoro says Wait for it...
+Wait 3.5 seconds
+Nagatoro says And there it is!
+End
+```
+
 ## Troubleshooting
 
-- If your node doesn't appear in the graph, check that:
+### Common Issues
+
+- **Node not appearing in graph**: Check that:
   - The node class inherits from a proper base class
   - The template file exists in the correct location
   - The template file name matches the class name
   - The class is in the correct namespace
 
-- If parameters aren't set correctly:
-  - Verify that parameter names in the template match field names in the class
-  - Check that your worker class (if used) handles the parameter assignment correctly
+- **Parameters not set correctly**: Verify that:
+  - Parameter names in the template match field names in the class
+  - Your worker class (if used) handles the parameter assignment correctly
   - Ensure the field is marked with `[SerializeField]` if using Unity's serialization
+
+- **Resource not found**: Make sure:
+  - The asset exists in the project
+  - The name/path is correct
+  - The asset type matches what's expected
+
+- **Import errors**: Check:
+  - Syntax is correct in your script
+  - All referenced nodes have templates
+  - No duplicate dialogue names in multi-script files
+
+### Debugging Tips
+
+- Enable Unity's console to see detailed error messages
+- Use the validation system to check scripts before import
+- Check the generated dialogue assets in the Resources folder
+- Use the import window for better error feedback
+
+## Advanced Features
+
+### Template Matching
+
+The system uses regex-based template matching to identify node types in scripts. Templates can include:
+- Literal text that must match exactly
+- Parameter placeholders in `{}` or `[]`
+- Special directives like `worker:WorkerClassName`
+
+### Post-Processing System
+
+The system includes a post-processing step that:
+- Resolves cross-dialogue references (Jump To nodes)
+- Sets up connections between nodes
+- Validates the final graph structure
+
+### Custom Validation
+
+You can create custom validation rules by extending the `SNILValidator` class and implementing your own validation logic.
+
+## File Formats
+
+### SNIL Files (.snil)
+- Text-based files containing dialogue scripts
+- UTF-8 encoded
+- Support comments with `//` or `#`
+- Use `---` as multi-script separators
+
+### Generated Assets (.asset)
+- Unity ScriptableObjects containing dialogue graphs
+- Automatically saved to `Assets/SNEngine/Source/SNEngine/Resources/Dialogues/`
+- Can be referenced from other scripts and scenes
