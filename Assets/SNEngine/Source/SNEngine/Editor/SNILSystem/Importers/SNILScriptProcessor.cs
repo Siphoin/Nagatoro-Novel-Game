@@ -34,9 +34,9 @@ namespace SNEngine.Editor.SNILSystem.Importers
 
             var functionInstructions = ParseFunctionInstructions(functions);
 
-            var (mainInstructions, functionCallPositions) = ParseScriptWithFunctionCalls(mainScriptLines);
+            var (mainInstructions, functionCallPositions, functionCallNames) = ParseScriptWithFunctionCalls(mainScriptLines);
 
-            ApplyInstructionsToGraph(graphName, mainInstructions, functionInstructions, functionCallPositions);
+            ApplyInstructionsToGraph(graphName, mainInstructions, functionInstructions, functionCallPositions, functionCallNames);
         }
 
         public static List<SNILInstruction> ParseFunctionInstructions(List<SNILFunction> functions)
@@ -69,11 +69,12 @@ namespace SNEngine.Editor.SNILSystem.Importers
             return functionInstructions;
         }
 
-        public static (List<SNILInstruction>, List<int>) ParseScriptWithFunctionCalls(string[] lines)
+        public static (List<SNILInstruction>, List<int>, List<string>) ParseScriptWithFunctionCalls(string[] lines)
         {
             var templates = SNILTemplateManager.GetNodeTemplates();
             List<SNILInstruction> instructions = new List<SNILInstruction>();
             List<int> functionCallPositions = new List<int>(); // Позиции вызовов функций в потоке
+            List<string> functionCallNames = new List<string>(); // Имена вызываемых функций
 
             for (int i = 0; i < lines.Length; i++)
             {
@@ -96,6 +97,7 @@ namespace SNEngine.Editor.SNILSystem.Importers
                 {
                     string functionName = trimmed.Substring(5).Trim(); // "call ".Length = 5
                     functionCallPositions.Add(instructions.Count); // Сохраняем позицию вызова функции
+                    functionCallNames.Add(functionName); // Сохраняем имя вызываемой функции
                     continue; // Пропускаем создание ноды для вызова функции
                 }
 
@@ -112,9 +114,10 @@ namespace SNEngine.Editor.SNILSystem.Importers
             // For now, we'll use the block parser for the main logic
             var blockInstructions = SNILBlockParser.ParseWithBlocks(lines);
 
-            // We need to filter out function calls from the block parser and track their positions
+            // We need to filter out function calls from the block parser and track their positions and names
             var filteredInstructions = new List<SNILInstruction>();
             var updatedFunctionCallPositions = new List<int>();
+            var updatedFunctionCallNames = new List<string>();
 
             for (int i = 0; i < lines.Length; i++)
             {
@@ -125,12 +128,13 @@ namespace SNEngine.Editor.SNILSystem.Importers
                 {
                     string functionName = trimmed.Substring(5).Trim();
                     updatedFunctionCallPositions.Add(filteredInstructions.Count);
+                    updatedFunctionCallNames.Add(functionName);
                 }
             }
 
             // Since the block parser handles all instructions including nested ones,
             // we'll return the block parser results
-            return (blockInstructions, updatedFunctionCallPositions);
+            return (blockInstructions, updatedFunctionCallPositions, updatedFunctionCallNames);
         }
 
         private static List<SNILInstruction> ParseScript(string[] lines)
@@ -154,7 +158,7 @@ namespace SNEngine.Editor.SNILSystem.Importers
             return graphName;
         }
 
-        public static void ApplyInstructionsToGraph(string graphName, List<SNILInstruction> mainInstructions, List<SNILInstruction> functionInstructions, List<int> functionCallPositions)
+        public static void ApplyInstructionsToGraph(string graphName, List<SNILInstruction> mainInstructions, List<SNILInstruction> functionInstructions, List<int> functionCallPositions, List<string> functionCallNames = null)
         {
             string assetPath = $"Assets/SNEngine/Source/SNEngine/Resources/Dialogues/{graphName}.asset";
             DialogueGraph graph = AssetDatabase.LoadAssetAtPath<DialogueGraph>(assetPath);
@@ -165,7 +169,7 @@ namespace SNEngine.Editor.SNILSystem.Importers
                 return;
             }
 
-            SNILNodeCreator.CreateNodesFromInstructions(graph, mainInstructions, functionInstructions, functionCallPositions);
+            SNILNodeCreator.CreateNodesFromInstructions(graph, mainInstructions, functionInstructions, functionCallPositions, functionCallNames);
 
             EditorUtility.SetDirty(graph);
             AssetDatabase.SaveAssets();

@@ -9,7 +9,7 @@ namespace SNEngine.Editor.SNILSystem
 {
     public class SNILNodeCreator
     {
-        public static void CreateNodesFromInstructions(DialogueGraph graph, List<SNILInstruction> mainInstructions, List<SNILInstruction> functionInstructions = null, List<int> functionCallPositions = null)
+        public static void CreateNodesFromInstructions(DialogueGraph graph, List<SNILInstruction> mainInstructions, List<SNILInstruction> functionInstructions = null, List<int> functionCallPositions = null, List<string> functionCallNames = null)
         {
             // Create main nodes
             var mainNodes = NodeCreator.CreateMainNodes(graph, mainInstructions);
@@ -28,7 +28,7 @@ namespace SNEngine.Editor.SNILSystem
             }
 
             // Build complete node sequence
-            var completeNodeSequence = NodePositioner.BuildCompleteNodeSequence(mainNodes, functionCallPositions, functionMap);
+            var completeNodeSequence = NodePositioner.BuildCompleteNodeSequence(mainNodes, functionCallPositions, functionCallNames, functionMap);
 
             // Position all nodes
             NodePositioner.PositionNodesHorizontally(completeNodeSequence);

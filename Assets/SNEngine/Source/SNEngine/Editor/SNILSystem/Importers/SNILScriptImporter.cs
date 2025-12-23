@@ -93,9 +93,9 @@ namespace SNEngine.Editor.SNILSystem.Importers
             var mainScriptLines = SNILFunctionParser.ExtractMainScriptWithoutFunctions(lines).ToArray();
 
             var functionInstructions = SNILScriptProcessor.ParseFunctionInstructions(functions);
-            var (mainInstructions, functionCallPositions) = SNILScriptProcessor.ParseScriptWithFunctionCalls(mainScriptLines);
+            var (mainInstructions, functionCallPositions, functionCallNames) = SNILScriptProcessor.ParseScriptWithFunctionCalls(mainScriptLines);
 
-            SNILScriptProcessor.ApplyInstructionsToGraph(graphName, mainInstructions, functionInstructions, functionCallPositions);
+            SNILScriptProcessor.ApplyInstructionsToGraph(graphName, mainInstructions, functionInstructions, functionCallPositions, functionCallNames);
         }
 
         private static string SanitizeFileName(string fileName)

@@ -35,7 +35,7 @@ namespace SNEngine.Editor.SNILSystem.NodeCreation
             }
         }
 
-        public static List<BaseNode> BuildCompleteNodeSequence(List<BaseNode> mainNodes, List<int> functionCallPositions, Dictionary<string, GroupCallsNode> functionMap)
+        public static List<BaseNode> BuildCompleteNodeSequence(List<BaseNode> mainNodes, List<int> functionCallPositions, List<string> functionCallNames, Dictionary<string, GroupCallsNode> functionMap)
         {
             var completeSequence = new List<BaseNode>(mainNodes);
 
@@ -49,29 +49,35 @@ namespace SNEngine.Editor.SNILSystem.NodeCreation
                 completeSequence.Insert(0, startNode);
             }
 
-            // Вставляем GroupCallsNode в нужные позиции
-            // Для упрощения, вставляем все GroupCallsNode в порядке их появления в functionMap
-            if (functionCallPositions != null && functionCallPositions.Count > 0)
+            // Вставляем GroupCallsNode в нужные позиции согласно именам вызываемых функций
+            if (functionCallPositions != null && functionCallPositions.Count > 0 &&
+                functionCallNames != null && functionCallPositions.Count == functionCallNames.Count)
             {
-                // Сортируем позиции по возрастанию, чтобы индексы не смещались при вставке
-                var sortedPositions = functionCallPositions.OrderBy(x => x).ToList();
-
-                // Вставляем GroupCallsNode в указанные позиции
-                for (int i = sortedPositions.Count - 1; i >= 0; i--)
+                // Создаем пары (позиция, имя функции) и сортируем по позиции в обратном порядке
+                var callInfo = new List<(int position, string functionName)>();
+                for (int i = 0; i < functionCallPositions.Count && i < functionCallNames.Count; i++)
                 {
-                    int pos = sortedPositions[i];
-                    // В реальности нужно знать, какую именно функцию вызвать в этой позиции
-                    // Для упрощения, возьмем первую доступную GroupCallsNode
-                    var groupNode = functionMap.Values.ElementAtOrDefault(i);
-                    if (groupNode != null && pos < completeSequence.Count && pos >= 0)
+                    callInfo.Add((functionCallPositions[i], functionCallNames[i]));
+                }
+
+                // Сортируем по позиции в убывающем порядке, чтобы индексы не смещались при вставке
+                var sortedCallInfo = callInfo.OrderByDescending(x => x.position).ToList();
+
+                foreach (var (pos, functionName) in sortedCallInfo)
+                {
+                    if (functionMap.ContainsKey(functionName))
                     {
-                        completeSequence.Insert(pos, groupNode);
+                        var groupNode = functionMap[functionName];
+                        if (groupNode != null && pos < completeSequence.Count && pos >= 0)
+                        {
+                            completeSequence.Insert(pos, groupNode);
+                        }
                     }
                 }
             }
             else
             {
-                // Если нет информации о позициях вызовов, вставляем все GroupCallsNode в конец
+                // Если нет информации о позициях вызовов или именах, вставляем все GroupCallsNode в конец
                 foreach (var groupNode in functionMap.Values)
                 {
                     completeSequence.Add(groupNode);
