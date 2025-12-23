@@ -14,6 +14,26 @@ namespace SNEngine.Editor.SNILSystem
 {
     public class SNILParameterApplier
     {
+        private static readonly Dictionary<Type, Func<SNILWorker>> _nodeWorkerMap;
+        private static readonly Dictionary<string, Func<SNILWorker>> _nodeNameWorkerMap;
+
+        static SNILParameterApplier()
+        {
+            _nodeWorkerMap = new Dictionary<Type, Func<SNILWorker>>
+            {
+                { typeof(DialogNode), () => new DialogNodeWorker() },
+                { typeof(DebugNode), () => new DebugNodeWorker() },
+                { typeof(ErrorNode), () => new ErrorNodeWorker() },
+                { typeof(ShowVariantsNode), () => new ShowVariantsNodeWorker() }
+            };
+
+            _nodeNameWorkerMap = new Dictionary<string, Func<SNILWorker>>(StringComparer.OrdinalIgnoreCase)
+            {
+                { "StartNode", () => new StartNodeWorker() },
+                { "ExitNode", () => new ExitNodeWorker() }
+            };
+        }
+
         public static void ApplyParametersToNode(BaseNode node, Dictionary<string, string> parameters, string nodeName)
         {
             SNILWorker worker = GetWorkerForNode(node, nodeName);
@@ -53,30 +73,16 @@ namespace SNEngine.Editor.SNILSystem
                 return CreateWorkerByName(templateInfo.WorkerName);
             }
 
-            // Если воркер не указан в шаблоне, используем логику по умолчанию
-            if (node is DialogNode)
+            // Проверяем сопоставление по типу ноды
+            if (_nodeWorkerMap.ContainsKey(node.GetType()))
             {
-                return new DialogNodeWorker();
+                return _nodeWorkerMap[node.GetType()]();
             }
-            else if (node is DebugNode)
+
+            // Проверяем сопоставление по имени ноды
+            if (_nodeNameWorkerMap.ContainsKey(nodeName))
             {
-                return new DebugNodeWorker();
-            }
-            else if (node is ErrorNode)
-            {
-                return new ErrorNodeWorker();
-            }
-            else if (node is ShowVariantsNode)
-            {
-                return new ShowVariantsNodeWorker();
-            }
-            else if (nodeName.Equals("StartNode", System.StringComparison.OrdinalIgnoreCase))
-            {
-                return new StartNodeWorker();
-            }
-            else if (nodeName.Equals("ExitNode", System.StringComparison.OrdinalIgnoreCase))
-            {
-                return new ExitNodeWorker();
+                return _nodeNameWorkerMap[nodeName]();
             }
 
             // Для других типов нод возвращаем общий воркер
