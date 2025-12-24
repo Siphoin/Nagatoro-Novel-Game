@@ -24,7 +24,7 @@ namespace SNEngine.Editor.SNIL
             string fullManualPath = Path.Combine(BasePath, ManualRelativePath);
             string fullReadmePath = Path.Combine(BasePath, ReadmeRelativePath);
 
-            if (!Directory.Exists(fullTemplatesPath))
+            if (!NovelDirectory.Exists(fullTemplatesPath))
             {
                 SNILDebug.LogError($"[SNIL] Template directory not found at: {fullTemplatesPath}");
                 return;
@@ -33,19 +33,17 @@ namespace SNEngine.Editor.SNIL
             StringBuilder sb = new StringBuilder();
             sb.AppendLine("# SNIL Commands Documentation");
             sb.AppendLine();
-            sb.AppendLine("This document describes all available commands in the SNIL system and their syntax.");
-            sb.AppendLine();
             sb.AppendLine("## List of Commands");
             sb.AppendLine();
 
-            string[] workerFiles = Directory.GetFiles(fullTemplatesPath, "*.snil", SearchOption.TopDirectoryOnly);
+            string[] workerFiles = NovelDirectory.GetFiles(fullTemplatesPath, "*.snil", SearchOption.TopDirectoryOnly);
             foreach (string filePath in workerFiles)
             {
                 ProcessSnilFile(filePath, sb, true);
             }
-            if (Directory.Exists(fullManualPath))
+            if (NovelDirectory.Exists(fullManualPath))
             {
-                string[] manualFiles = Directory.GetFiles(fullManualPath, "*.snil", SearchOption.AllDirectories);
+                string[] manualFiles = NovelDirectory.GetFiles(fullManualPath, "*.snil", SearchOption.AllDirectories);
                 foreach (string filePath in manualFiles)
                 {
                     ProcessSnilFile(filePath, sb, false);
