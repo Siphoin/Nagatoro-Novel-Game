@@ -21,6 +21,7 @@ namespace SNEngine.Editor.SNILSystem.Validators
         private void RegisterDefaultValidators()
         {
             // Регистрируем стандартные валидаторы
+            RegisterValidator(new SetVariableInstructionValidator()); // Add the set variable instruction validator
             RegisterValidator(new TemplateBasedInstructionValidator());
         }
 

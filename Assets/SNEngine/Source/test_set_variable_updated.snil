@@ -1,0 +1,8 @@
+name: TestSetVariable
+Start
+set playerScore = 100
+set playerName = "John"
+set isGameActive = true
+set playerHealth = 75.5
+Nagatoro says Your score is 100!
+End

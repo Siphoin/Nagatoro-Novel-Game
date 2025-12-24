@@ -2,6 +2,7 @@ using SiphoinUnityHelpers.XNodeExtensions;
 using SNEngine.Graphs;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEditor;
 using UnityEngine;
 
@@ -22,7 +23,7 @@ namespace SNEngine.Editor.SNILSystem.InstructionHandlers
             }
 
             var dialogueGraph = (DialogueGraph)context.Graph;
-            
+
             // Создаем ExitNode (End нода)
             var exitNodeType = SNILTypeResolver.GetNodeType("ExitNode");
             if (exitNodeType == null)
@@ -34,9 +35,10 @@ namespace SNEngine.Editor.SNILSystem.InstructionHandlers
             if (exitNode != null)
             {
                 exitNode.name = "End";
-                // Позиционируем после последней ноды
-                float xPosition = context.Nodes.Count > 0 ? 250 * context.Nodes.Count : 250;
-                exitNode.position = new Vector2(xPosition, 0);
+                
+                // Позиционируем End node правее всех других нод в графе
+                float maxXPosition = FindMaxXPosition(dialogueGraph) + 250; // Размещаем правее всех нод
+                exitNode.position = new Vector2(maxXPosition, 0);
 
                 // Применяем параметры, если есть
                 var parameters = new Dictionary<string, string>();
@@ -56,6 +58,19 @@ namespace SNEngine.Editor.SNILSystem.InstructionHandlers
             }
 
             return InstructionResult.Ok(exitNode);
+        }
+
+        private float FindMaxXPosition(DialogueGraph graph)
+        {
+            float maxX = 0;
+            foreach (var node in graph.nodes)
+            {
+                if (node is BaseNode baseNode)
+                {
+                    maxX = Mathf.Max(maxX, baseNode.position.x);
+                }
+            }
+            return maxX;
         }
     }
 }
