@@ -1,7 +1,5 @@
 ﻿# SNIL Commands Documentation
 
-This document describes all available commands in the SNIL system and their syntax.
-
 ## List of Commands
 
 ### Clear Background
@@ -101,5 +99,10 @@ True:
 False:
 [Commands if no variant matched or cancelled]
 endif
+```
+
+### Create Variable or Set
+```snil
+set [variable_name] = [value]
 ```
 

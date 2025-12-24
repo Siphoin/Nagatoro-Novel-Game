@@ -33,6 +33,7 @@ The system uses a dynamic instruction handler architecture:
   - `FunctionDefinitionInstructionHandler` - handles function definitions
   - `FunctionEndInstructionHandler` - handles function endings
   - `CallInstructionHandler` - handles function calls
+  - `SetVariableInstructionHandler` - handles `set [name] = [value]` instructions
   - `GenericNodeInstructionHandler` - handles template-based nodes
 
 #### 2. Validation System
@@ -41,6 +42,7 @@ Multi-layered validation architecture:
 - `EmptyFileValidator` - checks for empty/null files
 - `NameDirectiveValidator` - validates `name:` directive and structure
 - `FunctionValidator` - validates function definitions and structure
+- `SetVariableInstructionValidator` - validates `set [name] = [value]` instructions
 - `InstructionValidator` - validates individual instructions against templates
 - `InstructionValidatorManager` - manages specialized validators
 
@@ -74,6 +76,7 @@ SNILSystem/
 │   ├── FunctionDefinitionInstructionHandler.cs
 │   ├── FunctionEndInstructionHandler.cs
 │   ├── CallInstructionHandler.cs
+│   ├── SetVariableInstructionHandler.cs
 │   ├── GenericNodeInstructionHandler.cs
 │   ├── FunctionBodyCreator.cs
 │   └── InstructionHandlerManager.cs
@@ -97,6 +100,7 @@ SNILSystem/
 │   ├── EmptyFileValidator.cs
 │   ├── NameDirectiveValidator.cs
 │   ├── FunctionValidator.cs
+│   ├── SetVariableInstructionValidator.cs
 │   ├── InstructionValidator.cs
 │   ├── ScriptLineExtractor.cs
 │   └── SNILSyntaxValidator.cs
@@ -273,6 +277,54 @@ End
 ### Jump Nodes
 ```
 Jump To [dialogue name]
+```
+
+## Variable System
+
+SNIL supports variables for storing and manipulating data during dialogue execution. The system provides both variable declaration/creation and value assignment through dedicated instructions.
+
+### Variable Declaration and Assignment
+
+Variables can be created and assigned values using the `set` instruction:
+
+```
+set [variable name] = [value]
+```
+
+Examples:
+```
+set playerScore = 100
+set playerName = "John"
+set isGameActive = true
+set playerHealth = 75.5
+```
+
+The system automatically determines the variable type based on the assigned value:
+- Integer numbers (e.g., `100`) create integer variables
+- Floating point numbers (e.g., `75.5`) create float variables
+- Text in quotes (e.g., `"John"`) creates string variables
+- Boolean values (`true`/`false`) create boolean variables
+
+### Variable Usage in Graphs
+
+When a `set` instruction is processed:
+1. If a variable with the given name already exists, its value is updated
+2. If no variable exists, a new one is created with the specified name and type
+3. The system creates a `Set[Type]Node` that connects to the target variable
+4. Variables are positioned in the left area of the graph (x=488) with vertical spacing
+5. Set nodes are positioned in a horizontal chain (y=88) with increasing x coordinates
+6. Connections are established between variables and their corresponding Set nodes
+
+Example with variables:
+```
+name: VariableExample
+Start
+set playerScore = 0
+set playerName = "Hero"
+set isGameActive = true
+Nagatoro says Hello [Property=playerName]! Your score is [Property=playerScore].
+set playerScore = 100
+End
 ```
 
 ## Function System
