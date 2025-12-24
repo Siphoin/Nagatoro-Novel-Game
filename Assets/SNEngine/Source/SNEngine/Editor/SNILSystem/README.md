@@ -221,7 +221,7 @@ Jump To [dialogue name]
 
 ## Function System
 
-The system supports functions with proper body creation and connection:
+The system supports functions with proper body creation and connection. Functions can be defined anywhere in the file and are available throughout that same file once registered during compilation.
 
 ### Defining Functions
 ```
@@ -235,11 +235,44 @@ end
 call functionName
 ```
 
+### Function Scope and Availability
+
+**Within a single file**: All functions defined in a file are available to all scripts in that same file, regardless of their order in the file. The compiler registers all functions before processing the main script content.
+
+**Across files**: Functions defined in one file are NOT available in other files. Each SNIL file has its own function scope.
+
+**Multi-script files**: When using `---` separators to define multiple scripts in one file, each script part has access to functions defined in the same file, but function calls cannot cross script boundaries within the same file.
+
 ### Function Body Processing
 - Functions create `GroupCallsNode` for the function call
 - Function bodies are created as connected nodes within the function
-- Proper Y-axis positioning above main flow
+- Proper Y-axis positioning above main flow for visual separation
 - Connection through `_operations` port to function body
+- Functions can be called before their definition within the same file
+
+### Function Definition Order
+Functions can be called before they are defined in the same file:
+```
+name: FunctionCallBeforeDefinition
+Start
+Show Background beachBackground
+call greetNagatoro  # Function called before definition
+Nagatoro says Thanks for calling me!
+End
+
+function greetNagatoro
+Wait 2 seconds
+Nagatoro says You called me!
+Player says Yes, hello!
+end
+```
+
+### Import Behavior
+**Single file import**: All functions in the file are registered before processing any script content, allowing calls to functions defined later in the file.
+
+**Folder import**: Each file is processed independently, so functions in one file are not accessible from other files in the same import folder.
+
+**Multi-script files**: Functions defined in a single file with multiple scripts (separated by `---`) are available to all script parts within that same file.
 
 ## Multi-Script Support
 
