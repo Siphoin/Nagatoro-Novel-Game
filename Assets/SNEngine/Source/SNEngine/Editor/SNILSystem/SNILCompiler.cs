@@ -40,7 +40,7 @@ namespace SNEngine.Editor.SNILSystem
             }
             catch (System.Exception ex)
             {
-                Debug.LogError($"Create all graphs failed with exception: {ex.Message}");
+                SNILDebug.LogError($"Create all graphs failed with exception: {ex.Message}");
                 return false;
             }
         }
@@ -82,7 +82,7 @@ namespace SNEngine.Editor.SNILSystem
 
                 if (!result.Success)
                 {
-                    Debug.LogError($"Failed to process instruction '{trimmedLine}': {result.ErrorMessage}");
+                    SNILDebug.LogError($"Failed to process instruction '{trimmedLine}': {result.ErrorMessage}");
                     hasErrors = true;
                 }
             }

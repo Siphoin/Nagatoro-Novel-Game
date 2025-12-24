@@ -29,7 +29,7 @@ namespace SNEngine.Editor.SNILSystem.Importers
 
                 if (!File.Exists(filePath))
                 {
-                    Debug.LogError($"File not found: {filePath}");
+                    SNILDebug.LogError($"File not found: {filePath}");
                     return;
                 }
 
@@ -54,7 +54,7 @@ namespace SNEngine.Editor.SNILSystem.Importers
             }
             catch (Exception e)
             {
-                Debug.LogError($"Import failed: {e.Message}\n{e.StackTrace}");
+                SNILDebug.LogError($"Import failed: {e.Message}\n{e.StackTrace}");
             }
         }
 
@@ -80,7 +80,7 @@ namespace SNEngine.Editor.SNILSystem.Importers
             Validators.SNILSyntaxValidator validator = new Validators.SNILSyntaxValidator();
             if (!validator.Validate(lines, out string errorMessage))
             {
-                Debug.LogError($"SNIL script validation failed: {errorMessage}");
+                SNILDebug.LogError($"SNIL script validation failed: {errorMessage}");
                 return;
             }
 

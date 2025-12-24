@@ -16,7 +16,7 @@ namespace SNEngine.Editor.SNILSystem.Workers
             // Проверяем, что это действительно IfNode или его наследник
             if (!(node is IfNode ifNode))
             {
-                Debug.LogError($"Node {node.GetType().Name} is not an IfNode");
+                SNILDebug.LogError($"Node {node.GetType().Name} is not an IfNode");
                 return;
             }
 
@@ -25,7 +25,7 @@ namespace SNEngine.Editor.SNILSystem.Workers
             {
                 // IfNode обычно получает условие через входной порт, а не через сериализованные поля
                 // Вместо этого, условие будет подключено из CompareIntegersNode
-                Debug.Log($"IfNode parameter: {param.Key} = {param.Value}");
+                SNILDebug.Log($"IfNode parameter: {param.Key} = {param.Value}");
             }
         }
     }

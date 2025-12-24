@@ -26,7 +26,7 @@ namespace SNEngine.Editor.SNILSystem
         {
             if (!Directory.Exists(folderPath))
             {
-                UnityEngine.Debug.LogError($"Folder does not exist: {folderPath}");
+                SNILDebug.LogError($"Folder does not exist: {folderPath}");
                 return;
             }
 
@@ -34,12 +34,12 @@ namespace SNEngine.Editor.SNILSystem
 
             if (snilFiles.Length == 0)
             {
-                UnityEngine.Debug.LogWarning($"No .snil files found in folder: {folderPath}");
+                SNILDebug.LogWarning($"No .snil files found in folder: {folderPath}");
                 return;
             }
 
             // Сначала проверяем валидность всех файлов
-            UnityEngine.Debug.Log("Validating all files...");
+            SNILDebug.Log("Validating all files...");
             bool allValid = true;
             foreach (string filePath in snilFiles)
             {
@@ -47,38 +47,38 @@ namespace SNEngine.Editor.SNILSystem
                 {
                     allValid = false;
                     string errorDetails = string.Join("\n  ", fileErrors.ConvertAll(e => e.ToString()));
-                    UnityEngine.Debug.LogError($"Validation failed for file: {filePath}\n  {errorDetails}");
+                    SNILDebug.LogError($"Validation failed for file: {filePath}\n  {errorDetails}");
                 }
             }
 
             if (!allValid)
             {
-                UnityEngine.Debug.LogError("One or more files failed validation. Import cancelled.");
+                SNILDebug.LogError("One or more files failed validation. Import cancelled.");
                 return;
             }
 
             // Если все файлы прошли валидацию, начинаем создание графов
-            UnityEngine.Debug.Log("All files validated successfully. Creating all graphs...");
+            SNILDebug.Log("All files validated successfully. Creating all graphs...");
             foreach (string filePath in snilFiles)
             {
                 SNILCompiler.CreateAllGraphsInFile(filePath);
             }
 
             // Затем добавляем ноды ко всем графам
-            UnityEngine.Debug.Log("Adding nodes to all graphs...");
+            SNILDebug.Log("Adding nodes to all graphs...");
             foreach (string filePath in snilFiles)
             {
                 SNILCompiler.ProcessAllGraphsInFile(filePath);
             }
 
             // И только потом обрабатываем все ссылки
-            UnityEngine.Debug.Log("Processing all references...");
+            SNILDebug.Log("Processing all references...");
             SNILPostProcessor.ProcessAllReferences();
 
             AssetDatabase.SaveAssets();
             AssetDatabase.Refresh();
 
-            UnityEngine.Debug.Log($"Successfully imported {snilFiles.Length} .snil files from {folderPath}");
+            SNILDebug.Log($"Successfully imported {snilFiles.Length} .snil files from {folderPath}");
         }
 
         private static bool ValidateFile(string filePath, out List<Validators.SNILValidationError> errors)
@@ -113,7 +113,7 @@ namespace SNEngine.Editor.SNILSystem
             }
             catch (System.Exception e)
             {
-                UnityEngine.Debug.LogError($"Error validating file {filePath}: {e.Message}");
+                SNILDebug.LogError($"Error validating file {filePath}: {e.Message}");
                 return false;
             }
         }

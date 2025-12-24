@@ -31,7 +31,7 @@ namespace SNEngine.Editor.SNILSystem
 
                 if (!File.Exists(filePath))
                 {
-                    Debug.LogError($"File not found: {filePath}");
+                    SNILDebug.LogError($"File not found: {filePath}");
                     return false;
                 }
 
@@ -59,7 +59,7 @@ namespace SNEngine.Editor.SNILSystem
             }
             catch (Exception e)
             {
-                Debug.LogError($"Compilation failed: {e.Message}\n{e.StackTrace}");
+                SNILDebug.LogError($"Compilation failed: {e.Message}\n{e.StackTrace}");
                 return false;
             }
         }
@@ -85,7 +85,7 @@ namespace SNEngine.Editor.SNILSystem
             Validators.SNILSyntaxValidator validator = new Validators.SNILSyntaxValidator();
             if (!validator.Validate(lines, out string errorMessage))
             {
-                Debug.LogError($"SNIL script validation failed: {errorMessage}");
+                SNILDebug.LogError($"SNIL script validation failed: {errorMessage}");
                 return false;
             }
 
@@ -122,7 +122,7 @@ namespace SNEngine.Editor.SNILSystem
                 if (!result.Success)
                 {
                     string errorMsg = $"Failed to process instruction '{trimmedLine}': {result.ErrorMessage}";
-                    Debug.LogError(errorMsg);
+                    SNILDebug.LogError(errorMsg);
                     errorMessages.Add(errorMsg);
                     hasProcessingErrors = true;
                 }
@@ -131,7 +131,7 @@ namespace SNEngine.Editor.SNILSystem
             // Если были ошибки обработки инструкций, не продолжаем импорт
             if (hasProcessingErrors)
             {
-                Debug.LogError($"Script processing failed with the following errors:\n{string.Join("\n", errorMessages)}");
+                SNILDebug.LogError($"Script processing failed with the following errors:\n{string.Join("\n", errorMessages)}");
                 return false;
             }
 

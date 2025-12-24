@@ -15,7 +15,7 @@ namespace SNEngine.Editor.SNILSystem
             if (!_createdGraphs.ContainsKey(name))
             {
                 _createdGraphs[name] = graph;
-                UnityEngine.Debug.Log($"Registered graph: {name}");
+                SNILDebug.Log($"Registered graph: {name}");
             }
         }
 
@@ -32,16 +32,16 @@ namespace SNEngine.Editor.SNILSystem
                 FieldName = fieldName,
                 TargetDialogueName = targetDialogueName
             });
-            UnityEngine.Debug.Log($"Registered pending jump: {targetDialogueName}");
+            SNILDebug.Log($"Registered pending jump: {targetDialogueName}");
         }
 
         public static void ProcessAllReferences()
         {
-            UnityEngine.Debug.Log($"Processing { _pendingJumps.Count } pending jumps for { _createdGraphs.Count } graphs");
+            SNILDebug.Log($"Processing { _pendingJumps.Count } pending jumps for { _createdGraphs.Count } graphs");
             
             foreach (var jumpRef in _pendingJumps)
             {
-                UnityEngine.Debug.Log($"Processing jump: {jumpRef.TargetDialogueName}");
+                SNILDebug.Log($"Processing jump: {jumpRef.TargetDialogueName}");
                 
                 if (_createdGraphs.ContainsKey(jumpRef.TargetDialogueName))
                 {
@@ -57,17 +57,17 @@ namespace SNEngine.Editor.SNILSystem
                         if (realGraph != null)
                         {
                             field.SetValue(jumpRef.Node, realGraph);
-                            UnityEngine.Debug.Log($"Successfully set jump reference from {GetNodeInfo(jumpRef.Node)} to {jumpRef.TargetDialogueName}");
+                            SNILDebug.Log($"Successfully set jump reference from {GetNodeInfo(jumpRef.Node)} to {jumpRef.TargetDialogueName}");
                         }
                         else
                         {
-                            UnityEngine.Debug.LogWarning($"Could not load dialogue asset: Assets/SNEngine/Source/SNEngine/Resources/Dialogues/{jumpRef.TargetDialogueName}.asset");
+                            SNILDebug.LogWarning($"Could not load dialogue asset: Assets/SNEngine/Source/SNEngine/Resources/Dialogues/{jumpRef.TargetDialogueName}.asset");
                         }
                     }
                 }
                 else
                 {
-                    UnityEngine.Debug.LogWarning($"Target dialogue '{jumpRef.TargetDialogueName}' not found for jump node.");
+                    SNILDebug.LogWarning($"Target dialogue '{jumpRef.TargetDialogueName}' not found for jump node.");
                 }
             }
             

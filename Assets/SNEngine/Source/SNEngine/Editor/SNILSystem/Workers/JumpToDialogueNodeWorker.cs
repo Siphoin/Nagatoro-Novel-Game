@@ -28,7 +28,7 @@ namespace SNEngine.Editor.SNILSystem.Workers
                 {
                     // Регистрируем отложенную ссылку
                     SNILPostProcessor.RegisterJumpToReference(node, kvp.Key, kvp.Value);
-                    UnityEngine.Debug.Log($"Registered jump from {node.GUID} to dialogue: {kvp.Value}");
+                    SNILDebug.Log($"Registered jump from {node.GUID} to dialogue: {kvp.Value}");
                 }
                 else if (field != null)
                 {

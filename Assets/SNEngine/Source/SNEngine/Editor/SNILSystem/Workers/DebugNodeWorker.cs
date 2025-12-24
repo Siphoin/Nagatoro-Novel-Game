@@ -15,7 +15,7 @@ namespace SNEngine.Editor.SNILSystem.Workers
             // Проверяем, что это действительно DebugNode или его наследник
             if (!(node is DebugNode debugNode))
             {
-                Debug.LogError($"Node {node.GetType().Name} is not a DebugNode");
+                SNILDebug.LogError($"Node {node.GetType().Name} is not a DebugNode");
                 return;
             }
 
@@ -36,7 +36,7 @@ namespace SNEngine.Editor.SNILSystem.Workers
                         }
                         else
                         {
-                            Debug.LogWarning($"Object with name '{param.Value}' not found for DebugNode target parameter");
+                            SNILDebug.LogWarning($"Object with name '{param.Value}' not found for DebugNode target parameter");
                         }
                         break;
                     case "logtype":
@@ -46,11 +46,11 @@ namespace SNEngine.Editor.SNILSystem.Workers
                         }
                         else
                         {
-                            Debug.LogWarning($"Invalid LogType value: {param.Value}");
+                            SNILDebug.LogWarning($"Invalid LogType value: {param.Value}");
                         }
                         break;
                     default:
-                        Debug.LogWarning($"Unknown parameter for DebugNode: {param.Key}");
+                        SNILDebug.LogWarning($"Unknown parameter for DebugNode: {param.Key}");
                         break;
                 }
             }

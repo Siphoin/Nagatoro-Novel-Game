@@ -62,7 +62,7 @@ namespace YourNamespace
         public override void Execute()
         {
             // Implement your node logic here
-            Debug.Log($"Custom node executed: {_message} with value {_value}");
+            SNILDebug.Log($"Custom node executed: {_message} with value {_value}");
         }
     }
 }

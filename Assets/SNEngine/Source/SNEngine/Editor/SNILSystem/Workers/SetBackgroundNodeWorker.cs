@@ -44,12 +44,12 @@ namespace SNEngine.Editor.SNILSystem.Workers
                             }
                             else
                             {
-                                UnityEngine.Debug.LogWarning($"Could not load sprite from path: {spritePath}");
+                                SNILDebug.LogWarning($"Could not load sprite from path: {spritePath}");
                             }
                         }
                         else
                         {
-                            UnityEngine.Debug.LogWarning($"Could not find sprite with name or path: {kvp.Value}");
+                            SNILDebug.LogWarning($"Could not find sprite with name or path: {kvp.Value}");
                         }
                     }
                     else
@@ -83,12 +83,12 @@ namespace SNEngine.Editor.SNILSystem.Workers
                                 }
                                 else
                                 {
-                                    UnityEngine.Debug.LogWarning($"Could not load sprite from path: {spritePath}");
+                                    SNILDebug.LogWarning($"Could not load sprite from path: {spritePath}");
                                 }
                             }
                             else
                             {
-                                UnityEngine.Debug.LogWarning($"Could not find sprite with name or path: {kvp.Value}");
+                                SNILDebug.LogWarning($"Could not find sprite with name or path: {kvp.Value}");
                             }
                         }
                     }

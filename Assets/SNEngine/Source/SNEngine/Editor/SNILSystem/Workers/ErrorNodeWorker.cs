@@ -16,7 +16,7 @@ namespace SNEngine.Editor.SNILSystem.Workers
             // Проверяем, что это действительно ErrorNode или его наследник
             if (!(node is ErrorNode errorNode))
             {
-                Debug.LogError($"Node {node.GetType().Name} is not an ErrorNode");
+                SNILDebug.LogError($"Node {node.GetType().Name} is not an ErrorNode");
                 return;
             }
 
@@ -34,7 +34,7 @@ namespace SNEngine.Editor.SNILSystem.Workers
                         SetFieldValue(errorNode, "_exception", exception);
                         break;
                     default:
-                        Debug.LogWarning($"Unknown parameter for ErrorNode: {param.Key}");
+                        SNILDebug.LogWarning($"Unknown parameter for ErrorNode: {param.Key}");
                         break;
                 }
             }

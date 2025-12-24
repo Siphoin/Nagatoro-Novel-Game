@@ -25,7 +25,7 @@ namespace SNEngine.Editor.SNILSystem.Importers
 
             if (graph == null)
             {
-                Debug.LogError($"Could not load graph: {assetPath}");
+                SNILDebug.LogError($"Could not load graph: {assetPath}");
                 return;
             }
 
@@ -165,7 +165,7 @@ namespace SNEngine.Editor.SNILSystem.Importers
 
             if (graph == null)
             {
-                Debug.LogError($"Could not load graph: {assetPath}");
+                SNILDebug.LogError($"Could not load graph: {assetPath}");
                 return;
             }
 
@@ -175,7 +175,7 @@ namespace SNEngine.Editor.SNILSystem.Importers
             AssetDatabase.SaveAssets();
             AssetDatabase.Refresh();
 
-            Debug.Log($"Imported: {assetPath}");
+            SNILDebug.Log($"Imported: {assetPath}");
         }
 
         private static string SanitizeFileName(string fileName)

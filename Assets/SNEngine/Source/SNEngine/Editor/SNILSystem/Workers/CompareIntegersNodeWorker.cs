@@ -16,7 +16,7 @@ namespace SNEngine.Editor.SNILSystem.Workers
             // Проверяем, что это действительно CompareIntegersNode или его наследник
             if (!(node is CompareIntegersNode compareNode))
             {
-                Debug.LogError($"Node {node.GetType().Name} is not a CompareIntegersNode");
+                SNILDebug.LogError($"Node {node.GetType().Name} is not a CompareIntegersNode");
                 return;
             }
 
@@ -38,12 +38,12 @@ namespace SNEngine.Editor.SNILSystem.Workers
                         }
                         else
                         {
-                            Debug.LogWarning($"Invalid CompareType value: {param.Value}. Using default Equals.");
+                            SNILDebug.LogWarning($"Invalid CompareType value: {param.Value}. Using default Equals.");
                             SetFieldValue(compareNode, "_type", CompareType.Equals);
                         }
                         break;
                     default:
-                        Debug.LogWarning($"Unknown parameter for CompareIntegersNode: {param.Key}");
+                        SNILDebug.LogWarning($"Unknown parameter for CompareIntegersNode: {param.Key}");
                         break;
                 }
             }

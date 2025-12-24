@@ -122,14 +122,14 @@ namespace SNEngine.Editor.SNILSystem.ResourceFinder
                             else if (compatiblePaths.Count > 1)
                             {
                                 string compatiblePathsStr = string.Join(", ", compatiblePaths);
-                                Debug.LogError($"Multiple {resourceType.Name} assets found with name '{resourceName}': {compatiblePathsStr}. Please specify the full path.");
+                                SNILDebug.LogError($"Multiple {resourceType.Name} assets found with name '{resourceName}': {compatiblePathsStr}. Please specify the full path.");
                                 return null;
                             }
                         }
                         
                         // Если тип не указан или не нашли подходящие по типу
                         string allPathsStr = string.Join(", ", paths);
-                        Debug.LogError($"Multiple assets found with name '{resourceName}': {allPathsStr}. Please specify the full path.");
+                        SNILDebug.LogError($"Multiple assets found with name '{resourceName}': {allPathsStr}. Please specify the full path.");
                         return null;
                     }
                 }
@@ -137,7 +137,7 @@ namespace SNEngine.Editor.SNILSystem.ResourceFinder
 
             // Если ничего не найдено
             string typeStr = resourceType != null ? resourceType.Name : "asset";
-            Debug.LogWarning($"{typeStr} with name or path '{resourceName}' not found.");
+            SNILDebug.LogWarning($"{typeStr} with name or path '{resourceName}' not found.");
             return null;
         }
     }

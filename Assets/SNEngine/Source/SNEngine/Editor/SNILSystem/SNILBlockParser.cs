@@ -80,7 +80,7 @@ namespace SNEngine.Editor.SNILSystem
                     if (!IsBlockControlStatement(line))
                     {
                         // Log unknown instruction
-                        UnityEngine.Debug.LogWarning($"Unknown instruction: {line}");
+                        SNILDebug.LogWarning($"Unknown instruction: {line}");
                     }
                 }
             }

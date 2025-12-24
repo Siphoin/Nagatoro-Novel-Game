@@ -18,7 +18,7 @@ namespace SNEngine.Editor.SNILSystem.Importers
             Validators.SNILSyntaxValidator validator = new Validators.SNILSyntaxValidator();
             if (!validator.Validate(lines, out string errorMessage))
             {
-                Debug.LogError($"SNIL script validation failed: {errorMessage}");
+                SNILDebug.LogError($"SNIL script validation failed: {errorMessage}");
                 return;
             }
 

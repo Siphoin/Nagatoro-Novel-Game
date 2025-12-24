@@ -28,11 +28,11 @@ namespace SNEngine.Editor.SNILSystem
 
                 if (success)
                 {
-                    Debug.Log($"SNIL script imported successfully as '{graphName}'!");
+                    SNILDebug.Log($"SNIL script imported successfully as '{graphName}'!");
                 }
                 else
                 {
-                    Debug.LogError($"Failed to import SNIL script '{graphName}'. Check console for errors.");
+                    SNILDebug.LogError($"Failed to import SNIL script '{graphName}'. Check console for errors.");
                 }
             }
         }
