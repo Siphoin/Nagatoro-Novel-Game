@@ -33,7 +33,16 @@ namespace SNEngine.Editor.SNILSystem.NodeCreation
             if (displayName.EndsWith("Node"))
                 displayName = displayName.Substring(0, displayName.Length - 4);
 
+            // Нормализуем регистр: приводим к Title Case (Каждое слово с заглавной буквы)
+            displayName = System.Globalization.CultureInfo.InvariantCulture.TextInfo.ToTitleCase(displayName.ToLowerInvariant());
+
             return displayName;
+        }
+
+        public static string ToTitleCase(string input)
+        {
+            if (string.IsNullOrEmpty(input)) return input;
+            return System.Globalization.CultureInfo.InvariantCulture.TextInfo.ToTitleCase(input.ToLowerInvariant());
         }
     }
 }

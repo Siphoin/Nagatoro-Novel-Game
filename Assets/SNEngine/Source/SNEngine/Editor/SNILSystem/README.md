@@ -126,6 +126,62 @@ Nagatoro says How are you doing today?
 End
 ```
 
+## If Show Variants (block instruction)
+
+You can define a conditional branch based on a `Show Variants` node using an `If Show Variant` block. The block displays a set of options to the player and contains labeled sections (e.g., `True:`, `False:` or variant-name sections) with instruction bodies that execute for the selected option.
+
+Syntax examples:
+
+Simple form:
+```
+If Show Variant
+Variants:
+Option A
+Option B
+True:
+Print A
+False:
+Print B
+endif
+```
+
+With `End` inside branch bodies (allowed):
+```
+If Show Variant
+Variants:
+A
+B
+True:
+Nagatoro says (True default branch)
+End
+False:
+Nagatoro says (False default branch)
+End
+endif
+```
+
+Key details:
+- The `Variants:` header lists options (one per line). Extra identical names are permitted but may be confusing; prefer unique variant labels.
+- Labeled sections can be one of:
+  - `True:` / `False:` — maps to logical branches in the generated `If` node
+  - a variant name (e.g. `A:`) — maps to the branch that corresponds to that variant
+- The compiler will create nodes directly from the block via the instruction handler:
+  - `ShowVariantsNode` (with `_variants` applied from the list)
+  - a single `CompareIntegersNode` that compares `selectedIndex` to `0` (used to drive a single `If` split)
+  - an `IfNode` with `_true` and `_false` outputs wired to the parsed branch bodies
+- Branch bodies are created as node sequences; each branch receives its own independent sequence (no cross-branch wiring) and the first node of a branch is connected to the corresponding `If` output (`_true` or `_false`).
+- `End` inside a branch is supported: handlers will create `ExitNode` inside that branch when `End` appears in a branch body. `End` inside branches does not override the top-level script termination semantics.
+
+Validator notes:
+- The validator enforces that a script *as a whole* ends with a *top-level* `End` or `Jump To` instruction. However, the validator also accepts scripts that end with a top-level `If Show Variant` block **provided that every branch inside that block itself terminates with `End` or `Jump To`** (so you can place `End` inside `True:` / `False:` branches and omit a final top-level `End`).
+
+Implementation notes:
+- Block parsing for `If Show Variant` is handled by `IfShowVariantInstructionHandler` (it parses the `Variants:` list, creates the `ShowVariants` node, creates the `Compare` + `If` nodes, and then builds branch bodies using template matching and call handlers).
+- The legacy `SNILBlockParser` behavior has been deprecated and block instructions are now handled through `IBlockInstructionHandler` implementations.
+
+Examples and tests:
+- See `Assets/.../SNILSystem/Examples/test_if_show_variant.snil` for a minimal example demonstrating `End` inside branches and the generated structure.
+
 ## Adding New Node Types
 
 The system supports easy addition of new node types through the instruction handler architecture:

@@ -33,11 +33,13 @@ namespace SNEngine.Editor.SNILSystem.Validators
             var nameErrors = NameDirectiveValidator.ValidateNameDirective(lines);
             var functionErrors = FunctionValidator.ValidateFunctions(lines);
             var instructionErrors = InstructionValidator.ValidateInstructions(lines);
+            var ifBlockErrors = SNILIfShowVariantValidator.Validate(lines);
 
             // Собираем все ошибки
             errors.AddRange(nameErrors);
             errors.AddRange(functionErrors);
             errors.AddRange(instructionErrors);
+            errors.AddRange(ifBlockErrors);
 
             if (errors.Count > 0)
             {
@@ -72,6 +74,12 @@ namespace SNEngine.Editor.SNILSystem.Validators
         UnknownNode,
         InvalidJumpToFormat,
         InvalidFunctionDefinition,
-        FunctionNotClosed
+        FunctionNotClosed,
+
+        // If Show Variant block specific errors
+        IfMissingVariants,
+        IfMissingBranches,
+        IfMissingEnd,
+        IfEmptyBranchBody
     }
 }

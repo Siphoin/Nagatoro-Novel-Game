@@ -67,38 +67,21 @@ namespace SiphoinUnityHelpers.XNodeExtensions
         private void Build(IEnumerable<BaseNodeInteraction> nodes)
         {
             var allNodes = nodes.ToList();
-            var internalNodes = new HashSet<BaseNodeInteraction>();
+            var visited = new HashSet<BaseNodeInteraction>();
 
-            foreach (var node in allNodes)
+            _nodes.Clear();
+            _asyncNodes.Clear();
+            _exitNodes.Clear();
+
+            var roots = allNodes.Where(n => n is StartNode || (n.GetEnterPort() != null && !n.GetEnterPort().IsConnected));
+
+            foreach (var root in roots)
             {
-                if (node is NodeControlExecute)
-                {
-                    foreach (var port in node.Outputs)
-                    {
-                        if (port.fieldName == "_exit" || port.fieldName == "Exit") continue;
-
-                        var connections = port.GetConnections();
-                        foreach (var conn in connections)
-                        {
-                            var connectedNode = conn.node as BaseNodeInteraction;
-                            if (connectedNode != null)
-                            {
-                                CollectInternalChain(connectedNode, internalNodes);
-                            }
-                        }
-                    }
-                }
+                TraverseMainFlow(root, visited);
             }
 
             foreach (var node in allNodes)
             {
-                if (internalNodes.Contains(node)) continue;
-
-                var enterPort = node.GetEnterPort();
-                if (enterPort != null && !enterPort.IsConnected && !(node is StartNode)) continue;
-
-                _nodes.Add(node);
-
                 if (node is AsyncNode asyncNode)
                     _asyncNodes.Add(asyncNode);
 
@@ -117,17 +100,23 @@ namespace SiphoinUnityHelpers.XNodeExtensions
             XNodeExtensionsDebug.Log(stringBuilder.ToString());
         }
 
-        private void CollectInternalChain(BaseNodeInteraction node, HashSet<BaseNodeInteraction> visited)
+        private void TraverseMainFlow(BaseNodeInteraction node, HashSet<BaseNodeInteraction> visited)
         {
             if (node == null || visited.Contains(node)) return;
 
             visited.Add(node);
+            _nodes.Add(node);
 
             var exitPort = node.GetExitPort();
             if (exitPort != null && exitPort.IsConnected)
             {
-                var nextNode = exitPort.Connection.node as BaseNodeInteraction;
-                CollectInternalChain(nextNode, visited);
+                foreach (var connection in exitPort.GetConnections())
+                {
+                    if (connection.node is BaseNodeInteraction nextNode)
+                    {
+                        TraverseMainFlow(nextNode, visited);
+                    }
+                }
             }
         }
 

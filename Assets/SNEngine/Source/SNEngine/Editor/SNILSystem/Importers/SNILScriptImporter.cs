@@ -6,6 +6,8 @@ using SNEngine.Editor.SNILSystem.Parsers;
 using SNEngine.Editor.SNILSystem.Validators;
 using SNEngine.Editor.SNILSystem.FunctionSystem;
 using UnityEngine;
+using UnityEditor;
+using SNEngine.Graphs;
 
 namespace SNEngine.Editor.SNILSystem.Importers
 {
@@ -92,8 +94,17 @@ namespace SNEngine.Editor.SNILSystem.Importers
             var functions = SNILFunctionParser.ParseFunctions(lines);
             var mainScriptLines = SNILFunctionParser.ExtractMainScriptWithoutFunctions(lines).ToArray();
 
-            var functionInstructions = SNILScriptProcessor.ParseFunctionInstructions(functions);
-            var (mainInstructions, functionCallPositions, functionCallNames) = SNILScriptProcessor.ParseScriptWithFunctionCalls(mainScriptLines);
+            string assetPath = $"Assets/SNEngine/Source/SNEngine/Resources/Dialogues/{graphName}.asset";
+            DialogueGraph graph = AssetDatabase.LoadAssetAtPath<DialogueGraph>(assetPath);
+
+            if (graph == null)
+            {
+                SNILDebug.LogError($"Could not load graph: {assetPath}");
+                return;
+            }
+
+            var functionInstructions = SNILScriptProcessor.ParseFunctionInstructions(functions, graph);
+            var (mainInstructions, functionCallPositions, functionCallNames) = SNILScriptProcessor.ParseScriptWithFunctionCalls(mainScriptLines, graph);
 
             SNILScriptProcessor.ApplyInstructionsToGraph(graphName, mainInstructions, functionInstructions, functionCallPositions, functionCallNames);
         }

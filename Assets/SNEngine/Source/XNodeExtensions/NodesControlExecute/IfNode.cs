@@ -69,15 +69,12 @@ namespace SiphoinUnityHelpers.XNodeExtensions.NodesControlExecutes
         {
             var portTrue = GetOutputPort(nameof(_true));
             var portFalse = GetOutputPort(nameof(_false));
-            var conTrue = portTrue.GetConnections();
-            var conFalse = portFalse.GetConnections();
 
-            if (conTrue != null && conFalse == null) return conTrue.Contains(node.GetEnterPort());
-            if (conFalse != null && conTrue == null) return conFalse.Contains(node.GetEnterPort());
-            if (conFalse != null && conTrue != null)
-                return conFalse.Contains(node.GetEnterPort()) || conTrue.Contains(node.GetEnterPort());
+            HashSet<Node> branchNodes = new HashSet<Node>();
+            GetChildNodesRecursive(portTrue, branchNodes);
+            GetChildNodesRecursive(portFalse, branchNodes);
 
-            return false;
+            return branchNodes.Contains(node);
         }
     }
 }

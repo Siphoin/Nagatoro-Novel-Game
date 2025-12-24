@@ -5,87 +5,12 @@ using System.Text.RegularExpressions;
 
 namespace SNEngine.Editor.SNILSystem
 {
+    [System.Obsolete("SNILBlockParser is deprecated: block parsing is now handled by instruction handlers. This class remains only for compatibility and will throw when used.")]
     public class SNILBlockParser
     {
         public static List<SNILInstruction> ParseWithBlocks(string[] lines)
         {
-            // First, extract only the main script without functions (similar to the original function parser)
-            List<string> mainScriptLines = new List<string>();
-            bool inFunction = false;
-
-            for (int i = 0; i < lines.Length; i++)
-            {
-                string line = lines[i].Trim();
-
-                if (string.IsNullOrEmpty(line) || IsComment(line))
-                {
-                    continue;
-                }
-
-                if (line.StartsWith("function ", StringComparison.OrdinalIgnoreCase))
-                {
-                    inFunction = true;
-                    continue;
-                }
-
-                if (line.Equals("end", StringComparison.Ordinal) && inFunction)
-                {
-                    inFunction = false;
-                    continue;
-                }
-
-                if (!inFunction)
-                {
-                    mainScriptLines.Add(lines[i]);
-                }
-            }
-
-            // Now parse the main script with block support
-            List<SNILInstruction> instructions = new List<SNILInstruction>();
-            Dictionary<string, SNILTemplateInfo> templates = SNILTemplateManager.GetNodeTemplates();
-
-            for (int i = 0; i < mainScriptLines.Count; i++)
-            {
-                string line = mainScriptLines[i].Trim();
-
-                // Skip empty lines and comments
-                if (string.IsNullOrEmpty(line) || IsComment(line))
-                {
-                    continue;
-                }
-
-                // Skip name definition
-                if (line.StartsWith("name:", StringComparison.OrdinalIgnoreCase))
-                {
-                    continue;
-                }
-
-                // Handle IF blocks
-                if (IsIfStatement(line))
-                {
-                    var ifBlock = ParseIfBlock(mainScriptLines.ToArray(), ref i, templates);
-                    instructions.AddRange(ifBlock);
-                    continue; // Skip the increment since ParseIfBlock already updates i
-                }
-
-                // Handle other instructions normally
-                var instruction = MatchLineToTemplate(line, templates);
-                if (instruction != null)
-                {
-                    instructions.Add(instruction);
-                }
-                else
-                {
-                    // Handle special commands like ELIF, ELSE, ENDIF separately
-                    if (!IsBlockControlStatement(line))
-                    {
-                        // Log unknown instruction
-                        SNILDebug.LogWarning($"Unknown instruction: {line}");
-                    }
-                }
-            }
-
-            return instructions;
+            throw new NotSupportedException("SNILBlockParser has been removed. Use the instruction handler based parser (SNILScriptProcessor.ParseLinesToInstructions) instead.");
         }
 
         private static bool IsIfStatement(string line)

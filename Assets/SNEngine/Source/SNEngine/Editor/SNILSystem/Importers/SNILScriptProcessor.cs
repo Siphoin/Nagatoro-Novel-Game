@@ -6,6 +6,7 @@ using System.Text.RegularExpressions;
 using SNEngine.Graphs;
 using SNEngine.Editor.SNILSystem.FunctionSystem;
 using SNEngine.Editor.SNILSystem.Parsers;
+using SNEngine.Editor.SNILSystem.InstructionHandlers;
 using UnityEditor;
 using UnityEngine;
 
@@ -32,14 +33,14 @@ namespace SNEngine.Editor.SNILSystem.Importers
             var functions = SNILFunctionParser.ParseFunctions(lines);
             var mainScriptLines = SNILFunctionParser.ExtractMainScriptWithoutFunctions(lines).ToArray();
 
-            var functionInstructions = ParseFunctionInstructions(functions);
+            var functionInstructions = ParseFunctionInstructions(functions, graph);
 
-            var (mainInstructions, functionCallPositions, functionCallNames) = ParseScriptWithFunctionCalls(mainScriptLines);
+            var (mainInstructions, functionCallPositions, functionCallNames) = ParseScriptWithFunctionCalls(mainScriptLines, graph);
 
             ApplyInstructionsToGraph(graphName, mainInstructions, functionInstructions, functionCallPositions, functionCallNames);
         }
 
-        public static List<SNILInstruction> ParseFunctionInstructions(List<SNILFunction> functions)
+        public static List<SNILInstruction> ParseFunctionInstructions(List<SNILFunction> functions, DialogueGraph graph)
         {
             var functionInstructions = new List<SNILInstruction>();
 
@@ -57,7 +58,7 @@ namespace SNEngine.Editor.SNILSystem.Importers
                 functionInstructions.Add(groupCallsNodeInstruction);
 
                 // Создаем ноды для тела функции
-                var functionBodyInstructions = ParseScript(function.Body);
+                var functionBodyInstructions = ParseScript(function.Body, graph);
 
                 // Добавляем инструкции тела функции
                 foreach (var instruction in functionBodyInstructions)
@@ -69,78 +70,106 @@ namespace SNEngine.Editor.SNILSystem.Importers
             return functionInstructions;
         }
 
-        public static (List<SNILInstruction>, List<int>, List<string>) ParseScriptWithFunctionCalls(string[] lines)
+        public static (List<SNILInstruction>, List<int>, List<string>) ParseScriptWithFunctionCalls(string[] lines, DialogueGraph graph)
+        {
+            var (instructions, calls) = ParseLinesToInstructions(lines, graph);
+
+            var callPositions = new List<int>();
+            var callNames = new List<string>();
+
+            foreach (var c in calls)
+            {
+                callPositions.Add(c.position);
+                callNames.Add(c.name);
+            }
+
+            return (instructions, callPositions, callNames);
+        }
+
+        private static (List<SNILInstruction> instructions, List<(int position, string name)> calls) ParseLinesToInstructions(string[] lines, DialogueGraph graph)
         {
             var templates = SNILTemplateManager.GetNodeTemplates();
-            List<SNILInstruction> instructions = new List<SNILInstruction>();
-            List<int> functionCallPositions = new List<int>(); // Позиции вызовов функций в потоке
-            List<string> functionCallNames = new List<string>(); // Имена вызываемых функций
+            var handlerManager = InstructionHandlerManager.Instance;
+
+            var instructions = new List<SNILInstruction>();
+            var calls = new List<(int position, string name)>();
+
+            var context = new InstructionContext { Graph = graph };
 
             for (int i = 0; i < lines.Length; i++)
             {
-                string line = lines[i];
-                string trimmed = line.Trim();
+                var line = lines[i];
+                var trimmed = line.Trim();
+
                 if (string.IsNullOrEmpty(trimmed) || IsCommentLine(trimmed)) continue;
 
                 var nameMatch = Regex.Match(trimmed, @"^name:\s*(.+)", RegexOptions.IgnoreCase);
                 if (nameMatch.Success) continue;
 
-                // Пропускаем только определения функций и концы функций (не конец диалога)
+                // Skip function definitions and their 'end' markers
                 if (trimmed.StartsWith("function ", StringComparison.OrdinalIgnoreCase) ||
-                    trimmed.Equals("end", StringComparison.Ordinal)) // Только lowercase "end" для функций, не "End" для диалога
+                    trimmed.Equals("end", StringComparison.Ordinal))
                 {
                     continue;
                 }
 
-                // Обрабатываем вызовы функций
+                // Handle call lines directly and record their position
                 if (trimmed.StartsWith("call ", StringComparison.OrdinalIgnoreCase))
                 {
-                    string functionName = trimmed.Substring(5).Trim(); // "call ".Length = 5
-                    functionCallPositions.Add(instructions.Count); // Сохраняем позицию вызова функции
-                    functionCallNames.Add(functionName); // Сохраняем имя вызываемой функции
-                    continue; // Пропускаем создание ноды для вызова функции
+                    var functionName = trimmed.Substring(5).Trim();
+                    calls.Add((instructions.Count, functionName));
+                    continue;
                 }
 
-                // For now, use the simple parser for non-block instructions
-                // The block parser handles IF-ELSE-ENDIF structures
-                var instruction = MatchLineToTemplate(trimmed, templates);
-                if (instruction != null)
+                // Check if there's a registered handler for this instruction
+                var handler = handlerManager.GetHandlerForInstruction(trimmed);
+                if (handler != null && handler is IBlockInstructionHandler blockHandler)
                 {
-                    instructions.Add(instruction);
+                    var res = blockHandler.HandleBlock(lines, ref i, context);
+                    if (!res.Success)
+                    {
+                        SNILDebug.LogError(res.ErrorMessage);
+                        continue;
+                    }
+
+                    // If the block handler returned a BlockHandlerResult, integrate the instructions and function calls
+                    if (res.Data is BlockHandlerResult bhr)
+                    {
+                        foreach (var fc in bhr.FunctionCalls)
+                        {
+                            calls.Add((instructions.Count + fc.RelativeInstructionIndex, fc.FunctionName));
+                        }
+
+                        instructions.AddRange(bhr.Instructions);
+                    }
+                    else
+                    {
+                        // If handler succeeded but returned no data, assume it created nodes directly in the graph and updated context.Nodes
+                        SNILDebug.Log("Block handler created nodes directly in the graph.");
+                    }
+
+                    continue; // Block handler advances i by reference
+                }
+
+                // Fallback: try to match to templates
+                var matchedInstruction = MatchLineToTemplate(trimmed, templates);
+                if (matchedInstruction != null)
+                {
+                    instructions.Add(matchedInstruction);
+                }
+                else
+                {
+                    SNILDebug.LogWarning($"Unrecognized instruction: {trimmed}");
                 }
             }
 
-            // For a more complete implementation, we would need to integrate function call handling into the block parser
-            // For now, we'll use the block parser for the main logic
-            var blockInstructions = SNILBlockParser.ParseWithBlocks(lines);
-
-            // We need to filter out function calls from the block parser and track their positions and names
-            var filteredInstructions = new List<SNILInstruction>();
-            var updatedFunctionCallPositions = new List<int>();
-            var updatedFunctionCallNames = new List<string>();
-
-            for (int i = 0; i < lines.Length; i++)
-            {
-                string line = lines[i];
-                string trimmed = line.Trim();
-
-                if (trimmed.StartsWith("call ", StringComparison.OrdinalIgnoreCase))
-                {
-                    string functionName = trimmed.Substring(5).Trim();
-                    updatedFunctionCallPositions.Add(filteredInstructions.Count);
-                    updatedFunctionCallNames.Add(functionName);
-                }
-            }
-
-            // Since the block parser handles all instructions including nested ones,
-            // we'll return the block parser results
-            return (blockInstructions, updatedFunctionCallPositions, updatedFunctionCallNames);
+            return (instructions, calls);
         }
 
-        private static List<SNILInstruction> ParseScript(string[] lines)
+        private static List<SNILInstruction> ParseScript(string[] lines, DialogueGraph graph)
         {
-            // Use the new block parser to handle IF-ELSE-ENDIF structures
-            return SNILBlockParser.ParseWithBlocks(lines);
+            var (instructions, calls) = ParseLinesToInstructions(lines, graph);
+            return instructions;
         }
 
         public static string ExtractGraphName(string[] lines)

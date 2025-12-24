@@ -20,7 +20,13 @@ namespace SNEngine.Editor.SNILSystem.NodeCreation
             for (int i = 0; i < mainInstructions.Count; i++)
             {
                 var inst = mainInstructions[i];
-                if (inst.NodeType == null) continue;
+                if (inst.NodeType == null)
+                {
+                    SNILDebug.LogWarning($"Skipping instruction: {inst.NodeTypeName} - NodeType not resolved. Parameters: {string.Join(", ", inst.Parameters?.Select(kv => kv.Key + "=" + kv.Value) ?? new string[0])}");
+                    continue;
+                }
+
+                SNILDebug.Log($"Creating node: {inst.NodeTypeName} ({inst.NodeType?.Name ?? "<null>"})");
 
                 BaseNode node = graph.AddNode(inst.NodeType) as BaseNode;
 

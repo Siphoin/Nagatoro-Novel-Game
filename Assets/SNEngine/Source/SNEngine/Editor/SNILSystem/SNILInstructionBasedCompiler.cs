@@ -109,22 +109,42 @@ namespace SNEngine.Editor.SNILSystem
             List<string> errorMessages = new List<string>();
 
             // Обрабатываем основной скрипт (после регистрации функций)
-            foreach (string line in mainScriptLines)
+            for (int i = 0; i < mainScriptLines.Length; i++)
             {
+                string line = mainScriptLines[i];
                 string trimmedLine = line.Trim();
 
                 if (string.IsNullOrEmpty(trimmedLine) || IsCommentLine(trimmedLine))
                     continue;
 
-                // Используем менеджер обработчиков для обработки инструкции
-                var result = InstructionHandlerManager.Instance.ProcessInstruction(trimmedLine, context);
+                // Проверяем, является ли инструкция блочной (например, If Show Variant)
+                var handler = InstructionHandlerManager.Instance.GetHandlerForInstruction(trimmedLine);
 
-                if (!result.Success)
+                // Check if it's the IfShowVariantInstructionHandler that can handle block instructions
+                if (handler is IfShowVariantInstructionHandler blockHandler)
                 {
-                    string errorMsg = $"Failed to process instruction '{trimmedLine}': {result.ErrorMessage}";
-                    SNILDebug.LogError(errorMsg);
-                    errorMessages.Add(errorMsg);
-                    hasProcessingErrors = true;
+                    // Process the entire block using the special method
+                    var result = blockHandler.HandleBlock(mainScriptLines, ref i, context);
+                    if (!result.Success)
+                    {
+                        string errorMsg = $"Failed to process block instruction '{trimmedLine}': {result.ErrorMessage}";
+                        SNILDebug.LogError(errorMsg);
+                        errorMessages.Add(errorMsg);
+                        hasProcessingErrors = true;
+                    }
+                }
+                else
+                {
+                    // Используем менеджер обработчиков для обработки обычной инструкции
+                    var result = InstructionHandlerManager.Instance.ProcessInstruction(trimmedLine, context);
+
+                    if (!result.Success)
+                    {
+                        string errorMsg = $"Failed to process instruction '{trimmedLine}': {result.ErrorMessage}";
+                        SNILDebug.LogError(errorMsg);
+                        errorMessages.Add(errorMsg);
+                        hasProcessingErrors = true;
+                    }
                 }
             }
 

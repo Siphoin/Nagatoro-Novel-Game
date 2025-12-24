@@ -36,8 +36,9 @@ namespace SNEngine.Editor.SNILSystem.Validators
                 }
                 else if (trimmedLine.Equals("End", System.StringComparison.OrdinalIgnoreCase))
                 {
-                    // Проверяем, что это последняя значимая строка
-                    if (!IsLastSignificantLine(mainScriptLines, i))
+                    // Allow 'End' inside blocks (e.g., inside If Show Variant branches). Only enforce 'End' to be last
+                    // when it's a top-level script terminator.
+                    if (!IsLineInsideBlock(mainScriptLines, i) && !IsLastSignificantLine(mainScriptLines, i))
                     {
                         errors.Add(new SNILValidationError
                         {
@@ -104,6 +105,62 @@ namespace SNEngine.Editor.SNILSystem.Validators
                 }
             }
 
+            // Ensure the top-level script ends with an End or Jump To (End inside blocks is allowed)
+            int lastSignificantIdx = -1;
+            for (int i = mainScriptLines.Length - 1; i >= 0; i--)
+            {
+                var t = mainScriptLines[i].Trim();
+                if (!string.IsNullOrEmpty(t) && !IsCommentLine(t))
+                {
+                    lastSignificantIdx = i;
+                    break;
+                }
+            }
+
+            if (lastSignificantIdx == -1)
+            {
+                errors.Add(new SNILValidationError
+                {
+                    LineNumber = 0,
+                    LineContent = "",
+                    ErrorType = SNILValidationErrorType.NoContent,
+                    Message = "Script contains no content."
+                });
+            }
+            else
+            {
+                var lastTrim = mainScriptLines[lastSignificantIdx].Trim();
+                bool ok = false;
+                if (lastTrim.StartsWith("Jump To ", StringComparison.OrdinalIgnoreCase)) ok = true;
+                if (lastTrim.Equals("End", StringComparison.OrdinalIgnoreCase) && !IsLineInsideBlock(mainScriptLines, lastSignificantIdx)) ok = true;
+
+                if (!ok)
+                {
+                    // If the script ends with a top-level 'If Show Variant' block that itself guarantees termination
+                    // (all its branches end with 'End' or 'Jump To'), consider it valid.
+                    if (lastTrim.Equals("endif", StringComparison.OrdinalIgnoreCase))
+                    {
+                        int ifStartIdx = FindMatchingIfStart(mainScriptLines, lastSignificantIdx);
+                        if (ifStartIdx >= 0 && IsIfBlockTerminating(mainScriptLines, ifStartIdx, lastSignificantIdx))
+                        {
+                            ok = true;
+                        }
+                    }
+                }
+
+                if (!ok)
+                {
+                    int originalLineIndex = GetOriginalLineIndex(lines, mainScriptLines[lastSignificantIdx], 0);
+                    errors.Add(new SNILValidationError
+                    {
+                        LineNumber = originalLineIndex + 1,
+                        LineContent = mainScriptLines[lastSignificantIdx].Trim(),
+                        ErrorType = SNILValidationErrorType.InvalidEnd,
+                        Message = "Script must end with a top-level 'End' or 'Jump To' instruction."
+                    });
+                }
+            }
+
             return errors;
         }
 
@@ -136,6 +193,116 @@ namespace SNEngine.Editor.SNILSystem.Validators
                 }
             }
             return startIndex; // fallback
+        }
+
+        private static bool IsLineInsideBlock(string[] lines, int index)
+        {
+            // Simple block stack: increment on encountering a block start (e.g. "If Show Variant"), decrement on "endif"
+            int open = 0;
+            for (int i = 0; i <= index; i++)
+            {
+                var t = lines[i].Trim();
+                if (t.Equals("If Show Variant", StringComparison.OrdinalIgnoreCase)) open++;
+                if (t.Equals("endif", StringComparison.OrdinalIgnoreCase) && open > 0) open--;
+            }
+            return open > 0;
+        }
+
+        private static int FindMatchingIfStart(string[] lines, int endifIndex)
+        {
+            int depth = 0;
+            for (int i = endifIndex; i >= 0; i--)
+            {
+                var t = lines[i].Trim();
+                if (t.Equals("endif", StringComparison.OrdinalIgnoreCase))
+                {
+                    depth++;
+                }
+                else if (t.Equals("If Show Variant", StringComparison.OrdinalIgnoreCase))
+                {
+                    depth--;
+                    if (depth == 0) return i;
+                }
+            }
+
+            return -1; // not found
+        }
+
+        private static bool IsIfBlockTerminating(string[] lines, int ifStart, int endifIndex)
+        {
+            // We consider the block terminating if every branch present (True/False or variant-named sections) ends with 'End' or 'Jump To'
+            var branches = new List<(int start, int end)>();
+            int i = ifStart + 1;
+            // Skip Variants: section
+            while (i < endifIndex && (string.IsNullOrWhiteSpace(lines[i]) || lines[i].TrimStart().StartsWith("//") || lines[i].TrimStart().StartsWith("#"))) i++;
+            if (i < endifIndex && lines[i].Trim().StartsWith("Variants", StringComparison.OrdinalIgnoreCase))
+            {
+                i++; // skip header
+                while (i < endifIndex)
+                {
+                    var t = lines[i].Trim();
+                    if (string.IsNullOrEmpty(t) || t.StartsWith("//") || t.StartsWith("#")) { i++; continue; }
+                    if (t.EndsWith(":")) break; // next section header
+                    i++;
+                }
+            }
+
+            // Now collect sections until endif
+            while (i < endifIndex)
+            {
+                var t = lines[i].Trim();
+                if (string.IsNullOrEmpty(t) || t.StartsWith("//") || t.StartsWith("#")) { i++; continue; }
+                if (t.EndsWith(":"))
+                {
+                    int sectionStart = i + 1;
+                    var header = t.Substring(0, t.Length - 1).Trim();
+                    // collect until next header or endif
+                    int j = sectionStart;
+                    int nestedIf = 0;
+                    int lastSignificant = -1;
+                    while (j < endifIndex)
+                    {
+                        var line = lines[j].Trim();
+                        if (line.Equals("If Show Variant", StringComparison.OrdinalIgnoreCase)) { nestedIf++; }
+                        else if (line.Equals("endif", StringComparison.OrdinalIgnoreCase))
+                        {
+                            if (nestedIf > 0) { nestedIf--; }
+                            else break; // this would be handled by outer loop
+                        }
+
+                        if (nestedIf == 0 && !string.IsNullOrEmpty(line) && !line.StartsWith("//") && !line.StartsWith("#") && !line.EndsWith(":"))
+                        {
+                            lastSignificant = j;
+                        }
+
+                        // stop when we see next section header at nesting 0
+                        if (nestedIf == 0 && j + 1 < endifIndex && lines[j + 1].Trim().EndsWith(":")) { j++; break; }
+
+                        j++;
+                    }
+
+                    if (lastSignificant == -1)
+                    {
+                        // empty branch -> not terminating
+                        return false;
+                    }
+
+                    var last = lines[lastSignificant].Trim();
+                    if (!(last.Equals("End", StringComparison.OrdinalIgnoreCase) || last.StartsWith("Jump To ", StringComparison.OrdinalIgnoreCase)))
+                    {
+                        return false; // branch doesn't end properly
+                    }
+
+                    i = j + 1;
+                    continue;
+                }
+
+                // Unexpected lines between sections - skip
+                i++;
+            }
+
+            // all branches checked
+            return true;
         }
     }
 }
