@@ -13,17 +13,17 @@ namespace SNEngine.Editor.SNILSystem
 {
     public class SNILInstructionBasedCompiler
     {
-        public static void CompileScript(string filePath)
+        public static bool CompileScript(string filePath)
         {
-            CompileScriptInternal(filePath, true);
+            return CompileScriptInternal(filePath, true);
         }
 
-        public static void CompileScriptWithoutPostProcessing(string filePath)
+        public static bool CompileScriptWithoutPostProcessing(string filePath)
         {
-            CompileScriptInternal(filePath, false);
+            return CompileScriptInternal(filePath, false);
         }
 
-        private static void CompileScriptInternal(string filePath, bool doPostProcessing)
+        private static bool CompileScriptInternal(string filePath, bool doPostProcessing)
         {
             try
             {
@@ -32,7 +32,7 @@ namespace SNEngine.Editor.SNILSystem
                 if (!File.Exists(filePath))
                 {
                     Debug.LogError($"File not found: {filePath}");
-                    return;
+                    return false;
                 }
 
                 // Reload templates to ensure latest changes are used
@@ -40,44 +40,53 @@ namespace SNEngine.Editor.SNILSystem
 
                 List<string[]> scriptParts = SNILMultiScriptParser.ParseMultiScript(filePath);
 
+                bool allSuccessful = true;
                 if (scriptParts.Count > 1)
                 {
-                    CompileMultiScript(scriptParts);
+                    allSuccessful = CompileMultiScript(scriptParts);
                 }
                 else
                 {
-                    CompileSingleScript(scriptParts[0]);
+                    allSuccessful = CompileSingleScript(scriptParts[0]);
                 }
 
-                if (doPostProcessing)
+                if (allSuccessful && doPostProcessing)
                 {
                     SNILPostProcessor.ProcessAllReferences();
                 }
+
+                return allSuccessful;
             }
             catch (Exception e)
             {
                 Debug.LogError($"Compilation failed: {e.Message}\n{e.StackTrace}");
+                return false;
             }
         }
 
-        private static void CompileMultiScript(List<string[]> scriptParts)
+        private static bool CompileMultiScript(List<string[]> scriptParts)
         {
+            bool allSuccessful = true;
             foreach (string[] part in scriptParts)
             {
-                CompileSingleScript(part);
+                if (!CompileSingleScript(part))
+                {
+                    allSuccessful = false;
+                }
             }
+            return allSuccessful;
         }
 
-        private static void CompileSingleScript(string[] lines)
+        private static bool CompileSingleScript(string[] lines)
         {
-            if (lines.Length == 0) return;
+            if (lines.Length == 0) return true;
 
             // Валидация
             Validators.SNILSyntaxValidator validator = new Validators.SNILSyntaxValidator();
             if (!validator.Validate(lines, out string errorMessage))
             {
                 Debug.LogError($"SNIL script validation failed: {errorMessage}");
-                return;
+                return false;
             }
 
             // Извлекаем функции и основной скрипт один раз
@@ -123,7 +132,7 @@ namespace SNEngine.Editor.SNILSystem
             if (hasProcessingErrors)
             {
                 Debug.LogError($"Script processing failed with the following errors:\n{string.Join("\n", errorMessages)}");
-                return;
+                return false;
             }
 
             // После обработки всех инструкций, соединяем ноды последовательно
@@ -132,6 +141,8 @@ namespace SNEngine.Editor.SNILSystem
                 var dialogueGraph = (DialogueGraph)context.Graph;
                 NodeConnectionUtility.ConnectNodesSequentially(dialogueGraph, context.Nodes);
             }
+
+            return true;
         }
 
         private static bool IsCommentLine(string line)

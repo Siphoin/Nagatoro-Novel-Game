@@ -13,16 +13,7 @@ namespace SNEngine.Editor.SNILSystem
         public static bool ImportScript(string filePath)
         {
             // Используем новую систему обработчиков инструкций
-            try
-            {
-                SNILInstructionBasedCompiler.CompileScript(filePath);
-                return true;
-            }
-            catch (System.Exception ex)
-            {
-                Debug.LogError($"Import failed with exception: {ex.Message}");
-                return false;
-            }
+            return SNILInstructionBasedCompiler.CompileScript(filePath);
         }
 
         public static bool ValidateScript(string filePath, out List<SNILValidationError> errors)
@@ -32,16 +23,7 @@ namespace SNEngine.Editor.SNILSystem
 
         public static bool ImportScriptWithoutPostProcessing(string filePath)
         {
-            try
-            {
-                SNILInstructionBasedCompiler.CompileScriptWithoutPostProcessing(filePath);
-                return true;
-            }
-            catch (System.Exception ex)
-            {
-                Debug.LogError($"Import without post-processing failed with exception: {ex.Message}");
-                return false;
-            }
+            return SNILInstructionBasedCompiler.CompileScriptWithoutPostProcessing(filePath);
         }
 
         public static List<string> GetAllGraphNamesInFile(string filePath)
@@ -65,27 +47,19 @@ namespace SNEngine.Editor.SNILSystem
 
         public static bool ProcessAllGraphsInFile(string filePath)
         {
-            try
-            {
-                var scriptParts = SNILMultiScriptParser.ParseMultiScript(filePath);
-                bool allSuccessful = true;
+            var scriptParts = SNILMultiScriptParser.ParseMultiScript(filePath);
+            bool allSuccessful = true;
 
-                foreach (string[] part in scriptParts)
+            foreach (string[] part in scriptParts)
+            {
+                // Используем новую систему обработчиков инструкций
+                if (!ProcessSingleScriptPart(part))
                 {
-                    // Используем новую систему обработчиков инструкций
-                    if (!ProcessSingleScriptPart(part))
-                    {
-                        allSuccessful = false;
-                    }
+                    allSuccessful = false;
                 }
+            }
 
-                return allSuccessful;
-            }
-            catch (System.Exception ex)
-            {
-                Debug.LogError($"Process all graphs failed with exception: {ex.Message}");
-                return false;
-            }
+            return allSuccessful;
         }
 
         private static bool ProcessSingleScriptPart(string[] lines)
