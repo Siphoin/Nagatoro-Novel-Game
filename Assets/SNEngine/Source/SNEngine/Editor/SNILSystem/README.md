@@ -2,22 +2,108 @@
 
 ## Overview
 
-The SNIL (Script Novel Intermediate Language) system is a powerful text-based scripting solution for creating visual novel dialogues in Unity. It allows developers to define complex dialogue flows using simple text-based scripts that are automatically converted into node-based dialogue graphs.
+The SNIL (Script Novel Intermediate Language) system is a powerful, modular text-based scripting solution for creating visual novel dialogues in Unity. It allows developers to define complex dialogue flows using simple text-based scripts that are automatically converted into node-based dialogue graphs through a plugin-based architecture.
 
 ## Key Features
 
+- **Modular Architecture**: Plugin-based instruction handling system with dedicated validators and processors
 - **Text-based dialogue scripting**: Write dialogues using simple, readable text files
 - **Node-based execution**: Automatically converts text scripts to Unity node graphs
 - **Flexible parameter system**: Supports complex parameter passing to nodes
 - **Resource management**: Built-in system for handling characters, backgrounds, and assets
 - **Multi-script support**: Create multiple dialogues in a single file
 - **Function system**: Reusable code blocks for common operations
-- **Validation**: Comprehensive error checking with detailed messages
+- **Comprehensive validation**: Detailed error checking with multiple validation layers
+- **Extensible design**: Easy to add new node types and instruction handlers
 
-## File Structure
+## Architecture
 
-The SNIL system stores dialogue assets in:
-- `Assets/SNEngine/Source/SNEngine/Resources/Dialogues/` - Compiled dialogue graphs
+The SNIL system follows a modular, plugin-based architecture:
+
+### Core Components
+
+#### 1. Instruction Handler System
+The system uses a dynamic instruction handler architecture:
+- `IInstructionHandler` interface for all instruction handlers
+- `InstructionHandlerManager` for registering and managing handlers
+- Dedicated handlers for different instruction types:
+  - `NameInstructionHandler` - handles `name:` directives
+  - `StartInstructionHandler` - creates Start nodes
+  - `EndInstructionHandler` - creates End nodes
+  - `FunctionDefinitionInstructionHandler` - handles function definitions
+  - `FunctionEndInstructionHandler` - handles function endings
+  - `CallInstructionHandler` - handles function calls
+  - `GenericNodeInstructionHandler` - handles template-based nodes
+
+#### 2. Validation System
+Multi-layered validation architecture:
+- `SNILSyntaxValidator` - main validation coordinator
+- `EmptyFileValidator` - checks for empty/null files
+- `NameDirectiveValidator` - validates `name:` directive and structure
+- `FunctionValidator` - validates function definitions and structure
+- `InstructionValidator` - validates individual instructions against templates
+- `InstructionValidatorManager` - manages specialized validators
+
+#### 3. Compilation System
+- `SNILInstructionBasedCompiler` - main compilation engine
+- `SNILCompiler` - high-level interface
+- Modular compilation with error propagation
+- Validation occurs before processing
+
+#### 4. Node Connection System
+- `NodeConnectionUtility` - handles sequential node connections
+- Automatic `_enter` and `_exit` port connections
+- Proper function body connection through `_operations` port
+
+### File Organization
+
+```
+SNILSystem/
+├── FunctionSystem/           # Function parsing and handling
+├── Importers/               # Script import logic
+│   ├── SNILScriptImporter.cs
+│   ├── SNILGraphCreator.cs
+│   ├── SNILScriptProcessor.cs
+│   └── SNILScriptValidator.cs
+├── InstructionHandlers/     # Instruction handling system
+│   ├── IInstructionHandler.cs
+│   ├── BaseInstructionHandler.cs
+│   ├── NameInstructionHandler.cs
+│   ├── StartInstructionHandler.cs
+│   ├── EndInstructionHandler.cs
+│   ├── FunctionDefinitionInstructionHandler.cs
+│   ├── FunctionEndInstructionHandler.cs
+│   ├── CallInstructionHandler.cs
+│   ├── GenericNodeInstructionHandler.cs
+│   ├── FunctionBodyCreator.cs
+│   └── InstructionHandlerManager.cs
+├── NodeCreation/            # Node creation logic
+│   ├── NodeCreator.cs
+│   ├── NodePositioner.cs
+│   ├── NodeConnector.cs
+│   └── NodeFormatter.cs
+├── Parsers/                 # Script parsing
+├── ResourceFinder/          # Asset finding utilities
+├── Utilities/              # General utilities
+│   ├── SNILParameterApplier.cs
+│   ├── SNILTypeResolver.cs
+│   ├── SNILTemplateMatcher.cs
+│   └── SNILTemplateManager.cs
+├── Validators/             # Validation system
+│   ├── IInstructionValidator.cs
+│   ├── BaseInstructionValidator.cs
+│   ├── TemplateBasedInstructionValidator.cs
+│   ├── InstructionValidatorManager.cs
+│   ├── EmptyFileValidator.cs
+│   ├── NameDirectiveValidator.cs
+│   ├── FunctionValidator.cs
+│   ├── InstructionValidator.cs
+│   ├── ScriptLineExtractor.cs
+│   └── SNILSyntaxValidator.cs
+├── Workers/                # Node worker system
+├── SNILCompiler.cs         # Main compiler interface
+└── SNILInstructionBasedCompiler.cs  # Core compilation engine
+```
 
 ## Basic Script Structure
 
@@ -40,108 +126,77 @@ Nagatoro says How are you doing today?
 End
 ```
 
-## Creating New Nodes
+## Adding New Node Types
 
-To add new node types to the SNIL system, you need to create three components:
+The system supports easy addition of new node types through the instruction handler architecture:
 
-### Step 1: Create Unity Node Class
+### Step 1: Create Instruction Handler
 
-First, create your Unity node class that inherits from one of the base node classes:
+Create a new handler that implements `IInstructionHandler`:
 
 ```csharp
-using SiphoinUnityHelpers.XNodeExtensions;
-using UnityEngine;
-
-namespace YourNamespace
+public class CustomInstructionHandler : BaseInstructionHandler
 {
-    public class CustomNode : BaseNodeInteraction
+    public override bool CanHandle(string instruction)
     {
-        [SerializeField] private string _message;
-        [SerializeField] private int _value;
-
-        public override void Execute()
-        {
-            // Implement your node logic here
-            SNILDebug.Log($"Custom node executed: {_message} with value {_value}");
-        }
+        // Check if this handler can process the instruction
+        return instruction.StartsWith("CustomCommand", StringComparison.OrdinalIgnoreCase);
     }
-}
-```
 
-Your node class should inherit from:
-- `BaseNodeInteraction` - for nodes that can connect to other nodes
-- `BaseNode` - for basic nodes
-- `AsyncNode` - for nodes that take time to execute
-- Or other specialized base classes
-
-### Step 2: Create SNIL Template File
-
-Create a template file with the `.snil` extension:
-
-```
-// Assets/SNEngine/Source/SNEngine/Editor/SNIL/CustomNode.cs.snil
-{_message} with value {_value}
-worker:CustomNodeWorker
-```
-
-The template should:
-- Contain parameter placeholders in curly braces `{parameter_name}` or square brackets `[parameter_name]`
-- Optionally specify a worker class with the `worker:` directive
-- Use descriptive parameter names that match your node's field names
-
-### Step 3: Create SNIL Worker Class (Optional but Recommended)
-
-Create a worker class to handle parameter assignment:
-
-```csharp
-// Assets/SNEngine/Editor/SNILSystem/Workers/CustomNodeWorker.cs
-using System.Collections.Generic;
-using SiphoinUnityHelpers.XNodeExtensions;
-using SNEngine.Editor.SNILSystem.Workers;
-
-namespace SNEngine.Editor.SNILSystem.Workers
-{
-    public class CustomNodeWorker : SNILWorker
+    public override InstructionResult Handle(string instruction, InstructionContext context)
     {
-        public override void ApplyParameters(BaseNode node, Dictionary<string, string> parameters)
+        // Create and configure the node
+        if (context.Graph == null)
         {
-            // Custom parameter assignment logic
-            // This method will be called to set parameters on your node
-            foreach (var kvp in parameters)
+            return InstructionResult.Error("Graph not initialized.");
+        }
+
+        var dialogueGraph = (DialogueGraph)context.Graph;
+        var nodeType = SNILTypeResolver.GetNodeType("CustomNode");
+        
+        if (nodeType != null)
+        {
+            var node = dialogueGraph.AddNode(nodeType) as BaseNode;
+            if (node != null)
             {
-                var field = node.GetType().GetField(kvp.Key);
-                if (field != null)
-                {
-                    // Convert and assign the value
-                    var value = ConvertValue(kvp.Value, field.FieldType);
-                    field.SetValue(node, value);
-                }
+                // Configure the node
+                node.name = "Custom";
+                node.position = new Vector2(context.Nodes.Count * 250, 0);
+
+                // Apply parameters
+                var parameters = ParseParameters(instruction);
+                SNILParameterApplier.ApplyParametersToNode(node, parameters, "CustomNode");
+
+                // Add to context
+                context.Nodes.Add(node);
+                NodeConnectionUtility.ConnectNodeToLast(dialogueGraph, node, context);
+
+                return InstructionResult.Ok(node);
             }
         }
 
-        private object ConvertValue(string value, System.Type targetType)
-        {
-            // Convert string value to target type
-            if (targetType == typeof(string)) return value;
-            if (targetType == typeof(int)) return int.Parse(value);
-            // Add more type conversions as needed
-            return value;
-        }
+        return InstructionResult.Error("Failed to create CustomNode.");
     }
 }
 ```
 
-If you don't create a custom worker, the system will use `GenericNodeWorker` which applies parameters via reflection.
+### Step 2: Register the Handler
 
-### Step 4: Use Your New Node
+Register your handler with the manager:
 
-Now you can use your new node in SNIL scripts:
+```csharp
+// In InstructionHandlerManager.RegisterDefaultHandlers()
+RegisterHandler(new CustomInstructionHandler());
+```
+
+### Step 3: Use Your New Node
+
+Now you can use your new instruction in SNIL scripts:
 
 ```
 name: MyDialogue
 Start
-Nagatoro says Hello!
-CustomNode says "This is custom" with value 42
+CustomCommand parameter1=value1 parameter2=value2
 End
 ```
 
@@ -164,93 +219,27 @@ End
 Jump To [dialogue name]
 ```
 
-## Character System Nodes
+## Function System
 
-The system includes special support for character management:
+The system supports functions with proper body creation and connection:
 
-### Show Character Node
-Shows a character with a specific emotion:
-
-**Template** (`ShowCharacterNode.cs.snil`):
+### Defining Functions
 ```
-Show {_character} with emotion {_emotion}
-worker:ShowCharacterNodeWorker
+function functionName
+// function body with SNIL commands
+end
 ```
 
-**Usage in SNIL script**:
+### Calling Functions
 ```
-name: CharacterExample
-Start
-Show Nagatoro with emotion Happy
-Nagatoro says Hello!
-End
+call functionName
 ```
 
-### Hide Character Node
-Hides a character:
-
-**Template** (`HideCharacterNode.cs.snil`):
-```
-Hide {_character}
-worker:HideCharacterNodeWorker
-```
-
-**Usage in SNIL script**:
-```
-name: CharacterHideExample
-Start
-Show Nagatoro with emotion Happy
-Nagatoro says Hello!
-Hide Nagatoro
-End
-```
-
-## Background System Nodes
-
-The system includes support for background management:
-
-### Show Background Node
-Sets a background image:
-
-**Template** (`SetBackgroundNode.cs.snil`):
-```
-Show Background {_background}
-worker:SetBackgroundNodeWorker
-```
-
-The `_background` parameter can be:
-- Just the filename (e.g., `beachBackground`) - searches for the asset by name
-- Full path (e.g., `SNEngine/Demo/Sprites/beachBackground.png`) - uses exact path
-
-If multiple assets have the same name, specify the full path or you'll get an error.
-
-**Usage in SNIL script**:
-```
-name: BackgroundExample
-Start
-Show Background beachBackground
-Nagatoro says Nice view!
-End
-```
-
-### Clear Background Node
-Clears the current background:
-
-**Template** (`ClearBackgroundNode.cs.snil`):
-```
-Clear Background
-worker:ClearBackgroundNodeWorker
-```
-
-**Usage in SNIL script**:
-```
-name: ClearBackgroundExample
-Start
-Show Background beachBackground
-Nagatoro says Beautiful place!
-Clear Background
-End
-```
+### Function Body Processing
+- Functions create `GroupCallsNode` for the function call
+- Function bodies are created as connected nodes within the function
+- Proper Y-axis positioning above main flow
+- Connection through `_operations` port to function body
 
 ## Multi-Script Support
 
@@ -270,310 +259,63 @@ Player says Hi back!
 End
 ```
 
-## Comments
+## Validation Architecture
 
-You can add comments using `//` or `#`:
+The system uses a multi-layered validation approach:
 
-```
-# This is a comment
-name: CommentedScript
-Start
-// This is also a comment
-Nagatoro says Hello!
-End
-```
+1. **Empty File Validation**: Checks for null/empty input
+2. **Name Directive Validation**: Ensures proper script structure
+3. **Function Validation**: Validates function definitions
+4. **Instruction Validation**: Validates individual instructions against templates
+5. **Template-Based Validation**: Checks against registered node templates
 
-## Function System
+Each validation layer can fail independently, stopping the import process and providing detailed error messages.
 
-The system supports functions similar to JavaScript, allowing you to group related operations:
+## Error Handling
 
-### Defining Functions
+The system provides comprehensive error handling:
+- Detailed error messages with line numbers
+- Multiple error reporting (doesn't stop at first error)
+- Proper error propagation through the compilation pipeline
+- Clear distinction between validation and runtime errors
 
-**Syntax**:
-```
-function functionName
-// function body with SNIL commands
-end
-```
+## Import Process Flow
 
-**Example**:
-```
-function greetNagatoro
-Nagatoro says Hi there!
-Player says Hello Nagatoro!
-end
-```
-
-### Calling Functions
-
-Use the `call` keyword to execute a function:
-
-**Syntax**:
-```
-call functionName
-```
-
-**Usage in SNIL script**:
-```
-name: FunctionExample
-Start
-Show Background beachBackground
-call greetNagatoro
-Jump To nextDialogue
-
-function greetNagatoro
-Nagatoro says Hi there!
-Player says Hello Nagatoro!
-end
-```
-
-**Alternative - Dialogue with functions that ends**:
-```
-name: FunctionExampleWithEnd
-Start
-Show Background beachBackground
-call greetNagatoro
-Nagatoro says This dialogue is now complete!
-End
-
-function greetNagatoro
-Nagatoro says Hi there!
-Player says Hello Nagatoro!
-end
-```
-
-### Function Validation
-
-The system validates function syntax:
-- Functions must have a name
-- Functions must be properly closed with lowercase `end`
-- Nested functions are not allowed
-- Each function `end` must match a `function`
-- Use uppercase `End` to terminate the main dialogue (different from function `end`)
-
-## Resource Finding System
-
-The system includes a universal resource finder that can locate any type of asset by name or path:
-
-- **By name**: Just specify the filename without extension (e.g., `beachBackground`)
-- **By path**: Specify the full path from Assets folder (e.g., `SNEngine/Demo/Sprites/beachBackground.png`)
-- **Type checking**: The system verifies that the found asset is of the correct type
-- **Duplicate handling**: If multiple assets have the same name, an error is shown with available paths
-
-## Validation
-
-The system validates scripts before import and provides detailed error messages:
-- Line number where error occurred
-- Type of error
-- Content of the problematic line
-- Clear error message
-
-Example error message:
-```
-Line 3: UnknownNode - Unknown node format: 'InvalidCommand says Hello!' (Content: 'InvalidCommand says Hello!')
-```
-
-## Import Methods
-
-### Import Single Script
-- Menu: `SNEngine/Import SNIL Script`
-- Allows importing a single `.snil` file
-
-### Import Folder
-- Menu: `SNEngine/Import SNIL Folder`
-- Imports all `.snil` files from a selected folder
-
-### Import Window
-- Menu: `SNEngine/SNIL Importer`
-- Provides a GUI interface for importing scripts with options
+1. **Validation Phase**: All validators check the script
+2. **Function Registration**: All functions are registered before processing
+3. **Instruction Processing**: Each instruction is handled by appropriate handler
+4. **Node Connection**: Sequential connections are established
+5. **Post-Processing**: Cross-references are resolved
 
 ## Best Practices
 
-1. **Parameter Naming**: Use descriptive parameter names that match your node's field names
-2. **Worker Classes**: Create custom worker classes for complex parameter handling
-3. **Template Consistency**: Keep template format consistent with your node's functionality
-4. **Validation**: Test your templates with various parameter values to ensure proper validation
-5. **Documentation**: Document your node's parameters and expected values
-6. **Error Handling**: Implement proper error handling in your custom nodes
-7. **Performance**: Consider performance implications when creating complex nodes
-8. **Testing**: Test your scripts with various inputs to ensure robustness
+1. **Handler Design**: Create focused handlers for specific instruction types
+2. **Validation**: Implement proper validation before processing
+3. **Error Reporting**: Provide clear, actionable error messages
+4. **Modularity**: Keep handlers small and focused
+5. **Testing**: Validate handlers with various input scenarios
+6. **Documentation**: Document new instruction formats clearly
 
-## Example: Complete Custom Node
+## Extensibility
 
-Here's a complete example of a WaitNode:
-
-**Unity Node Class** (`WaitNode.cs`):
-```csharp
-using SiphoinUnityHelpers.XNodeExtensions;
-using UnityEngine;
-
-public class WaitNode : AsyncNode
-{
-    [SerializeField] private float _waitTime = 1.0f;
-
-    public override void Execute()
-    {
-        // Wait for specified time
-        StartCoroutine(WaitCoroutine());
-    }
-
-    private IEnumerator WaitCoroutine()
-    {
-        yield return new WaitForSeconds(_waitTime);
-        Continue();
-    }
-}
-```
-
-**Template File** (`WaitNode.cs.snil`):
-```
-Wait {seconds} seconds
-worker:WaitNodeWorker
-```
-
-**Worker Class** (`WaitNodeWorker.cs`):
-```csharp
-using System.Collections.Generic;
-using SiphoinUnityHelpers.XNodeExtensions;
-using SNEngine.Editor.SNILSystem.Workers;
-
-public class WaitNodeWorker : SNILWorker
-{
-    public override void ApplyParameters(BaseNode node, Dictionary<string, string> parameters)
-    {
-        // The WaitNode inherits from AsyncNodeWithSeconds which has a _seconds field
-        // Check that this is actually a WaitNode or its subclass
-        if (!(node is WaitNode waitNode))
-        {
-            return;
-        }
-
-        // Get all fields including from base classes
-        var fields = GetAllFields(node.GetType());
-
-        foreach (var kvp in parameters)
-        {
-            var field = fields.FirstOrDefault(f =>
-                f.Name.Equals(kvp.Key, System.StringComparison.OrdinalIgnoreCase) ||
-                f.Name.Equals("_" + kvp.Key, System.StringComparison.OrdinalIgnoreCase));
-
-            if (field != null)
-            {
-                object val = ConvertValue(kvp.Value, field.FieldType);
-                if (val != null || !field.FieldType.IsValueType)
-                {
-                    field.SetValue(node, val);
-                }
-            }
-        }
-    }
-
-    private static FieldInfo[] GetAllFields(System.Type type)
-    {
-        var fields = new List<FieldInfo>();
-        while (type != null && type != typeof(object))
-        {
-            fields.AddRange(type.GetFields(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
-            type = type.BaseType;
-        }
-        return fields.ToArray();
-    }
-
-    private static object ConvertValue(string value, System.Type targetType)
-    {
-        if (targetType == typeof(string)) return value;
-        if (targetType == typeof(int)) return int.TryParse(value, out int i) ? i : 0;
-        if (targetType == typeof(float)) return float.TryParse(value, out float f) ? f : 0f;
-        if (targetType == typeof(bool)) return bool.TryParse(value, out bool b) ? b : false;
-        if (targetType.IsEnum) return System.Enum.Parse(targetType, value, true);
-
-        if (typeof(Object).IsAssignableFrom(targetType))
-        {
-            string filter = $"t:{targetType.Name} {value}";
-            string[] guids = AssetDatabase.FindAssets(filter);
-            if (guids.Length > 0)
-            {
-                string path = AssetDatabase.GUIDToAssetPath(guids[0]);
-                return AssetDatabase.LoadAssetAtPath(path, targetType);
-            }
-        }
-
-        return null;
-    }
-}
-```
-
-**Usage in SNIL script**:
-```
-name: TimingExample
-Start
-Nagatoro says Wait for it...
-Wait 3.5 seconds
-Nagatoro says And there it is!
-End
-```
+The system is designed for easy extensibility:
+- New instruction handlers can be added without modifying core code
+- Validators can be extended for domain-specific validation
+- The context system allows for state management across handlers
+- Template-based validation supports new node types seamlessly
 
 ## Troubleshooting
 
 ### Common Issues
 
-- **Node not appearing in graph**: Check that:
-  - The node class inherits from a proper base class
-  - The template file exists in the correct location
-  - The template file name matches the class name
-  - The class is in the correct namespace
-
-- **Parameters not set correctly**: Verify that:
-  - Parameter names in the template match field names in the class
-  - Your worker class (if used) handles the parameter assignment correctly
-  - Ensure the field is marked with `[SerializeField]` if using Unity's serialization
-
-- **Resource not found**: Make sure:
-  - The asset exists in the project
-  - The name/path is correct
-  - The asset type matches what's expected
-
-- **Import errors**: Check:
-  - Syntax is correct in your script
-  - All referenced nodes have templates
-  - No duplicate dialogue names in multi-script files
+- **Instruction not recognized**: Check if appropriate handler is registered
+- **Validation errors**: Verify script structure and syntax
+- **Node connection issues**: Ensure proper context management
+- **Function body not created**: Verify function definition syntax
 
 ### Debugging Tips
 
-- Enable Unity's console to see detailed error messages
-- Use the validation system to check scripts before import
-- Check the generated dialogue assets in the Resources folder
-- Use the import window for better error feedback
-
-## Advanced Features
-
-### Template Matching
-
-The system uses regex-based template matching to identify node types in scripts. Templates can include:
-- Literal text that must match exactly
-- Parameter placeholders in `{}` or `[]`
-- Special directives like `worker:WorkerClassName`
-
-### Post-Processing System
-
-The system includes a post-processing step that:
-- Resolves cross-dialogue references (Jump To nodes)
-- Sets up connections between nodes
-- Validates the final graph structure
-
-### Custom Validation
-
-You can create custom validation rules by extending the `SNILValidator` class and implementing your own validation logic.
-
-## File Formats
-
-### SNIL Files (.snil)
-- Text-based files containing dialogue scripts
-- UTF-8 encoded
-- Support comments with `//` or `#`
-- Use `---` as multi-script separators
-
-### Generated Assets (.asset)
-- Unity ScriptableObjects containing dialogue graphs
-- Automatically saved to `Assets/SNEngine/Source/SNEngine/Resources/Dialogues/`
-- Can be referenced from other scripts and scenes
+- Enable detailed logging for instruction processing
+- Check handler registration in `InstructionHandlerManager`
+- Verify template files exist for template-based nodes
+- Use validation separately to isolate issues
