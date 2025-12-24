@@ -1,8 +1,7 @@
 using System;
 using System.Collections.Generic;
-using System.IO;
-using System.Linq;
 using SNEngine.Editor.SNILSystem.Importers;
+using SNEngine.Editor.SNILSystem.InstructionHandlers;
 using SNEngine.Editor.SNILSystem.Parsers;
 using SNEngine.Editor.SNILSystem.Validators;
 using UnityEngine;
@@ -13,7 +12,8 @@ namespace SNEngine.Editor.SNILSystem
     {
         public static void ImportScript(string filePath)
         {
-            SNILScriptImporter.ImportScript(filePath);
+            // Используем новую систему обработчиков инструкций
+            SNILInstructionBasedCompiler.CompileScript(filePath);
         }
 
         public static bool ValidateScript(string filePath, out List<SNILValidationError> errors)
@@ -23,7 +23,7 @@ namespace SNEngine.Editor.SNILSystem
 
         public static void ImportScriptWithoutPostProcessing(string filePath)
         {
-            SNILScriptImporter.ImportScriptWithoutPostProcessing(filePath);
+            SNILInstructionBasedCompiler.CompileScriptWithoutPostProcessing(filePath);
         }
 
         public static List<string> GetAllGraphNamesInFile(string filePath)
@@ -42,8 +42,38 @@ namespace SNEngine.Editor.SNILSystem
 
             foreach (string[] part in scriptParts)
             {
-                SNILScriptProcessor.ProcessSingleGraph(part);
+                // Используем новую систему обработчиков инструкций
+                ProcessSingleScriptPart(part);
             }
+        }
+
+        private static void ProcessSingleScriptPart(string[] lines)
+        {
+            // Создаем контекст выполнения
+            var context = new InstructionContext();
+
+            // Обрабатываем каждую инструкцию
+            foreach (string line in lines)
+            {
+                string trimmedLine = line.Trim();
+
+                if (string.IsNullOrEmpty(trimmedLine) || IsCommentLine(trimmedLine))
+                    continue;
+
+                // Используем менеджер обработчиков для обработки инструкции
+                var result = InstructionHandlerManager.Instance.ProcessInstruction(trimmedLine, context);
+
+                if (!result.Success)
+                {
+                    Debug.LogError($"Failed to process instruction '{trimmedLine}': {result.ErrorMessage}");
+                }
+            }
+        }
+
+        private static bool IsCommentLine(string line)
+        {
+            string trimmed = line.Trim();
+            return trimmed.StartsWith("//") || trimmed.StartsWith("#");
         }
     }
 

@@ -4,9 +4,11 @@ Show Background beachBackground
 Nagatoro says Welcome to the first part of our story!
 Player says This looks interesting.
 Nagatoro says Let me show you something special.
-Wait 2 seconds
 Nagatoro says I have to go to the classroom for a moment.
 Player says OK, I'll wait here.
 Nagatoro says Please follow me to the next scene!
+call testFunc
 Jump To SecondScript
-End
+function testFunc
+Wait 2 seconds
+end
