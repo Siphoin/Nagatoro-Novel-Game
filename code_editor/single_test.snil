@@ -1,0 +1,14 @@
+name: TestSingleFile
+Start
+Nagatoro says This is a test for single file opening!
+Player says Hello Nagatoro!
+set playerScore = 100
+Jump To EndScene
+End
+
+---
+
+name: EndScene
+Start
+Nagatoro says Thanks for testing the single file feature!
+End

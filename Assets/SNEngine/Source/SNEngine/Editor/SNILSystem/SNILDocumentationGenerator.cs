@@ -17,7 +17,7 @@ namespace SNEngine.Editor.SNIL
         private static string ManualRelativePath = "SNEngine/Source/SNEngine/Editor/SNIL/Manual";
         private static string ReadmeRelativePath = "SNEngine/Source/SNEngine/Editor/SNILSystem/README_Workers.md";
 
-        [MenuItem("SNEngine/Generate SNIL Documentation")]
+        [MenuItem("SNEngine/SNIL/Generate SNIL Documentation")]
         public static void Generate()
         {
             string fullTemplatesPath = Path.Combine(BasePath, TemplatesRelativePath);
@@ -26,7 +26,7 @@ namespace SNEngine.Editor.SNIL
 
             if (!NovelDirectory.Exists(fullTemplatesPath))
             {
-                SNILDebug.LogError($"[SNIL] Template directory not found at: {fullTemplatesPath}");
+                SNILDebug.LogError($"Template directory not found at: {fullTemplatesPath}");
                 return;
             }
 

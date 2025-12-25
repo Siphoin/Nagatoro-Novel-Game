@@ -10,7 +10,7 @@ namespace SNEngine.Editor.SNILSystem
         private string _graphName = "NewSNILGraph";
         private Vector2 _scrollPosition;
 
-        [MenuItem("SNEngine/SNIL Importer", priority = 100)]
+        [MenuItem("SNEngine/SNIL/SNIL Importer", priority = 100)]
         public static void ShowWindow()
         {
             var window = GetWindow<SNILImportWindow>("SNIL Importer");

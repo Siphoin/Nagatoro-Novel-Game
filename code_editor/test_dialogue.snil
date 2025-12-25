@@ -1,0 +1,25 @@
+name: TestDialogue
+Start
+Nagatoro says Hello, this is a test dialogue!
+Player says Hi Nagatoro!
+Nagatoro says How are you doing today?
+set playerScore = 100
+set playerName = "Test Player"
+Jump To SecondScene
+End
+
+---
+
+name: SecondScene
+Start
+Player says This is the second scene.
+If Show Variant
+Variants:
+Option A
+Option B
+True:
+Print You chose option A
+False:
+Print You chose option B
+endif
+End

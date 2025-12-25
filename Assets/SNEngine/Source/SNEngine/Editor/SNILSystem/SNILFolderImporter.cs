@@ -7,7 +7,7 @@ namespace SNEngine.Editor.SNILSystem
 {
     public static class SNILFolderImporter
     {
-        [MenuItem("SNEngine/Import SNIL Folder", priority = 102)]
+        [MenuItem("SNEngine/SNIL/Import SNIL Folder", priority = 102)]
         public static void ImportSNILFolder()
         {
             string selectedPath = EditorUtility.OpenFolderPanel(

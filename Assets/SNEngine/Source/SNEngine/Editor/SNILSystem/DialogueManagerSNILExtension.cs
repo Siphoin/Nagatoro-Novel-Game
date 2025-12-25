@@ -6,7 +6,7 @@ namespace SNEngine.Editor.SNILSystem
 {
     public static class DialogueManagerSNILExtension
     {
-        [MenuItem("SNEngine/Import SNIL Script", priority = 101)]
+        [MenuItem("SNEngine/SNIL/Import SNIL Script", priority = 101)]
         public static void ImportSNILScriptFromMenu()
         {
             string selectedPath = EditorUtility.OpenFilePanel(
