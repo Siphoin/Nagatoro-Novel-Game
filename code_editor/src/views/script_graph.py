@@ -328,6 +328,11 @@ class ScriptGraphWindow(QMainWindow):
                         "name": "show",
                         "pattern": "^\\s*show\\s+",
                         "description": "Show character or background"
+                    },
+                    {
+                        "name": "condition",
+                        "pattern": "^\\s*if\\s+.*",
+                        "description": "Conditional statement"
                     }
                 ],
                 "default_node_type": "dialogue",
@@ -372,42 +377,253 @@ class ScriptGraphWindow(QMainWindow):
             node_id_counter = 0
             prev_node = None
 
-            for line in lines:
-                line = line.strip()
+            # Track conditional blocks for proper branching
+            conditional_stack = []  # Stack to track conditional blocks (if_node, endif_pos)
+            current_conditional = None  # Current conditional being processed (if_node, true_branch_started, false_branch_started)
 
-                # Check if line should be ignored based on ignore patterns
-                should_ignore = False
-                for pattern in ignore_patterns:
-                    if re.match(pattern, line, re.IGNORECASE):
-                        should_ignore = True
-                        break
+            # Preprocess to identify conditional structures
+            processed_lines = []
+            i = 0
+            while i < len(lines):
+                line = lines[i].strip()
 
-                if should_ignore:
-                    continue
+                # Check if this is a conditional start
+                if re.match(r'^\s*if\s+.*', line, re.IGNORECASE) or 'If Show Variant' in line:
+                    # Collect the entire conditional block
+                    conditional_block = [line]
+                    i += 1
+                    while i < len(lines):
+                        next_line = lines[i].strip()
+                        if next_line.lower() == 'endif':
+                            conditional_block.append(next_line)
+                            i += 1
+                            break
+                        else:
+                            conditional_block.append(next_line)
+                            i += 1
+                    processed_lines.append(('conditional', conditional_block))
+                else:
+                    processed_lines.append(('normal', [line]))
+                    i += 1
 
-                # Determine node type based on configuration
-                node_type = default_node_type
-                for node_config in node_types:
-                    pattern = node_config.get("pattern", "")
-                    if re.match(pattern, line, re.IGNORECASE):
-                        node_type = node_config.get("name", default_node_type)
-                        # Map function_call to function to maintain original behavior
-                        if node_type == "function_call":
-                            node_type = "function"
-                        break  # First match wins
+            # Track the last nodes from conditional blocks to connect to the next statement
+            conditional_end_nodes = []  # Nodes that need to connect to the next statement after conditionals
 
-                node = ScriptGraphNode(f"n_{node_id_counter}", node_type, line)
-                nodes.append(node)
-                if prev_node:
-                    connections.append((prev_node.id, node.id))
-                prev_node = node
-                node_id_counter += 1
+            # Process the parsed lines to create nodes and connections
+            for item_idx, item in enumerate(processed_lines):
+                item_type, item_lines = item
+
+                if item_type == 'conditional':
+                    # Handle conditional block
+                    conditional_nodes, conditional_connections, last_true_node, last_false_node = self._parse_conditional_block(
+                        item_lines, node_id_counter, nodes, node_types, default_node_type, ignore_patterns
+                    )
+
+                    # Add the conditional nodes to the main nodes list
+                    nodes.extend(conditional_nodes)
+
+                    # Add connections from the conditional structure
+                    connections.extend(conditional_connections)
+
+                    # Update the node_id_counter to account for new nodes
+                    node_id_counter += len(conditional_nodes)
+
+                    # Connect to the first node of the conditional block if there was a previous node
+                    if prev_node and conditional_nodes:
+                        connections.append((prev_node.id, conditional_nodes[0].id))  # condition_node is first
+
+                    # Store the end nodes of conditional branches for connection to next statement
+                    end_nodes = []
+                    if last_true_node:
+                        end_nodes.append(last_true_node)
+                    if last_false_node:
+                        end_nodes.append(last_false_node)
+                    if end_nodes:
+                        conditional_end_nodes.extend(end_nodes)
+
+                    # For conditionals, we don't set prev_node to a single node since there are two possible end points
+                    # Instead, we store the end nodes to connect to the next statement when it comes
+                    prev_node = None  # Reset prev_node since conditional branches don't have a single end
+                else:
+                    # Handle normal lines
+                    for line in item_lines:
+                        line = line.strip()
+
+                        # Check if line should be ignored based on ignore patterns
+                        should_ignore = False
+                        for pattern in ignore_patterns:
+                            if re.match(pattern, line, re.IGNORECASE):
+                                should_ignore = True
+                                break
+
+                        if should_ignore:
+                            continue
+
+                        # Determine node type based on configuration
+                        node_type = default_node_type
+                        for node_config in node_types:
+                            pattern = node_config.get("pattern", "")
+                            if re.match(pattern, line, re.IGNORECASE):
+                                node_type = node_config.get("name", default_node_type)
+                                # Map function_call to function to maintain original behavior
+                                if node_type == "function_call":
+                                    node_type = "function"
+                                break  # First match wins
+
+                        node = ScriptGraphNode(f"n_{node_id_counter}", node_type, line)
+                        nodes.append(node)
+
+                        # Connect all conditional end nodes to this new node
+                        for cond_end_node in conditional_end_nodes:
+                            connections.append((cond_end_node.id, node.id))
+
+                        # Connect to the previous node (if it wasn't from a conditional and no conditional end nodes exist)
+                        if prev_node and not conditional_end_nodes:
+                            connections.append((prev_node.id, node.id))
+
+                        # Clear conditional end nodes since they've been connected
+                        conditional_end_nodes = []
+
+                        # Update prev_node for the next iteration (this will be used if there's no conditional after this node)
+                        prev_node = node
+                        node_id_counter += 1
 
             # Set the data for this canvas
             graph_canvas.set_data(nodes, connections)
 
             # Add the canvas to a new tab with the graph icon
             self.tab_widget.addTab(graph_canvas, graph_icon, section_name)
+
+    def _parse_conditional_block(self, lines, start_id, existing_nodes, node_types, default_node_type, ignore_patterns):
+        """
+        Parse a conditional block and return nodes and connections that represent the conditional flow.
+        """
+        nodes = []
+        connections = []
+        node_id_counter = start_id
+
+        # The first line should be the condition
+        if not lines:
+            return nodes, connections, None, None
+
+        condition_line = lines[0].strip()
+
+        # Create the condition node
+        condition_node = ScriptGraphNode(f"n_{node_id_counter}", "condition", condition_line)
+        nodes.append(condition_node)
+        condition_node_id = condition_node.id
+        node_id_counter += 1
+
+        # Parse the conditional block content to identify True/False branches
+        i = 1
+        true_block = []
+        false_block = []
+        current_block = None
+
+        while i < len(lines):
+            line = lines[i].strip()
+
+            if line.lower() == 'true:':
+                current_block = true_block
+            elif line.lower() == 'false:':
+                current_block = false_block
+            elif line.lower() == 'endif':
+                # End of conditional block
+                break
+            elif current_block is not None:
+                # Add to the current block
+                current_block.append(line)
+            else:
+                # Lines before True/False (like Variants:) go to both branches or are part of the condition
+                if line.lower().startswith('variants:'):
+                    # Variants info - we'll include it in the condition node content
+                    condition_node.content += f"\n{line}"
+                elif line.strip() and not line.lower().startswith('option'):
+                    # Other lines before True/False that are not option lines
+                    # For now, we'll ignore these unless they're part of the variants list
+                    pass
+                elif line.strip().lower().startswith('option'):
+                    # Option lines should be part of the condition node content
+                    condition_node.content += f"\n{line}"
+
+            i += 1
+
+        # Process True branch
+        true_nodes = []
+        if true_block:
+            for line in true_block:
+                if line.strip():
+                    # Determine node type for true branch
+                    node_type = default_node_type
+                    for node_config in node_types:
+                        pattern = node_config.get("pattern", "")
+                        if re.match(pattern, line, re.IGNORECASE):
+                            node_type = node_config.get("name", default_node_type)
+                            # Map function_call to function to maintain original behavior
+                            if node_type == "function_call":
+                                node_type = "function"
+                            break  # First match wins
+
+                    node = ScriptGraphNode(f"n_{node_id_counter}", node_type, line)
+                    true_nodes.append(node)
+                    node_id_counter += 1
+
+        # Process False branch
+        false_nodes = []
+        if false_block:
+            for line in false_block:
+                if line.strip():
+                    # Determine node type for false branch
+                    node_type = default_node_type
+                    for node_config in node_types:
+                        pattern = node_config.get("pattern", "")
+                        if re.match(pattern, line, re.IGNORECASE):
+                            node_type = node_config.get("name", default_node_type)
+                            # Map function_call to function to maintain original behavior
+                            if node_type == "function_call":
+                                node_type = "function"
+                            break  # First match wins
+
+                    node = ScriptGraphNode(f"n_{node_id_counter}", node_type, line)
+                    false_nodes.append(node)
+                    node_id_counter += 1
+
+        # Add all nodes to the main list
+        nodes.extend(true_nodes)
+        nodes.extend(false_nodes)
+
+        # Create connections:
+        # 1. Condition node connects to first node in True branch
+        # 2. Condition node connects to first node in False branch
+        # 3. Connect nodes within each branch sequentially
+
+        # Connect condition to true branch
+        if true_nodes:
+            connections.append((condition_node_id, true_nodes[0].id))
+            # Connect nodes within true branch
+            for j in range(len(true_nodes) - 1):
+                connections.append((true_nodes[j].id, true_nodes[j + 1].id))
+        else:
+            # If there's no true branch content, connect directly to endif (which doesn't exist as a node)
+            # In this case, we don't create a specific connection since the branch is empty
+            pass
+
+        # Connect condition to false branch
+        if false_nodes:
+            connections.append((condition_node_id, false_nodes[0].id))
+            # Connect nodes within false branch
+            for j in range(len(false_nodes) - 1):
+                connections.append((false_nodes[j].id, false_nodes[j + 1].id))
+        else:
+            # If there's no false branch content, connect directly to endif (which doesn't exist as a node)
+            # In this case, we don't create a specific connection since the branch is empty
+            pass
+
+        # Determine the last node in each branch for potential convergence
+        last_true_node = true_nodes[-1] if true_nodes else None
+        last_false_node = false_nodes[-1] if false_nodes else None
+
+        return nodes, connections, last_true_node, last_false_node
 
 class ScriptGraphCanvas(QWidget):
     def __init__(self):
@@ -478,7 +694,8 @@ class ScriptGraphCanvas(QWidget):
                 'function': QColor(node_colors.get('function', '#68682E')),
                 'jump': QColor(node_colors.get('jump', '#562E68')),
                 'wait': QColor(node_colors.get('wait', '#464646')),
-                'show': QColor(node_colors.get('show', '#684C20'))
+                'show': QColor(node_colors.get('show', '#684C20')),
+                'condition': QColor(node_colors.get('condition', '#804080'))
             }
 
         except FileNotFoundError:
@@ -492,7 +709,7 @@ class ScriptGraphCanvas(QWidget):
                 'start': QColor(46, 104, 46), 'end': QColor(104, 46, 46),
                 'dialogue': QColor(46, 68, 104), 'function': QColor(104, 104, 46),
                 'jump': QColor(86, 46, 104), 'wait': QColor(70, 70, 70),
-                'show': QColor(104, 76, 32)
+                'show': QColor(104, 76, 32), 'condition': QColor(128, 64, 128)
             }
         except json.JSONDecodeError:
             # Fallback to default colors if config file is invalid
@@ -506,7 +723,7 @@ class ScriptGraphCanvas(QWidget):
                 'start': QColor(46, 104, 46), 'end': QColor(104, 46, 46),
                 'dialogue': QColor(46, 68, 104), 'function': QColor(104, 104, 46),
                 'jump': QColor(86, 46, 104), 'wait': QColor(70, 70, 70),
-                'show': QColor(104, 76, 32)
+                'show': QColor(104, 76, 32), 'condition': QColor(128, 64, 128)
             }
         except Exception as e:
             # Fallback to default colors for any other error
@@ -520,7 +737,7 @@ class ScriptGraphCanvas(QWidget):
                 'start': QColor(46, 104, 46), 'end': QColor(104, 46, 46),
                 'dialogue': QColor(46, 68, 104), 'function': QColor(104, 104, 46),
                 'jump': QColor(86, 46, 104), 'wait': QColor(70, 70, 70),
-                'show': QColor(104, 76, 32)
+                'show': QColor(104, 76, 32), 'condition': QColor(128, 64, 128)
             }
 
     def set_data(self, nodes, connections):
