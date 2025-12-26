@@ -41,26 +41,49 @@ namespace SNEngine.Editor.BuildPackageSystem
 
         private static async Task RunCppCleanup()
         {
-            string exePath = Path.Combine(GetProjectRoot(), CLEANER_EXE_REL_PATH);
+            string root = GetProjectRoot();
+            string exePath = Path.Combine(root, CLEANER_EXE_REL_PATH);
+
+            Debug.Log($"<color=orange>[Cleaner]</color> Attempting to run: {exePath}");
+            Debug.Log($"<color=orange>[Cleaner]</color> Project Root passed: {root}");
 
             if (!File.Exists(exePath))
             {
-                throw new FileNotFoundException($"Cleaner executable not found at: {exePath}");
+                Debug.LogError($"<color=red>[Cleaner]</color> EXE NOT FOUND at: {exePath}");
+                return;
             }
 
             ProcessStartInfo si = new ProcessStartInfo
             {
                 FileName = exePath,
-                Arguments = $"\"{GetProjectRoot()}\"",
+                Arguments = $"\"{root}\"",
                 UseShellExecute = false,
                 CreateNoWindow = true,
-                WorkingDirectory = Path.GetDirectoryName(exePath)
+                WorkingDirectory = Path.GetDirectoryName(exePath),
+                RedirectStandardError = true
             };
 
-            using (Process p = Process.Start(si))
+            try
             {
-                if (p == null) throw new Exception("Failed to start Cleaner process.");
-                await Task.Run(() => p.WaitForExit());
+                using (Process p = Process.Start(si))
+                {
+                    if (p == null)
+                    {
+                        Debug.LogError("<color=red>[Cleaner]</color> Failed to start process (p is null).");
+                        return;
+                    }
+
+                    await Task.Run(() => p.WaitForExit());
+
+                    if (p.ExitCode != 0)
+                    {
+                        Debug.LogWarning($"<color=yellow>[Cleaner]</color> Process finished with code: {p.ExitCode}. Check if cleanup_list.txt exists next to exe.");
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Debug.LogError($"<color=red>[Cleaner]</color> Critical Error: {ex.Message}");
             }
         }
 
