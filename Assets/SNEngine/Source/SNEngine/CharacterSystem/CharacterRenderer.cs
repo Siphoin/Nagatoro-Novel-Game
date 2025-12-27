@@ -199,13 +199,23 @@ namespace SNEngine.CharacterSystem
             if (_fx != null) _fx.Flip(flipType);
         }
 
+        private void OnGUI()
+        {
+            CalculatePositionForScreen();
+        }
+
         private void CalculatePositionForScreen()
         {
+            if (_main is null || Camera.main is null) return;
+
             float spriteHeight = _main.bounds.size.y;
-            float screenHeight = Camera.main.orthographicSize * 2;
+            float screenHeight = Camera.main.orthographicSize * 2f;
+
+            float targetY = -screenHeight / 2f + spriteHeight / 2f;
+
             transform.position = new Vector3(
                 transform.position.x,
-                -screenHeight / 2 + spriteHeight / 2,
+                targetY,
                 transform.position.z
             );
         }
