@@ -668,5 +668,28 @@ namespace SNEngine.Editor
 
             GUILayout.FlexibleSpace();
         }
+
+        public static void CreateBlankCharacter()
+        {
+            if (!Directory.Exists(CHARACTER_SAVE_PATH))
+            {
+                Directory.CreateDirectory(CHARACTER_SAVE_PATH);
+            }
+
+            Character character = ScriptableObject.CreateInstance<Character>();
+            character.Editor_SetName("Blank Character");
+            character.Editor_SetDescription(string.Empty);
+            character.Editor_SetColorName(Color.white);
+
+            string assetPath = AssetDatabase.GenerateUniqueAssetPath($"{CHARACTER_SAVE_PATH}/Blank Character.asset");
+
+            AssetDatabase.CreateAsset(character, assetPath);
+            AssetDatabase.SaveAssets();
+            AssetDatabase.Refresh();
+
+            Selection.activeObject = character;
+            EditorGUIUtility.PingObject(character);
+        }
     }
+
 }

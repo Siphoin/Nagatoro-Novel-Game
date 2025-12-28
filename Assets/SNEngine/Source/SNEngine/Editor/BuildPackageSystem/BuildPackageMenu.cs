@@ -57,8 +57,17 @@ namespace SNEngine.Editor.BuildPackageSystem
             }
         }
 
-        [MenuItem(MENU_2)] public static void Step2() => AssetDatabase.Refresh();
-        [MenuItem(MENU_3)] public static void Step3() { }
+        [MenuItem(MENU_2)]
+        public static void Step2()
+        {
+            DialogueCreatorEditor.CreateNewDialogueAsset();
+        }
+
+        [MenuItem(MENU_3)]
+        public static void Step3()
+        {
+            CharacterCreatorWindow.CreateBlankCharacter();
+        }
 
         [MenuItem(MENU_4)]
         public static void Step4_Build()
