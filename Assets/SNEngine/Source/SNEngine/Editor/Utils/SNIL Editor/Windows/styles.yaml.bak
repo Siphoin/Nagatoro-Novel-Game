@@ -39,10 +39,10 @@ DarkTheme:
   ScrollbarWidth: 10
   SecondaryBackground: '#2A2A2A'
   StatusDefault: '#999999'
-  SyntaxCommentColor: '#608B4E'
+  SyntaxCommentColor: '#ffff7f'
   SyntaxDefaultColor: '#CCCCCC'
   SyntaxKeyColor: '#E06C75'
   SyntaxKeywordColor: '#FFB86C'
-  SyntaxParameterColor: '#55aaff'
+  SyntaxParameterColor: '#FFD700'
   SyntaxStringColor: '#ABB2BF'
   YamlFileIconColor: '#CCCCCC'
