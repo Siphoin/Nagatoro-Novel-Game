@@ -14,12 +14,12 @@ namespace SNEngine.Source.SNEngine.MessageSystem
 
         public override void Execute()
         {
+            base.Execute();
+            
             var service = NovelGame.Instance.GetService<MessageService>();
             service.ShowMessage(this);
         }
-
-        public bool IsEnd { get; set; }
-
+        
         public void MarkIsEnd()
         {
             StopTask();

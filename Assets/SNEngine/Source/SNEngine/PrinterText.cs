@@ -9,6 +9,7 @@ using System.Text;
 using System.Threading;
 using TMPro;
 using UnityEngine;
+using UnityEngine.EventSystems;
 
 namespace SNEngine
 {
@@ -23,12 +24,13 @@ namespace SNEngine
 
         [SerializeField, Min(0)] private float _speedWriting = 0.3f;
         [SerializeField] private TextMeshProUGUI _textMessage;
+
         public TextMeshProUGUI TextMessage
         {
             get { return _textMessage; }
-            set =>  _textMessage = value;
+            set => _textMessage = value;
         }
-        
+
         public IInputSystem InputSystem
         {
             get { return _inputSystem; }
@@ -53,8 +55,9 @@ namespace SNEngine
         {
             TextMessage = null;
         }
-        
+
         public virtual void Hide() => gameObject.SetActive(false);
+
         public virtual void Show()
         {
             _hasTextEffects = GetComponentInChildren<TextEffect>() != null;
@@ -77,6 +80,8 @@ namespace SNEngine
         {
             if (_cancellationTokenSource != null)
             {
+                if (EventSystem.current != null && EventSystem.current.IsPointerOverGameObject())
+                    return;
                 if (key == KeyCode.Space || key == KeyCode.Mouse0)
                     EndWrite();
             }
@@ -130,6 +135,7 @@ namespace SNEngine
                 ShowAllText();
                 return;
             }
+
             if (AllTextWrited)
             {
                 End();
@@ -208,7 +214,6 @@ namespace SNEngine
                 OnWriteSymbol?.Invoke();
                 await UniTask.Yield(PlayerLoopTiming.LastPostLateUpdate);
             }
-
         }
 
         public void SetFontDialog(TMP_FontAsset font)

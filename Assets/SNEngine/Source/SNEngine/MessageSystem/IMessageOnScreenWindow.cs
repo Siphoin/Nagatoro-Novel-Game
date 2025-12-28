@@ -3,7 +3,7 @@ using TMPro;
 
 namespace SNEngine.Source.SNEngine.MessageSystem
 {
-    public interface IMessageWindow 
+    public interface IMessageOnScreenWindow 
     {
         void SetData(IDialogOnScreenNode dialog);
         void StartOutputDialog();

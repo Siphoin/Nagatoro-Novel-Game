@@ -7,7 +7,7 @@ using UnityEngine.UI;
 
 namespace SNEngine.Source.SNEngine.MessageSystem
 {
-    public class MessageWindow : MonoBehaviour, IMessageWindow
+    public class MessageOnScreenOnScreenWindow : MonoBehaviour, IMessageOnScreenWindow
     {
         [SerializeField] private MessageView _bubblePrefab;
         [SerializeField] private Transform _bubbleContainer;

@@ -4,6 +4,8 @@ using SNEngine.Debugging;
 using SNEngine.DialogSystem;
 using SNEngine.Graphs;
 using SNEngine.SaveSystem.Models;
+using SNEngine.Source.SNEngine.MessageSystem;
+using SNEngine.Source.SNEngine.Services;
 using UnityEngine;
 using XNode;
 
@@ -53,6 +55,7 @@ namespace SNEngine.Services
 
             _currentDialogue.Execute();
             NovelGame.Instance.GetService<OpenPauseWindowButtonService>().Show();
+            NovelGame.Instance.GetService<OpenMessageWindowButtonService>().Show();
         }
 
         private void OnStartExecute()
@@ -74,6 +77,7 @@ namespace SNEngine.Services
                 _currentDialogue.OnEndExecute += OnEndExecute;
                 targetDialogue.LoadSave(saveData.CurrentNode, saveData);
                 NovelGame.Instance.GetService<OpenPauseWindowButtonService>().Show();
+                NovelGame.Instance.GetService<OpenMessageWindowButtonService>().Show();
             }
         }
 

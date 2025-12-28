@@ -14,7 +14,7 @@ namespace SNEngine.Source.SNEngine.Services
     public class MessageService : ServiceBase, IResetable
     {
         private DialogueService _dialogueService;
-        private IMessageWindow _window;
+        private IMessageOnScreenWindow _onScreenWindow;
         private const string WINDOW_VANILLA_PATH = "UI/MessageWindow";
 
         private IDialogue _currentDialogue;
@@ -35,14 +35,14 @@ namespace SNEngine.Source.SNEngine.Services
             var instance = Object.Instantiate(prefabGO);
             instance.name = prefabGO.name;
 
-            var windowComponent = instance.GetComponent<MessageWindow>();
+            var windowComponent = instance.GetComponent<MessageOnScreenOnScreenWindow>();
             if (windowComponent == null)
             {
                 Debug.LogError("MessageOnScreenWindow component missing on prefab!");
                 return;
             }
 
-            _window = windowComponent;
+            _onScreenWindow = windowComponent;
 
             DontDestroyOnLoad(instance);
 
@@ -92,27 +92,27 @@ namespace SNEngine.Source.SNEngine.Services
 
         public override void ResetState()
         {
-            _window?.ResetState();
+            _onScreenWindow?.ResetState();
         }
 
         public void SetFontDialog(TMP_FontAsset font)
         {
-            _window?.SetFontDialog(font);
+            _onScreenWindow?.SetFontDialog(font);
         }
         
         public void ShowMessage(IDialogOnScreenNode dialog)
         {
-            if (_window == null)
+            if (_onScreenWindow == null)
             {
                 Debug.LogError("MessageOnScreenWindow is not initialized!");
                 return;
             }
 
-            var windowGO = ((MessageWindow)_window).gameObject;
+            var windowGO = ((MessageOnScreenOnScreenWindow)_onScreenWindow).gameObject;
             windowGO.SetActive(true);
 
-            _window.SetData(dialog);
-            _window.StartOutputDialog();
+            _onScreenWindow.SetData(dialog);
+            _onScreenWindow.StartOutputDialog();
         }
     }
 }
