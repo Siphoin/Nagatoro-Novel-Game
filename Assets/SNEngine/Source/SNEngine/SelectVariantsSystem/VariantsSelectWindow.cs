@@ -34,8 +34,6 @@ namespace SNEngine.SelectVariantsSystem
 
         [SerializeField, ReadOnly(ReadOnlyMode.OnEditor)] private Transform _container;
 
-        
-
         [Space]
 
         [SerializeField, Min(2)] private int _buttonsCreatedOnStart = 5;
@@ -66,6 +64,8 @@ namespace SNEngine.SelectVariantsSystem
             _defaultSizeDeltaScrool = _rectTransformScroll.sizeDelta;
 
             _defaultPositionScroll = _rectTransformScroll.localPosition;
+
+            HideButtons();
         }
 
         public void Hide()
@@ -102,14 +102,10 @@ namespace SNEngine.SelectVariantsSystem
 
             if (strings.Length >= RESIZE_IF_BUTTONS_BETWEEN)
             {
-
-                // Устанавливаем позицию scroolrect по нулям
                 _rectTransformScroll.localPosition = Vector3.zero;
 
-                // Расширяем ширину и высоту scroolrect до размеров родителя
                 _rectTransformScroll.sizeDelta = _rectTransform.sizeDelta;
             }
-
             else
             {
                 _rectTransformScroll.localPosition = _defaultPositionScroll;
@@ -142,7 +138,7 @@ namespace SNEngine.SelectVariantsSystem
 
         public void ShowVariants(IEnumerable<string> variants, bool hideCharacters = true, bool hideDialogWindow = true, bool returnCharactersVisible = true, AnimationButtonsType animationType = AnimationButtonsType.None)
         {
-           
+            HideButtons();
 
             if (hideDialogWindow)
             {
@@ -160,9 +156,9 @@ namespace SNEngine.SelectVariantsSystem
 
             _returnCharactersVisible = returnCharactersVisible;
 
-            Show();
-
             SetData(variants, animationType);
+
+            Show();
         }
 
         public void ResetState()

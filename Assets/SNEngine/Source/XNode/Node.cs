@@ -124,7 +124,7 @@ namespace XNode {
         }
 
         /// <summary> Update static ports and dynamic ports managed by DynamicPortLists to reflect class fields. This happens automatically on enable or on redrawing a dynamic port list. </summary>
-        public void UpdatePorts() {
+        public virtual void UpdatePorts() {
             NodeDataCache.UpdatePorts(this, ports);
         }
 
