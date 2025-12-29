@@ -1,2 +1,0 @@
-Scale Character {_target} to {_scale} duration {_duration} ease {_ease}
-worker:ScaleCharacterNodeWorker

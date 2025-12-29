@@ -1,2 +1,2 @@
-Fade Character {_target} with value {_value} duration {_duration} ease {_ease}
+Fade {_target} to {_value} for {_duration} seconds with wait {_wait} with ease {_ease}
 worker:FadeCharacterNodeWorker

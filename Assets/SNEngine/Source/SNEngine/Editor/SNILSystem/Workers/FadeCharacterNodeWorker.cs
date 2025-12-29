@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using DG.Tweening;
 using SiphoinUnityHelpers.XNodeExtensions;
 using SNEngine.CharacterSystem.Animations.Fade;
 using UnityEditor;
@@ -13,13 +14,31 @@ namespace SNEngine.Editor.SNILSystem.Workers
     {
         public override void ApplyParameters(BaseNode node, Dictionary<string, string> parameters)
         {
-            // Проверяем, что это действительно FadeCharacterNode или его наследник
+            // Check that this is actually a FadeCharacterNode or its subclass
             if (!(node is FadeCharacterNode fadeNode))
             {
                 return;
             }
 
-            // Получаем все поля, включая из базовых классов
+            // Handle special case for ease parameter using the editor method
+            if (parameters.ContainsKey("ease") || parameters.ContainsKey("_ease"))
+            {
+                string easeValue = parameters.ContainsKey("ease") ? parameters["ease"] : parameters["_ease"];
+
+                // Try to call the ApplyEase_Editor method if it exists
+                var applyEaseMethod = node.GetType().GetMethod("ApplyEase_Editor",
+                    System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Instance);
+
+                if (applyEaseMethod != null)
+                {
+                    applyEaseMethod.Invoke(node, new object[] { easeValue });
+                    // Remove the ease parameter so it's not processed as a field
+                    parameters.Remove("ease");
+                    parameters.Remove("_ease");
+                }
+            }
+
+            // Get all fields including from base classes
             var fields = GetAllFields(node.GetType());
 
             foreach (var kvp in parameters)
@@ -54,56 +73,99 @@ namespace SNEngine.Editor.SNILSystem.Workers
         {
             if (targetType == typeof(string)) return value;
             if (targetType == typeof(int)) return int.TryParse(value, out int i) ? i : 0;
-            if (targetType == typeof(float)) return float.TryParse(value, out float f) ? f : 0f;
-            if (targetType == typeof(bool)) return bool.TryParse(value, out bool b) ? b : false;
-            if (targetType.IsEnum) return System.Enum.Parse(targetType, value, true);
-
-            // Handle Color type
-            if (targetType == typeof(Color))
+            if (targetType == typeof(float))
             {
-                if (ColorUtility.TryParseHtmlString(value, out Color color))
+                // Try parsing with different number styles to handle various formats like 0.0, 0,5, etc.
+                if (float.TryParse(value, System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out float f))
                 {
-                    return color;
+                    return f;
                 }
-                // Try parsing as a standard color name
-                switch (value.ToLower())
-                {
-                    case "red": return Color.red;
-                    case "green": return Color.green;
-                    case "blue": return Color.blue;
-                    case "white": return Color.white;
-                    case "black": return Color.black;
-                    case "yellow": return Color.yellow;
-                    case "cyan": return Color.cyan;
-                    case "magenta": return Color.magenta;
-                    case "gray": return Color.gray;
-                    case "grey": return Color.grey;
-                    case "clear": return Color.clear;
-                }
+                // Fallback to default parsing
+                return float.TryParse(value, out float f2) ? f2 : 0f;
             }
-
-            // Handle Vector3 type
-            if (targetType == typeof(Vector3))
+            if (targetType == typeof(bool)) return bool.TryParse(value, out bool b) ? b : false;
+            if (targetType.IsEnum)
             {
-                // Try to parse as "x,y,z" or "x y z" format
-                string[] parts = value.Split(new char[] { ',', ' ' }, System.StringSplitOptions.RemoveEmptyEntries);
-                if (parts.Length == 3 &&
-                    float.TryParse(parts[0], out float x) &&
-                    float.TryParse(parts[1], out float y) &&
-                    float.TryParse(parts[2], out float z))
+                try
                 {
-                    return new Vector3(x, y, z);
+                    // Handle Ease enum specifically since it's from DOTween
+                    if (targetType == typeof(Ease))
+                    {
+                        // Try to parse the Ease enum value with more robust handling
+                        // First, try direct parsing
+                        try
+                        {
+                            return System.Enum.Parse(targetType, value, true);
+                        }
+                        catch
+                        {
+                            // If direct parsing fails, try to find the enum value by name ignoring case
+                            foreach (var enumValue in System.Enum.GetValues(targetType))
+                            {
+                                if (enumValue.ToString().Equals(value, System.StringComparison.OrdinalIgnoreCase))
+                                {
+                                    return enumValue;
+                                }
+                            }
+                            // If still not found, return default (Linear is common)
+                            return Ease.Linear;
+                        }
+                    }
+                    return System.Enum.Parse(targetType, value, true);
+                }
+                catch
+                {
+                    // If parsing fails completely, try to get the first enum value as default
+                    try
+                    {
+                        return System.Enum.GetValues(targetType).GetValue(0);
+                    }
+                    catch
+                    {
+                        // If all fails, return default value for common enums
+                        if (targetType == typeof(Ease))
+                            return Ease.Linear;
+                        return null;
+                    }
                 }
             }
 
             if (typeof(Object).IsAssignableFrom(targetType))
             {
-                string filter = $"t:{targetType.Name} {value}";
-                string[] guids = AssetDatabase.FindAssets(filter);
-                if (guids.Length > 0)
+                // For Character objects, try to find by name first
+                if (targetType == typeof(SNEngine.CharacterSystem.Character))
                 {
-                    string path = AssetDatabase.GUIDToAssetPath(guids[0]);
-                    return AssetDatabase.LoadAssetAtPath(path, targetType);
+                    // Try to find character by name in the project
+                    string[] guids = AssetDatabase.FindAssets($"t:Character {value}");
+                    if (guids.Length > 0)
+                    {
+                        string path = AssetDatabase.GUIDToAssetPath(guids[0]);
+                        return AssetDatabase.LoadAssetAtPath(path, targetType);
+                    }
+                    // If not found by name, try exact match
+                    else
+                    {
+                        guids = AssetDatabase.FindAssets($"t:Character");
+                        foreach (string guid in guids)
+                        {
+                            string path = AssetDatabase.GUIDToAssetPath(guid);
+                            var character = AssetDatabase.LoadAssetAtPath(path, targetType) as SNEngine.CharacterSystem.Character;
+                            if (character != null && character.name.Equals(value, System.StringComparison.OrdinalIgnoreCase))
+                            {
+                                return character;
+                            }
+                        }
+                    }
+                }
+                else
+                {
+                    string filter = $"t:{targetType.Name} {value}";
+                    string[] guids = AssetDatabase.FindAssets(filter);
+                    if (guids.Length > 0)
+                    {
+                        string path = AssetDatabase.GUIDToAssetPath(guids[0]);
+                        return AssetDatabase.LoadAssetAtPath(path, targetType);
+                    }
                 }
             }
 

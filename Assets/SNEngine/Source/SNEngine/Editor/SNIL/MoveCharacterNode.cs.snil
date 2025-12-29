@@ -1,2 +1,0 @@
-Move Character {_target} to x {_x} duration {_duration} ease {_ease}
-worker:MoveCharacterNodeWorker

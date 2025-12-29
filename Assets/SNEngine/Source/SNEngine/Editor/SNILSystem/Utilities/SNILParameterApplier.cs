@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using SiphoinUnityHelpers.XNodeExtensions;
+using SNEngine.CharacterSystem.Animations.Fade;
 using SNEngine.DialogSystem;
 using SNEngine.Editor.SNILSystem.Workers;
 using SNEngine.SelectVariantsSystem;
@@ -25,6 +26,8 @@ namespace SNEngine.Editor.SNILSystem
                 { typeof(DebugNode), () => new DebugNodeWorker() },
                 { typeof(ErrorNode), () => new ErrorNodeWorker() },
                 { typeof(ShowVariantsNode), () => new ShowVariantsNodeWorker() },
+                { typeof(FadeCharacterNode), () => new FadeCharacterNodeWorker() },
+                { typeof(FadeCharacterInOutNode), () => new FadeCharacterInOutNodeWorker() },
                 // Ensure JumpToDialogueNode uses its specific worker so it registers pending jump references
                 { typeof(JumpToDialogueNode), () => new JumpToDialogueNodeWorker() }
             };
@@ -44,6 +47,24 @@ namespace SNEngine.Editor.SNILSystem
 
         public static void ApplyParametersToNodeGeneric(BaseNode node, Dictionary<string, string> parameters)
         {
+            // Handle special case for ease parameter using the editor method
+            if (parameters.ContainsKey("ease") || parameters.ContainsKey("_ease"))
+            {
+                string easeValue = parameters.ContainsKey("ease") ? parameters["ease"] : parameters["_ease"];
+
+                // Try to call the ApplyEase_Editor method if it exists
+                var applyEaseMethod = node.GetType().GetMethod("ApplyEase_Editor",
+                    System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Instance);
+
+                if (applyEaseMethod != null)
+                {
+                    applyEaseMethod.Invoke(node, new object[] { easeValue });
+                    // Remove the ease parameter so it's not processed as a field
+                    parameters.Remove("ease");
+                    parameters.Remove("_ease");
+                }
+            }
+
             // Общий метод для применения параметров через рефлексию
             System.Type type = node.GetType();
             var fields = GetAllFields(type);
@@ -136,9 +157,35 @@ namespace SNEngine.Editor.SNILSystem
         {
             if (targetType == typeof(string)) return value;
             if (targetType == typeof(int)) return int.TryParse(value, out int i) ? i : 0;
-            if (targetType == typeof(float)) return float.TryParse(value, out float f) ? f : 0f;
+            if (targetType == typeof(float))
+            {
+                // Try parsing with different number styles to handle various formats like 0.0, 0,5, etc.
+                if (float.TryParse(value, System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out float f))
+                {
+                    return f;
+                }
+                // Fallback to default parsing
+                return float.TryParse(value, out float f2) ? f2 : 0f;
+            }
             if (targetType == typeof(bool)) return bool.TryParse(value, out bool b) ? b : false;
-            if (targetType.IsEnum) return System.Enum.Parse(targetType, value, true);
+            if (targetType.IsEnum)
+            {
+                try
+                {
+                    // Handle Ease enum specifically since it's from DOTween
+                    if (targetType.Name == "Ease" && targetType.Namespace == "DG.Tweening")
+                    {
+                        // Try to parse the Ease enum value
+                        return System.Enum.Parse(targetType, value, true);
+                    }
+                    return System.Enum.Parse(targetType, value, true);
+                }
+                catch
+                {
+                    // If parsing fails, try to get the first enum value as default
+                    return System.Enum.GetValues(targetType).GetValue(0);
+                }
+            }
 
             // Обработка массива строк для _variants
             if (targetType == typeof(string[]))

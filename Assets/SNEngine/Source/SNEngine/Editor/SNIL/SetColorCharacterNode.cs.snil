@@ -1,2 +1,0 @@
-Set Color Character {_target} to {_color} duration {_duration} ease {_ease}
-worker:SetColorCharacterNodeWorker

@@ -19,6 +19,21 @@ namespace SNEngine.Animations
 
         protected Ease Ease => _ease;
 
+#if UNITY_EDITOR
+        public void ApplyEase_Editor(string easeString)
+        {
+            if (System.Enum.TryParse<Ease>(easeString, true, out Ease parsedEase))
+            {
+                _ease = parsedEase;
+            }
+            else
+            {
+                // If parsing fails, default to Linear
+                _ease = Ease.Linear;
+            }
+        }
+#endif
+
         public override void Execute()
         {
             bool wait = _wait;

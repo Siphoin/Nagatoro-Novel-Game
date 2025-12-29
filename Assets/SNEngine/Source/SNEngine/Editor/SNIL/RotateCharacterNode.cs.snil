@@ -1,2 +1,0 @@
-Rotate Character {_target} to {_angle} duration {_duration} mode {_rotateMode}
-worker:RotateCharacterNodeWorker
