@@ -18,7 +18,7 @@ namespace SiphoinUnityHelpers.XNodeExtensions
         private NodeQueue _queue;
 
         private IDictionary<string, VariableNode> _Variables;
-
+        public event Action OnStartExecute;
         public event Action OnEndExecute;
 
         public event Action<BaseNode> OnNextNode;
@@ -111,6 +111,7 @@ namespace SiphoinUnityHelpers.XNodeExtensions
             _queue = new NodeQueue(this, queue);
 
             ExecuteProcess().Forget();
+            OnStartExecute?.Invoke();
 
         }
 
