@@ -1,6 +1,9 @@
-﻿namespace SiphoinUnityHelpers.XNodeExtensions.NodesControlExecutes.Switch
+﻿
+namespace SiphoinUnityHelpers.XNodeExtensions.NodesControlExecutes.Switch
 {
-    public class SwitchUintNode : SwitchNode<uint>
+    public class SwitchUIntNode : SwitchNode<uint>
     {
+        public override object GetValue(XNode.NodePort port) => null;
     }
+
 }

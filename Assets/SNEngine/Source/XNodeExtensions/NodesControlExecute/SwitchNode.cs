@@ -1,39 +1,36 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using Cysharp.Threading.Tasks;
+﻿using Cysharp.Threading.Tasks;
 using UnityEngine;
 using XNode;
+using System;
+using System.Collections.Generic;
 
-namespace SiphoinUnityHelpers.XNodeExtensions.NodesControlExecutes
+namespace SiphoinUnityHelpers.XNodeExtensions.NodesControlExecutes.Switch
 {
     public abstract class SwitchNode<T> : NodeControlExecute
     {
         private const float DURATION_SHOW_RESULT = 3.2f;
 
-        [Input(ShowBackingValue.Never, ConnectionType.Override)] public T _value;
-        [Output, SerializeField] public NodePort _defaultCase;
+        [Input(ShowBackingValue.Never, ConnectionType.Override), SerializeField]
+        protected T _value;
 
-        [SerializeField] private List<T> _cases = new List<T>();
-        protected IEnumerable<T> Cases => _cases;
+        [SerializeField]
+        protected List<T> _cases = new List<T>();
+
+        [Output, SerializeField]
+        protected NodePort _default;
 
         public override void Execute()
         {
-            T inputVal = GetInputValue(nameof(_value), _value);
-            NodePort targetPort = null;
+            T val = GetDataFromPort<T>(nameof(_value));
+            NodePort targetPort = GetOutputPort(nameof(_default));
 
-            for (int i = 0; i < _cases.Count; i++)
+            foreach (var caseVal in _cases)
             {
-                if (EqualityComparer<T>.Default.Equals(inputVal, _cases[i]))
+                if (EqualityComparer<T>.Default.Equals(val, caseVal))
                 {
-                    targetPort = GetOutputPort("case " + i);
+                    targetPort = GetOutputPort(GetPortName(caseVal));
                     break;
                 }
-            }
-
-            if (targetPort == null || !targetPort.IsConnected)
-            {
-                targetPort = GetOutputPort(nameof(_defaultCase));
             }
 
             if (targetPort != null)
@@ -43,55 +40,13 @@ namespace SiphoinUnityHelpers.XNodeExtensions.NodesControlExecutes
             }
         }
 
-        protected override void Init()
-        {
-            SyncPorts();
-        }
-
-        public override void UpdatePorts()
-        {
-            SyncPorts();
-        }
-
-        private void SyncPorts()
-        {
-            for (int i = 0; i < _cases.Count; i++)
-            {
-                string portName = "case " + i;
-                if (!HasPort(portName))
-                {
-                    AddDynamicOutput(typeof(NodeControlExecute), ConnectionType.Multiple, TypeConstraint.None, portName);
-                }
-            }
-
-            List<NodePort> portsToRemove = DynamicOutputs
-                .Where(p => p.fieldName.StartsWith("case "))
-                .Where(p =>
-                {
-                    int index;
-                    if (int.TryParse(p.fieldName.Replace("case ", ""), out index))
-                    {
-                        return index >= _cases.Count;
-                    }
-                    return true;
-                })
-                .ToList();
-
-            foreach (var port in portsToRemove)
-            {
-                RemoveDynamicPort(port);
-            }
-        }
-
-        protected virtual void OnValidate()
-        {
-            SyncPorts();
-        }
+        protected virtual string GetPortName(T value) => "case " + value.ToString();
 
         private async UniTaskVoid HighlightBranchRecursiveAsync(NodePort startPort)
         {
-            Color color = Color.yellow;
-            HashSet<Node> branchNodes = new HashSet<Node> { this };
+            Color color = Color.cyan;
+            HashSet<Node> branchNodes = new HashSet<Node>();
+            branchNodes.Add(this);
             GetChildNodesRecursive(startPort, branchNodes);
 
             foreach (var node in branchNodes)
@@ -103,8 +58,7 @@ namespace SiphoinUnityHelpers.XNodeExtensions.NodesControlExecutes
 
             foreach (var node in branchNodes)
             {
-                if (node != null)
-                    NodeHighlighter.RemoveHighlight(node);
+                NodeHighlighter.RemoveHighlight(node);
             }
         }
 

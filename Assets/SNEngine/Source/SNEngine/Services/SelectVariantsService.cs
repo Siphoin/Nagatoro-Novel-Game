@@ -19,24 +19,20 @@ namespace SNEngine.Services
         public override void Initialize()
         {
             var window = Resources.Load<VariantsSelectWindow>("UI/WindowSelecVariants");
-
             var prefab = Object.Instantiate(window);
-
             prefab.name = window.name;
-
             Object.DontDestroyOnLoad(prefab);
 
             var uiService = NovelGame.Instance.GetService<UIService>();
-
             uiService.AddElementToUIContainer(prefab.gameObject);
 
             _window = prefab;
-
             _window.Hide();
         }
 
-        public void ShowVariants (IEnumerable<string> variants, bool hideCharacters = true, bool hideDialogWindow = true, bool returnCharactersVisible = true, AnimationButtonsType animationType = AnimationButtonsType.None)
+        public void ShowVariants(IEnumerable<string> variants, bool hideCharacters = true, bool hideDialogWindow = true, bool returnCharactersVisible = true, AnimationButtonsType animationType = AnimationButtonsType.None)
         {
+            _window.OnSelect -= OnSelectVariant;
             _window.OnSelect += OnSelectVariant;
 
             _window.ShowVariants(variants, hideCharacters, hideDialogWindow, returnCharactersVisible, animationType);
@@ -53,10 +49,14 @@ namespace SNEngine.Services
             if (_flagShowInvolvedCharacters)
             {
                 var charactersService = NovelGame.Instance.GetService<CharacterService>();
-
                 charactersService.ShowInvolvedCharacters();
             }
 
+            _window.Hide();
+        }
+
+        public override void ResetState()
+        {
             _window.Hide();
         }
     }

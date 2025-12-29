@@ -17,7 +17,7 @@ namespace SNEngine.Polling
         {
             if (prefab == null)
             {
-                throw new ArgumentNullException(nameof(prefab), $"PoolMono<{typeof(T).Name}>: Prefab is null. Check your Resources paths.");
+                throw new ArgumentNullException(nameof(prefab), $"PoolMono<{typeof(T).Name}>: Prefab is null.");
             }
 
             Prefab = prefab;
@@ -44,7 +44,7 @@ namespace SNEngine.Polling
         {
             foreach (var mono in _pool)
             {
-                if (mono != null && !mono.gameObject.activeInHierarchy)
+                if (mono != null && !mono.gameObject.activeSelf)
                 {
                     element = mono;
                     return true;
@@ -66,7 +66,7 @@ namespace SNEngine.Polling
                 return CreateObject(true);
             }
 
-            throw new Exception($"PoolMono<{typeof(T).Name}>: No free elements and AutoExpand is disabled.");
+            throw new Exception($"PoolMono<{typeof(T).Name}>: No free elements.");
         }
 
         public void HideAllElements()
