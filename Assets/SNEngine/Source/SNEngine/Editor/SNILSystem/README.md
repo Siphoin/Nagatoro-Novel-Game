@@ -130,6 +130,35 @@ Nagatoro says How are you doing today?
 End
 ```
 
+## Displayed Instruction
+
+You can use the `Displayed` instruction to combine showing a character and displaying their dialogue in one step. This creates both a `ShowCharacterNode` and a `DialogNode` automatically.
+
+Syntax:
+```
+Displayed {character} says {text}
+```
+
+Or with emotion:
+```
+Displayed {character} says {text} with emotion {emotion}
+```
+
+Example:
+```
+name: ExampleDialogue
+Start
+Displayed Nagatoro says Hello there!
+Displayed Player says Hi Nagatoro! with emotion Happy
+End
+```
+
+Key details:
+- The instruction creates two nodes: `ShowCharacterNode` and `DialogNode`
+- The character is shown with the specified emotion (defaults to "Default" if not specified)
+- The character's dialogue is displayed after they appear
+- Both nodes are automatically connected in sequence
+
 ## If Show Variants (block instruction)
 
 You can define a conditional branch based on a `Show Variants` node using an `If Show Variant` block. The block displays a set of options to the player and contains labeled sections (e.g., `True:`, `False:` or variant-name sections) with instruction bodies that execute for the selected option.
