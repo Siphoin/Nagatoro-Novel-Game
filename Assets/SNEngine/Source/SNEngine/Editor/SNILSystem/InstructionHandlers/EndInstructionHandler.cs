@@ -53,8 +53,8 @@ namespace SNEngine.Editor.SNILSystem.InstructionHandlers
                 else
                     context.Variables.Add("EndNode", exitNode);
 
-                // Обновляем последнюю ноду
-                context.LastNode = exitNode;
+                // Connect the exit node to the previous node in the execution flow
+                NodeConnectionUtility.ConnectNodeToLast(dialogueGraph, exitNode, context);
             }
 
             return InstructionResult.Ok(exitNode);
