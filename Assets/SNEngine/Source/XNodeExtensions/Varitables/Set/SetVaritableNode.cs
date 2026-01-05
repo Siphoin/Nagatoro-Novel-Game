@@ -7,7 +7,7 @@ namespace SiphoinUnityHelpers.XNodeExtensions.Variables.Set
 {
     public abstract class SetVariableNode<T> : BaseNodeInteraction
     {
-        [Input(ShowBackingValue.Never, ConnectionType.Override), SerializeField] private T _Variable;
+        [Input(ShowBackingValue.Never, ConnectionType.Override), SerializeField] private T _variable;
 
         [Input, SerializeField] private T _value;
 
@@ -19,7 +19,7 @@ namespace SiphoinUnityHelpers.XNodeExtensions.Variables.Set
 
         public override void Execute()
         {
-            var outputVariable = GetInputPort(nameof(_Variable));
+            var outputVariable = GetInputPort(nameof(_variable));
             var inputValue = GetInputPort(nameof(_value));
             var connectedVariables = outputVariable.GetConnections();
 

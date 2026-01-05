@@ -10,7 +10,7 @@ namespace SiphoinUnityHelpers.XNodeExtensions.Editor
     {
         public override void OnBodyGUI()
         {
-            XNodeEditorHelpers.DrawGetGlobalVaritableBody(this, serializedObject);
+            XNodeEditorHelpers.DrawGetGlobalDictionaryBody(this, serializedObject);
         }
     }
 

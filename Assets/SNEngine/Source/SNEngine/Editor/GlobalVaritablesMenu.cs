@@ -10,7 +10,7 @@ namespace SNEngine.Editor
         [MenuItem("SNEngine/Open Global Variables Window")]
         public static void OpenGlobalVariables()
         {
-            string path = "Assets/SNEngine/Source/SNEngine/Resources/VaritableContainerGraph.asset";
+            string path = "Assets/SNEngine/Source/SNEngine/Resources/VariableContainerGraph.asset";
             VariableContainerGraph graph = AssetDatabase.LoadAssetAtPath<VariableContainerGraph>(path);
 
             if (graph != null)
