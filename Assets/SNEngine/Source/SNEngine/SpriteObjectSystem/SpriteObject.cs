@@ -2,9 +2,11 @@
 using DG.Tweening;
 using SNEngine.Animations;
 using SNEngine.CharacterSystem;
+using SNEngine.Debugging;
 using SNEngine.Extensions;
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace SNEngine.SpriteObjectSystem
@@ -15,6 +17,7 @@ namespace SNEngine.SpriteObjectSystem
         private SpriteRenderer _spriteRenderer;
         private Material _defaultMaterial;
         private Tween _currentTween;
+        private static readonly Dictionary<int, int> _runtimeSpriteRefCount = new();
         private Color DefaultColor
         {
             get
@@ -40,6 +43,19 @@ namespace SNEngine.SpriteObjectSystem
 
         public void SetSprite(Sprite sprite)
         {
+            if (_spriteRenderer.sprite != null) TryCleanupRuntimeSprite();
+
+            if (sprite != null && IsRuntimeSprite(sprite))
+            {
+                int id = sprite.GetInstanceID();
+                if (_runtimeSpriteRefCount.ContainsKey(id))
+                    _runtimeSpriteRefCount[id]++;
+                else
+                    _runtimeSpriteRefCount[id] = 1;
+
+                NovelGameDebug.Log($"[SpriteObject] Linked runtime sprite: {sprite.name} | Refs: {_runtimeSpriteRefCount[id]}");
+            }
+
             _spriteRenderer.sprite = sprite;
         }
 
@@ -48,14 +64,45 @@ namespace SNEngine.SpriteObjectSystem
             gameObject.SetActive(false);
         }
 
+        private void TryCleanupRuntimeSprite()
+        {
+            Sprite sprite = _spriteRenderer.sprite;
+            if (sprite == null || !IsRuntimeSprite(sprite)) return;
+
+            int id = sprite.GetInstanceID();
+
+            if (_runtimeSpriteRefCount.ContainsKey(id))
+            {
+                _runtimeSpriteRefCount[id]--;
+
+                if (_runtimeSpriteRefCount[id] <= 0)
+                {
+                    NovelGameDebug.Log($"[SpriteObject] Destroying runtime sprite: {sprite.name} (No more refs)");
+                    _runtimeSpriteRefCount.Remove(id);
+
+                    _spriteRenderer.sprite = null;
+
+                    if (Application.isPlaying)
+                        Destroy(sprite);
+                    else
+                        DestroyImmediate(sprite);
+                }
+                else
+                {
+                    NovelGameDebug.Log($"[SpriteObject] Sprite {sprite.name} still has {_runtimeSpriteRefCount[id]} refs.");
+                    _spriteRenderer.sprite = null;
+                }
+            }
+        }
         public void Show()
         {
-
+            _spriteRenderer.color = DefaultColor;
             gameObject.SetActive(true);
         }
 
         public void ResetState()
         {
+            TryCleanupRuntimeSprite();
             transform.position = Vector3.zero;
             transform.localScale = Vector3.one;
             transform.localRotation = Quaternion.identity;
@@ -68,8 +115,17 @@ namespace SNEngine.SpriteObjectSystem
             _spriteRenderer.flipX = false;
             _spriteRenderer.flipY = false;
             _spriteRenderer.material = _defaultMaterial;
-
             Hide();
+        }
+
+        private bool IsRuntimeSprite(Sprite sprite)
+        {
+            if (sprite == null) return false;
+#if UNITY_EDITOR
+            return !UnityEditor.EditorUtility.IsPersistent(sprite);
+#else
+    return true; 
+#endif
         }
 
         public T AddComponent<T>() where T : Component

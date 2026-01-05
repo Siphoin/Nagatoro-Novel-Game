@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using XNode;
 
 namespace SNEngine.SpriteObjectSystem
 {
@@ -14,8 +15,14 @@ namespace SNEngine.SpriteObjectSystem
             {
                 input.SetSprite(inputSprite);
             }
-            
+
             input.Show();
+        }
+
+        public override object GetValue(NodePort port)
+        {
+            if (port.fieldName == nameof(_sprite)) return _sprite;
+            return null;
         }
     }
 }

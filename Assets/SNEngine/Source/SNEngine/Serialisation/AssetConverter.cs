@@ -15,7 +15,6 @@ namespace SNEngine.Serialization
         {
             if (value == null) { writer.WriteNull(); return; }
             string guid = _library.GetGuid(value);
-            Debug.Log(guid);
             writer.WriteValue(guid);
         }
 

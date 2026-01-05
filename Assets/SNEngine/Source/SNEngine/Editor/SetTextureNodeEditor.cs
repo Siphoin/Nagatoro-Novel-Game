@@ -1,10 +1,14 @@
 ﻿#if UNITY_EDITOR
+using SiphoinUnityHelpers.Editor;
+using SiphoinUnityHelpers.XNodeExtensions;
+using SiphoinUnityHelpers.XNodeExtensions.Editor;
+using SiphoinUnityHelpers.XNodeExtensions.Variables;
+using SiphoinUnityHelpers.XNodeExtensions.Variables.Set;
+using SNEngine.Graphs;
 using UnityEditor;
 using UnityEngine;
+using XNode;
 using XNodeEditor;
-using SiphoinUnityHelpers.XNodeExtensions.Variables.Set;
-using SiphoinUnityHelpers.XNodeExtensions.Editor;
-using SiphoinUnityHelpers.Editor;
 
 namespace SNEngine.Editor
 {
@@ -14,18 +18,53 @@ namespace SNEngine.Editor
         public override void OnBodyGUI()
         {
             serializedObject.Update();
+            SetTextureNode node = target as SetTextureNode;
 
             foreach (var tag in NodeEditorGUILayout.GetFilteredFields(serializedObject))
             {
-                if (tag.name == "_varitable" || tag.name == "_targetGuid" || tag.name == "_enumerable") continue;
-                if (tag.name == "_value") continue;
+                if (tag.name == "_variable" || tag.name == "_targetGuid" || tag.name == "_enumerable") continue;
+                if (tag.name == "_value" || tag.name == "_inputTexture") continue;
 
                 SerializedProperty p = serializedObject.FindProperty(tag.name);
                 if (p != null) NodeEditorGUILayout.PropertyField(p);
             }
 
-            GUILayout.Space(5);
+            DrawVariableSelector(node);
 
+            GUILayout.Space(5);
+            DrawTexturePreview();
+
+            NodePort inputPort = node.GetInputPort("_inputTexture");
+            if (inputPort != null)
+            {
+                NodeEditorGUILayout.PortField(new GUIContent("Texture Input"), inputPort);
+            }
+
+            serializedObject.ApplyModifiedProperties();
+        }
+
+        private void DrawVariableSelector(SetTextureNode node)
+        {
+            string currentVarName = "Select Target Variable";
+            if (!string.IsNullOrEmpty(node.TargetGuid))
+            {
+                var targetNode = (node.graph as BaseGraph)?.GetNodeByGuid(node.TargetGuid) as VariableNode;
+                if (targetNode != null) currentVarName = $"Target: {targetNode.name}";
+            }
+
+            if (GUILayout.Button(currentVarName, GUILayout.Height(25)))
+            {
+                VariableselectorWindow.Open(node.graph as BaseGraph, typeof(Texture), (selectedNode) =>
+                {
+                    var so = new SerializedObject(node);
+                    so.FindProperty("_targetGuid").stringValue = selectedNode.GUID;
+                    so.ApplyModifiedProperties();
+                }, VariableselectorWindow.SelectorMode.LocalOnly);
+            }
+        }
+
+        private void DrawTexturePreview()
+        {
             SerializedProperty valueProp = serializedObject.FindProperty("_value");
             Texture2D currentTexture = valueProp.objectReferenceValue as Texture2D;
 
@@ -33,18 +72,14 @@ namespace SNEngine.Editor
             GUI.backgroundColor = currentTexture != null ? new Color(0.4f, 0.75f, 0.45f) : new Color(0.75f, 0.4f, 0.4f);
 
             EditorGUILayout.BeginVertical(GUI.skin.box);
-            Rect rect = GUILayoutUtility.GetRect(10, currentTexture != null ? 70 : 30);
+            Rect rect = GUILayoutUtility.GetRect(10, currentTexture != null ? 80 : 35);
 
-            if (GUI.Button(rect, currentTexture == null ? "Select Texture" : ""))
+            if (GUI.Button(rect, currentTexture == null ? "Select Static Texture" : ""))
             {
                 TextureSelectorWindow.Open((selected) => {
                     var so = new SerializedObject(target);
                     var p = so.FindProperty("_value");
-                    if (p != null)
-                    {
-                        p.objectReferenceValue = selected;
-                        so.ApplyModifiedProperties();
-                    }
+                    if (p != null) { p.objectReferenceValue = selected; so.ApplyModifiedProperties(); }
                 });
             }
 
@@ -58,14 +93,6 @@ namespace SNEngine.Editor
             }
             EditorGUILayout.EndVertical();
             GUI.backgroundColor = prevBg;
-
-            var inputPort = target.GetInputPort("_varitable");
-            if (inputPort != null && !inputPort.IsConnected)
-            {
-                XNodeEditorHelpers.DrawSetVaritableBody(this, serializedObject);
-            }
-
-            serializedObject.ApplyModifiedProperties();
         }
     }
 }

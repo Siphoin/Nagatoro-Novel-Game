@@ -16,6 +16,7 @@ namespace SiphoinUnityHelpers.XNodeExtensions.Variables.Set
         private T _editorOldValue;
 
         public string TargetGuid { get => _targetGuid; set => _targetGuid = value; }
+        protected T Value { get => _value; set => _value = value; }
 
         public override void Execute()
         {
