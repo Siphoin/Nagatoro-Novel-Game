@@ -24,11 +24,11 @@ namespace SiphoinUnityHelpers.XNodeExtensions.NodesControlExecutes.Switch
             T val = GetDataFromPort<T>(nameof(_value));
             NodePort targetPort = GetOutputPort(nameof(_default));
 
-            foreach (var caseVal in _cases)
+            for (int i = 0; i < _cases.Count; i++)
             {
-                if (EqualityComparer<T>.Default.Equals(val, caseVal))
+                if (EqualityComparer<T>.Default.Equals(val, _cases[i]))
                 {
-                    targetPort = GetOutputPort(GetPortName(caseVal));
+                    targetPort = GetOutputPort(GetPortName(i));
                     break;
                 }
             }
@@ -40,7 +40,7 @@ namespace SiphoinUnityHelpers.XNodeExtensions.NodesControlExecutes.Switch
             }
         }
 
-        protected virtual string GetPortName(T value) => "case " + value.ToString();
+        protected virtual string GetPortName(int index) => "case_" + index;
 
         private async UniTaskVoid HighlightBranchRecursiveAsync(NodePort startPort)
         {
