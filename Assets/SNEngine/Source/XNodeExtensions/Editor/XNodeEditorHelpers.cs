@@ -117,7 +117,7 @@ namespace SiphoinUnityHelpers.XNodeExtensions.Editor
             serializedObject.Update();
             foreach (var tag in NodeEditorGUILayout.GetFilteredFields(serializedObject))
             {
-                if (tag.name == "_targetGuid") continue;
+                if (tag.name == "_targetGuid" || tag.name == "_index") continue;
 
                 if (tag.name == "_variable")
                 {
@@ -130,6 +130,36 @@ namespace SiphoinUnityHelpers.XNodeExtensions.Editor
                     else
                     {
                         DrawSelector(editor, serializedObject, "_targetGuid", VariableselectorWindow.SelectorMode.All);
+
+                        var guidProp = serializedObject.FindProperty("_targetGuid");
+                        var targetNode = FindVariableByGuid(editor.target.graph as BaseGraph, guidProp.stringValue, false);
+
+                        if (targetNode != null)
+                        {
+                            Type nodeType = targetNode.GetType();
+                            bool isCollection = false;
+
+                            Type currentType = nodeType;
+                            while (currentType != null && currentType != typeof(object))
+                            {
+                                if (currentType.IsGenericType && currentType.GetGenericTypeDefinition() == typeof(VariableCollectionNode<>))
+                                {
+                                    isCollection = true;
+                                    break;
+                                }
+                                currentType = currentType.BaseType;
+                            }
+
+                            if (isCollection)
+                            {
+                                EditorGUILayout.Space(2);
+                                SerializedProperty indexProp = serializedObject.FindProperty("_index");
+                                if (indexProp != null)
+                                {
+                                    NodeEditorGUILayout.PropertyField(indexProp, new GUIContent("Index"));
+                                }
+                            }
+                        }
                     }
                     GUILayout.Space(5);
                     continue;
@@ -140,7 +170,6 @@ namespace SiphoinUnityHelpers.XNodeExtensions.Editor
             }
             serializedObject.ApplyModifiedProperties();
         }
-
         // --- INTERNAL HELPERS ---
 
         private static void DrawKeyPopup(SerializedProperty keyProp, VariableNode dictNode)

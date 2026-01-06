@@ -8,10 +8,9 @@ namespace SiphoinUnityHelpers.XNodeExtensions.Variables.Set
     public abstract class SetVariableNode<T> : BaseNodeInteraction
     {
         [Input(ShowBackingValue.Never, ConnectionType.Override), SerializeField] private T _variable;
-
         [Input, SerializeField] private T _value;
-
         [HideInInspector, SerializeField] private string _targetGuid;
+        [HideInInspector, SerializeField] private int _index;
 
         private T _editorOldValue;
 
@@ -49,6 +48,13 @@ namespace SiphoinUnityHelpers.XNodeExtensions.Variables.Set
                 if (targetNode is VariableNode<T> typedNode)
                 {
                     SetTypedValue(typedNode, finalValue);
+                }
+                else if (targetNode is VariableCollectionNode<T> collectionNode)
+                {
+                    if (finalValue is T castValue)
+                    {
+                        collectionNode.SetValue(_index, castValue);
+                    }
                 }
             }
             else

@@ -4,7 +4,7 @@ namespace SiphoinUnityHelpers.XNodeExtensions.AsyncNodes
 {
     public abstract class AsyncNodeWithSeconds : AsyncNode
     {
-        [Input(connectionType = ConnectionType.Override), SerializeField] private float _seconds;
+        [Input(connectionType = ConnectionType.Override), SerializeField, Min(0)] private float _seconds;
 
         protected float GetSeconds()
         {
