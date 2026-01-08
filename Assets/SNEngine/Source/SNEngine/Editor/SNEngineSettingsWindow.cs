@@ -88,6 +88,11 @@ namespace SNEngine.Editor
             {
                 _runtimeSettingsSO.Update();
 
+                SerializedProperty showSplashProp = _runtimeSettingsSO.FindProperty(nameof(SNEngineRuntimeSettings.ShowVideoSplash));
+                EditorGUILayout.PropertyField(showSplashProp, new GUIContent("Show Video Splash"));
+
+                EditorGUILayout.Space(5);
+
                 SerializedProperty enableCrossfadeProp = _runtimeSettingsSO.FindProperty(nameof(SNEngineRuntimeSettings.EnableCrossfade));
                 SerializedProperty crossfadeDurationProp = _runtimeSettingsSO.FindProperty(nameof(SNEngineRuntimeSettings.CrossfadeDuration));
                 SerializedProperty crossfadeEaseProp = _runtimeSettingsSO.FindProperty(nameof(SNEngineRuntimeSettings.CrossfadeEase));

@@ -16,6 +16,12 @@ namespace SNEngine.Editor
             "SNENGINE_SUPPORT"
         };
 
+        private static readonly string[] ENGINE_SCENES =
+        {
+            "Assets/SNEngine/Source/SNEngine/Scenes/Splash.unity",
+            "Assets/SNEngine/Source/SNEngine/Scenes/Main.unity"
+        };
+
         private static readonly string WINDOW_PREF_KEY = "SNEngine.WelcomeWindow.ShowOnStartup";
 
         private Vector2 scrollPosition;
@@ -29,7 +35,7 @@ namespace SNEngine.Editor
         public static void ShowWindow()
         {
             var window = GetWindow<WelcomeWindow>("SNEngine Welcome");
-            window.minSize = new Vector2(500, 500);
+            window.minSize = new Vector2(500, 550);
             window.titleContent = new GUIContent("SNEngine Welcome");
         }
 
@@ -78,15 +84,6 @@ namespace SNEngine.Editor
 
             scrollPosition = EditorGUILayout.BeginScrollView(scrollPosition);
 
-            GUILayout.Label(
-                "This setup will:\n" +
-                "• Add Scripting Define Symbols\n" +
-                "• Import TextMesh Pro Essential Resources\n" +
-                "• Setup Script Execution Order\n" +
-                "• Assign Default Project Icon",
-                descriptionStyle
-            );
-
             GUILayout.Space(10);
             GUILayout.Label("Current Status:", headerStyle);
 
@@ -99,6 +96,9 @@ namespace SNEngine.Editor
                 GUI.color = exists ? Color.green : Color.yellow;
                 GUILayout.Label($"{(exists ? "✓" : "+")} {symbol}", descriptionStyle);
             }
+
+            GUI.color = PlayerSettings.SplashScreen.show ? Color.yellow : Color.green;
+            GUILayout.Label($"{(PlayerSettings.SplashScreen.show ? "+" : "✓")} Splash Screen Disabled", descriptionStyle);
 
             GUI.color = Color.white;
 
@@ -125,15 +125,38 @@ namespace SNEngine.Editor
         private void PerformFullSetup()
         {
             AddDefineSymbols();
+            DisableUnitySplash();
+            SetupSceneList();
+
             ExecutionOrderManager.SetExecutionOrder();
             AutoIconAssigner.Assign();
             InstallTextMeshProEssentials();
 
             EditorUtility.DisplayDialog(
                 "Setup Complete",
-                "SNEngine configuration finished.",
+                "SNEngine configuration finished",
                 "OK"
             );
+        }
+
+        private void DisableUnitySplash()
+        {
+            PlayerSettings.SplashScreen.show = false;
+        }
+
+        private void SetupSceneList()
+        {
+            List<EditorBuildSettingsScene> buildScenes = new List<EditorBuildSettingsScene>();
+
+            foreach (string scenePath in ENGINE_SCENES)
+            {
+                if (AssetDatabase.LoadAssetAtPath<SceneAsset>(scenePath) != null)
+                {
+                    buildScenes.Add(new EditorBuildSettingsScene(scenePath, true));
+                }
+            }
+
+            EditorBuildSettings.scenes = buildScenes.ToArray();
         }
 
         private void AddDefineSymbols()

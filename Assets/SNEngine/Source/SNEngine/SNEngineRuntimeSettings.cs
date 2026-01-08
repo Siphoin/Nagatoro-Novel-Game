@@ -6,6 +6,7 @@ namespace SNEngine
     [CreateAssetMenu(fileName = "SNEngineRuntimeSettings", menuName = "SNEngine/Runtime Settings")]
     public class SNEngineRuntimeSettings : ScriptableObject
     {
+        public bool ShowVideoSplash = true;
         public bool EnableCrossfade = true;
         public float CrossfadeDuration = 0.3f;
         public Ease CrossfadeEase = Ease.Linear;
@@ -22,7 +23,6 @@ namespace SNEngine
 
                     if (_instance == null)
                     {
-                        Debug.LogError("SNEngineRuntimeSettings.asset not found in Resources folder. Using default values.");
                         _instance = ScriptableObject.CreateInstance<SNEngineRuntimeSettings>();
                     }
                 }
