@@ -80,8 +80,6 @@ namespace SNEngine
         {
             if (_cancellationTokenSource != null)
             {
-                if (EventSystem.current != null && EventSystem.current.IsPointerOverGameObject())
-                    return;
                 if (key == KeyCode.Space || key == KeyCode.Mouse0)
                     EndWrite();
             }

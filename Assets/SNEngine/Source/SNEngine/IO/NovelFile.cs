@@ -17,7 +17,7 @@ namespace SNEngine.IO
 
         static async UniTask<T> WithStream<T>(string path, FileMode mode, FileAccess access, FileShare share, Func<Stream, UniTask<T>> action)
         {
-            using var stream = new FileStream(path, mode, access, share, 4096, true);
+            using var stream = new FileStream(path, mode, access, FileShare.ReadWrite, 4096, true);
             return await action(stream);
         }
 
@@ -69,7 +69,7 @@ namespace SNEngine.IO
                 return ReadStreamingAssetsTextAsync(path, encoding);
             }
 
-            return WithStream(path, FileMode.Open, FileAccess.Read, FileShare.Read, async s =>
+            return WithStream(path, FileMode.Open, FileAccess.Read, FileShare.ReadWrite, async s =>
             {
                 encoding ??= Encoding.UTF8;
                 using var reader = new StreamReader(s, encoding);
@@ -95,7 +95,7 @@ namespace SNEngine.IO
         }
 
         public static UniTask WriteAllTextAsync(string path, string contents, Encoding encoding = null) =>
-            WithStream(path, FileMode.Create, FileAccess.Write, FileShare.None, async s =>
+            WithStream(path, FileMode.Create, FileAccess.Write, FileShare.ReadWrite, async s =>
             {
                 encoding ??= Encoding.UTF8;
                 using var writer = new StreamWriter(s, encoding);
@@ -115,15 +115,13 @@ namespace SNEngine.IO
                 return ReadStreamingAssetsBytesAsync(path);
             }
 
-            return WithStream(path, FileMode.Open, FileAccess.Read, FileShare.Read, async s =>
+            return WithStream(path, FileMode.Open, FileAccess.Read, FileShare.ReadWrite, async s =>
             {
                 var buffer = new byte[s.Length];
                 await s.ReadAsync(buffer, 0, buffer.Length);
                 return buffer;
             });
         }
-
-
 
         public static byte[] ReadAllBytes(string path)
         {
@@ -141,12 +139,12 @@ namespace SNEngine.IO
         }
 
         public static UniTask WriteAllBytesAsync(string path, byte[] bytes) =>
-            WithStream(path, FileMode.Create, FileAccess.Write, FileShare.None, s => s.WriteAsync(bytes, 0, bytes.Length).AsUniTask());
+            WithStream(path, FileMode.Create, FileAccess.Write, FileShare.ReadWrite, s => s.WriteAsync(bytes, 0, bytes.Length).AsUniTask());
 
         public static void WriteAllBytes(string path, byte[] bytes) => File.WriteAllBytes(path, bytes);
 
         public static UniTask AppendAllTextAsync(string path, string contents, Encoding encoding = null) =>
-            WithStream(path, FileMode.Append, FileAccess.Write, FileShare.None, async s =>
+            WithStream(path, FileMode.Append, FileAccess.Write, FileShare.ReadWrite, async s =>
             {
                 encoding ??= Encoding.UTF8;
                 using var writer = new StreamWriter(s, encoding);
@@ -160,7 +158,7 @@ namespace SNEngine.IO
         }
 
         public static UniTask AppendAllBytesAsync(string path, byte[] bytes) =>
-            WithStream(path, FileMode.Append, FileAccess.Write, FileShare.None, s => s.WriteAsync(bytes, 0, bytes.Length).AsUniTask());
+            WithStream(path, FileMode.Append, FileAccess.Write, FileShare.ReadWrite, s => s.WriteAsync(bytes, 0, bytes.Length).AsUniTask());
 
         static async UniTask<bool> ExistsStreamingAssetsAsync(string path)
         {

@@ -96,7 +96,6 @@ namespace SNEngine.SpriteObjectSystem
         }
         public void Show()
         {
-            _spriteRenderer.color = DefaultColor;
             gameObject.SetActive(true);
         }
 

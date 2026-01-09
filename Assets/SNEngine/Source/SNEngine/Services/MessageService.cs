@@ -86,8 +86,6 @@ namespace SNEngine.Source.SNEngine.Services
         {
             var dialogNode = node as IDialogOnScreenNode;
             if (dialogNode == null) return;
-            
-            ShowMessage(dialogNode);
         }
 
         public override void ResetState()
