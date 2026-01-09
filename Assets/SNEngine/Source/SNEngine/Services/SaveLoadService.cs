@@ -35,6 +35,52 @@ namespace SNEngine.SaveSystem
 #endif
         }
 
+        public SaveData CaptureCurrentState()
+        {
+            var dialogueService = NovelGame.Instance.GetService<DialogueService>();
+            var globalVariablesService = NovelGame.Instance.GetService<VariablesContainerService>();
+
+            if (dialogueService.CurrentDialogue is not DialogueGraph dialogueGraph)
+            {
+                return null;
+            }
+
+            var nodeGuid = dialogueGraph.CurrentExecuteNode.GUID;
+            var variables = dialogueGraph.Variables;
+            var globalVariables = globalVariablesService.GlobalVariables;
+
+            Dictionary<string, object> variablesData = new();
+            foreach (var variable in variables)
+            {
+                variablesData.Add(variable.Value.GUID, variable.Value.GetCurrentValue());
+            }
+
+            Dictionary<string, object> globalVariablesData = new();
+            foreach (var variable in globalVariables)
+            {
+                globalVariablesData.Add(variable.Value.GUID, variable.Value.GetCurrentValue());
+            }
+
+            return new SaveData
+            {
+                CurrentNode = nodeGuid,
+                Variables = variablesData,
+                GlobalVariables = globalVariablesData,
+                DialogueGUID = dialogueGraph.GUID,
+                DateSave = System.DateTime.Now,
+                NodesData = ExtractSaveDataFromGraph(dialogueGraph),
+            };
+        }
+
+        public async UniTask SaveCurrentState(string saveName)
+        {
+            SaveData saveData = CaptureCurrentState();
+            if (saveData != null)
+            {
+                await Save(saveName, saveData);
+            }
+        }
+
         private UniTask Save(string saveName, SaveData data)
         {
             if (_provider == null)
@@ -116,37 +162,30 @@ namespace SNEngine.SaveSystem
                 .Select(x => x.Value)
                 .OfType<ISaveProgressNode>();
 
-            IEnumerable<VariableNode> VariableNodes = graph.nodes
+            IEnumerable<VariableNode> variableNodes = graph.nodes
                 .OfType<VariableNode>();
 
             var globalVariables = NovelGame.Instance.GetService<VariablesContainerService>().GlobalVariables;
 
             foreach (var node in nodes)
             {
-                var data = saveData.NodesData;
-
-                if (data.TryGetValue(node.GUID, out var savedData))
+                if (saveData.NodesData.TryGetValue(node.GUID, out var savedData))
                 {
                     node.SetDataFromSave(savedData);
                 }
-
                 else
                 {
-                    NovelGameDebug.LogError($"save data for node {node.GUID} not founs");
+                    NovelGameDebug.LogError($"save data for node {node.GUID} not found");
                 }
             }
 
-            foreach (var node in VariableNodes)
+            foreach (var node in variableNodes)
             {
                 _originalVariableValues[node.GUID] = node.GetStartValue();
-
-                var data = saveData.Variables;
-
-                if (data.TryGetValue(node.GUID, out var savedData))
+                if (saveData.Variables.TryGetValue(node.GUID, out var savedData))
                 {
                     node.SetValue(savedData);
                 }
-
                 else
                 {
                     NovelGameDebug.LogError($"save data for node {node.GUID} not found");
@@ -156,14 +195,10 @@ namespace SNEngine.SaveSystem
             foreach (var node in globalVariables.Values)
             {
                 _originalVariableValues[node.GUID] = node.GetStartValue();
-
-                var data = saveData.GlobalVariables;
-
-                if (data.TryGetValue(node.GUID, out var savedData))
+                if (saveData.GlobalVariables.TryGetValue(node.GUID, out var savedData))
                 {
                     node.SetValue(savedData);
                 }
-
                 else
                 {
                     NovelGameDebug.LogError($"save data for node {node.GUID} not found");
@@ -174,12 +209,10 @@ namespace SNEngine.SaveSystem
             graph.OnEndExecute -= RestoreOriginalVariableValues;
             graph.OnEndExecute += RestoreOriginalVariableValues;
 #endif
-
         }
 
         public void ResetDataGraph(DialogueGraph graph)
         {
-
             IEnumerable<ISaveProgressNode> nodes = graph.AllNodes
                 .Select(x => x.Value)
                 .OfType<ISaveProgressNode>();
@@ -188,7 +221,6 @@ namespace SNEngine.SaveSystem
             {
                 node.ResetSaveBehaviour();
             }
-
         }
 
         public Dictionary<string, object> ExtractSaveDataFromGraph(DialogueGraph graph)
@@ -200,57 +232,10 @@ namespace SNEngine.SaveSystem
 
             foreach (var node in nodes)
             {
-                var key = node.GUID;
-                var value = node.GetDataForSave();
-                result.Add(key, value);
+                result.Add(node.GUID, node.GetDataForSave());
             }
 
             return result;
-        }
-
-        public async UniTask SaveCurrentState(string saveName)
-        {
-            var dialogueService = NovelGame.Instance.GetService<DialogueService>();
-            var globalVariablesService = NovelGame.Instance.GetService<VariablesContainerService>();
-
-            if (dialogueService.CurrentDialogue is not DialogueGraph dialogueGraph)
-            {
-                return;
-            }
-
-            var nodeGuid = dialogueGraph.CurrentExecuteNode.GUID;
-            var Variables = dialogueGraph.Variables;
-            var globalVariables = globalVariablesService.GlobalVariables;
-
-            Dictionary<string, object> VariablesData = new();
-            foreach (var Variable in Variables)
-            {
-                var guid = Variable.Value.GUID;
-                var valueNode = Variable.Value.GetCurrentValue();
-                VariablesData.Add(guid, valueNode);
-            }
-
-            Dictionary<string, object> globalVariablesData = new();
-            foreach (var Variable in globalVariables)
-            {
-                var guid = Variable.Value.GUID;
-                var valueNode = Variable.Value.GetCurrentValue();
-                globalVariablesData.Add(guid, valueNode);
-            }
-
-            var nodesData = ExtractSaveDataFromGraph(dialogueGraph);
-
-            SaveData saveData = new()
-            {
-                CurrentNode = nodeGuid,
-                Variables = VariablesData,
-                GlobalVariables = globalVariablesData,
-                DialogueGUID = dialogueGraph.GUID,
-                DateSave = System.DateTime.Now,
-                NodesData = nodesData,
-            };
-
-            await Save(saveName, saveData);
         }
 
         public async UniTask<bool> DeleteSave(string saveName)
@@ -269,11 +254,11 @@ namespace SNEngine.SaveSystem
         {
             if (_originalVariableValues == null || _currentGraph == null) return;
 
-            IEnumerable<VariableNode> VariableNodes = _currentGraph.AllNodes
+            IEnumerable<VariableNode> variableNodes = _currentGraph.AllNodes
                 .Select(x => x.Value)
                 .OfType<VariableNode>();
 
-            foreach (var node in VariableNodes)
+            foreach (var node in variableNodes)
             {
                 if (_originalVariableValues.TryGetValue(node.GUID, out var originalValue))
                 {

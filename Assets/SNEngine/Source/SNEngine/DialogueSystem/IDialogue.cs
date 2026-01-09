@@ -1,4 +1,5 @@
-﻿using System;
+﻿using SiphoinUnityHelpers.XNodeExtensions;
+using System;
 
 namespace SNEngine.DialogSystem
 {
@@ -8,6 +9,7 @@ namespace SNEngine.DialogSystem
 
         event Action OnStartExecute;
         event Action OnEndExecute;
+        event Action<BaseNode> OnNextNode;
 
         void Execute();
         bool HasNextDialogueOnExit();

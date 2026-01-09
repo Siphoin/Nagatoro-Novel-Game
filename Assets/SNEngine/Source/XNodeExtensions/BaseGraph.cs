@@ -17,7 +17,7 @@ namespace SiphoinUnityHelpers.XNodeExtensions
 
         private NodeQueue _queue;
 
-        private IDictionary<string, VariableNode> _Variables;
+        private IDictionary<string, VariableNode> _variables;
         public event Action OnStartExecute;
         public event Action OnEndExecute;
 
@@ -30,7 +30,7 @@ namespace SiphoinUnityHelpers.XNodeExtensions
 
         protected NodeQueue Queue => _queue;
 
-        public IDictionary<string, VariableNode> Variables => _Variables;
+        public IDictionary<string, VariableNode> Variables => _variables;
 
         public IReadOnlyDictionary<string, BaseNode> AllNodes
         {
@@ -117,7 +117,7 @@ namespace SiphoinUnityHelpers.XNodeExtensions
 
         protected void BuidVariableNodes()
         {
-            if (_Variables is null)
+            if (_variables is null)
             {
                 Dictionary<string, VariableNode> nodes = new Dictionary<string, VariableNode>();
 
@@ -130,13 +130,13 @@ namespace SiphoinUnityHelpers.XNodeExtensions
                     }
                 }
 
-                _Variables = nodes;
+                _variables = nodes;
             }
         }
 
         public T GetValueFromVariable<T>(string name)
         {
-            var node = _Variables[name];
+            var node = _variables[name];
 
             if (node is null)
             {

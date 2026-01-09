@@ -1,9 +1,12 @@
 ﻿using System;
 using System.Linq;
+using SiphoinUnityHelpers.XNodeExtensions;
 using SNEngine.Debugging;
 using SNEngine.DialogSystem;
 using SNEngine.Graphs;
+using SNEngine.SaveSystem;
 using SNEngine.SaveSystem.Models;
+using SNEngine.SaveSystem.UI;
 using SNEngine.Source.SNEngine.MessageSystem;
 using SNEngine.Source.SNEngine.Services;
 using UnityEngine;
@@ -50,6 +53,7 @@ namespace SNEngine.Services
 
             _currentDialogue.OnStartExecute += OnStartExecute;
             _currentDialogue.OnEndExecute += OnEndExecute;
+            _currentDialogue.OnNextNode += OnNextNode;
 
             NovelGameDebug.Log($"Jump To Dialogue: {_currentDialogue.Name}");
 
@@ -58,9 +62,21 @@ namespace SNEngine.Services
             NovelGame.Instance.GetService<OpenMessageWindowButtonService>().Show();
         }
 
+        private void OnNextNode(BaseNode node)
+        {
+            if (node is BaseNodeInteraction _)
+            {
+                var saveLoadService = NovelGame.Instance.GetService<SaveLoadService>();
+                SaveData saveData = saveLoadService.CaptureCurrentState();
+                var snapShotService = NovelGame.Instance.GetService<SnapshotService>();
+                snapShotService.PushSnapshot(saveData);
+            }
+        }
+
         private void OnStartExecute()
         {
-            Debug.Log(nameof(OnStartExecute));
+            var snapshotService = NovelGame.Instance.GetService<SnapshotService>();
+            snapshotService.InitializeSession("testSnss");
             _currentDialogue.OnStartExecute -= OnStartExecute;
         }
 
@@ -102,6 +118,8 @@ namespace SNEngine.Services
 
             ClearScreen();
             NodeHighlighter.ClearAllHighlights();
+            var snapshotService = NovelGame.Instance.GetService<SnapshotService>();
+            snapshotService.Dispose();
         }
 
 
