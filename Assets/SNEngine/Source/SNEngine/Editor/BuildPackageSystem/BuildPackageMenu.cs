@@ -1,101 +1,113 @@
-using UnityEngine;
-using UnityEngine.UI;
-using UnityEngine.Video;
-using UnityEngine.SceneManagement;
+using System;
 using System.IO;
+using System.Threading.Tasks;
+using UnityEditor;
+using UnityEngine;
+using System.Diagnostics;
 
-namespace SNEngine
+namespace SNEngine.Editor.BuildPackageSystem
 {
-    [RequireComponent(typeof(VideoPlayer))]
-    [RequireComponent(typeof(RawImage))]
-    [RequireComponent(typeof(AspectRatioFitter))]
-    public class SplashVideoPlayer : MonoBehaviour
+    public static class BuildPackageMenu
     {
-#if SNENGINE_FMOD
-        private const string VIDEO_PATH = "SNEngine_Splash_Screen_FMOD.mp4";
-#else
-        private const string VIDEO_PATH = "SNEngine_Splash_Screen.mp4";
-#endif
-        private const string MAIN_SCENE_NAME = "Main";
+        private const string MENU_1 = "SNEngine/Package/1. Run C++ Cleanup";
+        private const string MENU_2 = "SNEngine/Package/2. Create Blank Dialogue";
+        private const string MENU_3 = "SNEngine/Package/3. Create Blank Character";
+        private const string MENU_4 = "SNEngine/Package/4. Build Package";
+        private const string MENU_5 = "SNEngine/Package/5. Restore Project (Git)";
 
-        [SerializeField] private VideoPlayer _videoPlayer;
-        [SerializeField] private RawImage _rawImage;
-        [SerializeField] private AspectRatioFitter _aspectRatioFitter;
+        private const string CLEANER_TOOL_FOLDER = "Assets/SNEngine/Source/SNEngine/Editor/Utils/SNEngine_Cleaner";
 
-        private RenderTexture _renderTexture;
-
-        private void OnValidate()
+        [MenuItem(MENU_1)]
+        public static async void Step1_Cleanup()
         {
-            if (!_videoPlayer) _videoPlayer = GetComponent<VideoPlayer>();
-            if (!_rawImage) _rawImage = GetComponent<RawImage>();
-            if (!_aspectRatioFitter) _aspectRatioFitter = GetComponent<AspectRatioFitter>();
+            try
+            {
+                AssetDatabase.StartAssetEditing();
+                await RunCppCleanup();
+                AssetDatabase.StopAssetEditing();
+                AssetDatabase.Refresh();
+            }
+            catch (Exception e)
+            {
+                AssetDatabase.StopAssetEditing();
+                UnityEngine.Debug.LogError(e.Message);
+            }
         }
 
-        private void Start()
+        private static async Task RunCppCleanup()
         {
-            if (!SNEngineRuntimeSettings.Instance.ShowVideoSplash)
+            string root = GetProjectRoot();
+
+            // Определяем платформу и имя файла
+            string platformFolder = Application.platform == RuntimePlatform.WindowsEditor ? "Windows" : "Linux";
+            string exeName = Application.platform == RuntimePlatform.WindowsEditor ? "SNEngine_Cleaner.exe" : "SNEngine_Cleaner";
+
+            // Собираем полный путь с учетом новой структуры
+            string relativePath = Path.Combine(CLEANER_TOOL_FOLDER, platformFolder, exeName);
+            string fullPath = Path.GetFullPath(Path.Combine(root, relativePath));
+            string workDir = Path.GetDirectoryName(fullPath);
+
+            if (!File.Exists(fullPath))
             {
-                _rawImage.enabled = false;
-                LoadMainScene();
+                UnityEngine.Debug.LogError($"[Cleaner] EXE not found at: {fullPath}");
                 return;
             }
 
-            Initialize();
-        }
-
-        private void Initialize()
-        {
-            _videoPlayer.source = VideoSource.Url;
-            _videoPlayer.url = Path.Combine(Application.streamingAssetsPath, "Splash", VIDEO_PATH);
-            _videoPlayer.isLooping = false;
-            _videoPlayer.playOnAwake = false;
-            _videoPlayer.renderMode = VideoRenderMode.RenderTexture;
-            _videoPlayer.audioOutputMode = VideoAudioOutputMode.None;
-
-            _videoPlayer.prepareCompleted += OnPrepared;
-            _videoPlayer.loopPointReached += OnFinished;
-
-            _videoPlayer.Prepare();
-        }
-
-        private void OnPrepared(VideoPlayer source)
-        {
-            _renderTexture = new RenderTexture((int)source.width, (int)source.height, 24);
-            _renderTexture.Create();
-
-            _rawImage.texture = _renderTexture;
-            _videoPlayer.targetTexture = _renderTexture;
-
-            if (_aspectRatioFitter != null)
+            ProcessStartInfo si = new ProcessStartInfo
             {
-                _aspectRatioFitter.aspectMode = AspectRatioFitter.AspectMode.FitInParent;
-                _aspectRatioFitter.aspectRatio = (float)source.width / source.height;
-            }
+                FileName = fullPath,
+                Arguments = "\"" + root + "\"",
+                UseShellExecute = false,
+                CreateNoWindow = true,
+                WorkingDirectory = workDir
+            };
 
-            source.Play();
-        }
-
-        private void OnFinished(VideoPlayer source) => LoadMainScene();
-
-        private void LoadMainScene()
-        {
-            SceneManager.LoadScene(MAIN_SCENE_NAME);
-        }
-
-        private void OnDestroy()
-        {
-            _videoPlayer.prepareCompleted -= OnPrepared;
-            _videoPlayer.loopPointReached -= OnFinished;
-
-            if (_renderTexture != null)
+            using (Process p = Process.Start(si))
             {
-                if (_renderTexture.IsCreated())
-                {
-                    _renderTexture.Release();
-                }
-                Destroy(_renderTexture);
-                _renderTexture = null;
+                if (p != null) await Task.Run(() => p.WaitForExit());
             }
+        }
+
+        [MenuItem(MENU_2)]
+        public static void Step2()
+        {
+            DialogueCreatorEditor.CreateNewDialogueAsset();
+        }
+
+        [MenuItem(MENU_3)]
+        public static void Step3()
+        {
+            CharacterCreatorWindow.CreateBlankCharacter();
+        }
+
+        [MenuItem(MENU_4)]
+        public static void Step4_Build()
+        {
+            string exportPath = EditorUtility.OpenFolderPanel("Save Package", "", "");
+            if (string.IsNullOrEmpty(exportPath)) return;
+
+            string packagePath = Path.Combine(exportPath, "SNEngine.unitypackage");
+            string[] assets = { "Assets/SNEngine", "Assets/WebGLTemplates" };
+            AssetDatabase.ExportPackage(assets, packagePath, ExportPackageOptions.Recurse);
+        }
+
+        [MenuItem(MENU_5)]
+        public static void Step5_Restore() => RestoreGitState();
+
+        private static string GetProjectRoot() => Path.GetFullPath(Path.Combine(Application.dataPath, ".."));
+
+        private static void RestoreGitState()
+        {
+            ProcessStartInfo si = new ProcessStartInfo
+            {
+                FileName = "powershell.exe",
+                Arguments = "-Command \"git checkout .; git clean -fd\"",
+                UseShellExecute = false,
+                CreateNoWindow = true,
+                WorkingDirectory = GetProjectRoot()
+            };
+            using (Process p = Process.Start(si)) { p.WaitForExit(); }
+            AssetDatabase.Refresh();
         }
     }
 }
